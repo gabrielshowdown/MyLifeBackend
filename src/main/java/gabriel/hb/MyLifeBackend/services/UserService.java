@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import gabriel.hb.MyLifeBackend.entities.User;
 import gabriel.hb.MyLifeBackend.repositories.UserRepository;
 import gabriel.hb.MyLifeBackend.services.exceptions.DatabaseException;
+import gabriel.hb.MyLifeBackend.services.exceptions.InvalidLoginException;
 import gabriel.hb.MyLifeBackend.services.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 
@@ -25,8 +26,14 @@ public class UserService {
 	
 	public User findById(Long id) {
 		Optional<User> obj = repository.findById(id); // o findById retona um Optional
-		return obj.get(); // Pega o 'User' do obj;
+        return obj.orElseThrow(() -> new ResourceNotFoundException(id)); // Poderia ser um return obj.get(); para pegar o 'User' do obj;
 	}
+	
+	public User validateUser(String username, String senha) {
+		Optional<User> obj = repository.findByUsernameAndSenha(username, senha);
+		return obj.orElseThrow(() -> new InvalidLoginException(""));
+		// Caso quisesse o booleano, poderia colocar repository.findByUsernameAndSenha(username, senha).isPresent();
+    }
 	
 	public User insert(User obj) {
 		return repository.save(obj);

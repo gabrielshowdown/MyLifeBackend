@@ -2,6 +2,7 @@ package gabriel.hb.MyLifeBackend.resources;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +37,16 @@ public class UserResource {
 		User obj = service.findById(id);
 		return ResponseEntity.ok().body(obj);
 	}
+	
+	@PostMapping("/validate")
+    public ResponseEntity<User> validateLogin(@RequestBody Map<String, String> credentials) {
+        String username = credentials.get("username");
+        String password = credentials.get("senha");
+
+        User obj = service.validateUser(username, password);
+        // Se o usuário/senha estiver incorreto, já vai estourar exceção no service
+        return ResponseEntity.ok().body(obj);
+    }
 
 	@PostMapping // Método POST para insercao
 	public ResponseEntity<User> insert(@RequestBody User obj){ // Objeto chega como JSON e é deserializado para um obj user
