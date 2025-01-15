@@ -29,6 +29,10 @@ public class UserService {
         return obj.orElseThrow(() -> new ResourceNotFoundException(id)); // Poderia ser um return obj.get(); para pegar o 'User' do obj;
 	}
 	
+	public List<User> findByUsername(String name) {
+        return repository.findByUsername(name);
+    }
+	
 	public User validateUser(String username, String senha) {
 		Optional<User> obj = repository.findByUsernameAndSenha(username, senha);
 		return obj.orElseThrow(() -> new InvalidLoginException(""));

@@ -1,5 +1,6 @@
 package gabriel.hb.MyLifeBackend.config;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +21,8 @@ public class Test2Config implements CommandLineRunner{ // Interface que tem um m
 	@Override
 	public void run(String... args) throws Exception {
 		
-		User u1 = new User(null, "Maria Brown", "senha123", "F", "Jund"); 
-		User u2 = new User(null, "Alex Green", "senha123", "M", "Jundcity");
+		User u1 = new User(null, "Maria Brown", "senha123", "F", "Jund", LocalDate.of(2020, 1, 15)); 
+		User u2 = new User(null, "Alex Green", "senha123", "M", "Jundcity", LocalDate.parse("2024-01-20"));
 		
 		userRepository.saveAll(Arrays.asList(u1, u2));
 		

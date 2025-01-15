@@ -38,6 +38,12 @@ public class UserResource {
 		return ResponseEntity.ok().body(obj);
 	}
 	
+	@GetMapping(value = "/u/{username}")
+	public ResponseEntity<List<User>> findByUsername(@PathVariable String username) {
+        List<User> list = service.findByUsername(username);
+        return ResponseEntity.ok().body(list);
+    }
+	
 	@PostMapping("/validate")
     public ResponseEntity<User> validateLogin(@RequestBody Map<String, String> credentials) {
         String username = credentials.get("username");

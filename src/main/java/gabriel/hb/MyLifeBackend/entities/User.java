@@ -1,6 +1,7 @@
 package gabriel.hb.MyLifeBackend.entities;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.Objects;
 
 import jakarta.persistence.Entity;
@@ -23,19 +24,21 @@ public class User implements Serializable{
 	private String senha;
 	private String genero;
 	private String localizacao;
+	private LocalDate dataNascimento;
 	
 	// Construtores
 	public User() {
 		
 	}
 		
-	public User(Long id, String username, String senha, String genero, String localizacao) {
+	public User(Long id, String username, String senha, String genero, String localizacao, LocalDate dataNascimento) {
 		super();
 		this.id = id;
 		this.username = username;
 		this.senha = senha;
 		this.genero = genero;
 		this.localizacao = localizacao;
+		this.dataNascimento = dataNascimento;
 	}
 	
 	// Métodos Acessores
@@ -77,6 +80,13 @@ public class User implements Serializable{
 
 	public void setLocalizacao(String localizacao) {
 		this.localizacao = localizacao;
+	}
+	
+	public LocalDate getDataNascimento() {
+		return dataNascimento;
+	}
+	public void setData(LocalDate dataNascimento) {
+		this.dataNascimento = dataNascimento;
 	}
 	
 	// Métodos Acessores
