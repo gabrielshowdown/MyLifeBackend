@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import gabriel.hb.MyLifeBackend.services.exceptions.DatabaseException;
 import gabriel.hb.MyLifeBackend.services.exceptions.InvalidLoginException;
 import gabriel.hb.MyLifeBackend.services.exceptions.ResourceNotFoundException;
+import gabriel.hb.MyLifeBackend.services.exceptions.UserAlreadyRegisteredException;
 import jakarta.servlet.http.HttpServletRequest;
 
 @ControllerAdvice // Intercepta as exceções que acontecem, para que esse objeto faça um possível tratamento.
@@ -35,6 +36,14 @@ public class ResourceExceptionHandler {
 	public ResponseEntity<StandardError> invalidLogin(InvalidLoginException e, HttpServletRequest request){
 		String error = "Login invalid";
 		HttpStatus status = HttpStatus.UNAUTHORIZED;
+		StandardError err = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
+		return ResponseEntity.status(status).body(err);
+	}
+	
+	@ExceptionHandler(UserAlreadyRegisteredException.class) // Esse método 'userAlreadyRegistered' vai interceptar qq exceção desse tipo 'UserAlreadyRegisteredException' 
+	public ResponseEntity<StandardError> userAlreadyRegistered(UserAlreadyRegisteredException e, HttpServletRequest request){
+		String error = "Username already registered";
+		HttpStatus status = HttpStatus.CONFLICT;
 		StandardError err = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
 		return ResponseEntity.status(status).body(err);
 	}

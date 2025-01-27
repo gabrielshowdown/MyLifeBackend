@@ -12,6 +12,7 @@ import gabriel.hb.MyLifeBackend.repositories.UserRepository;
 import gabriel.hb.MyLifeBackend.services.exceptions.DatabaseException;
 import gabriel.hb.MyLifeBackend.services.exceptions.InvalidLoginException;
 import gabriel.hb.MyLifeBackend.services.exceptions.ResourceNotFoundException;
+import gabriel.hb.MyLifeBackend.services.exceptions.UserAlreadyRegisteredException;
 import jakarta.persistence.EntityNotFoundException;
 
 @Service // Registra a classe como um componente/service do spring e vai poder ser injetado no UserResource
@@ -40,7 +41,13 @@ public class UserService {
     }
 	
 	public User insert(User obj) {
-		return repository.save(obj);
+		if(findByUsername(obj.getUsername()).isEmpty()) {
+			return repository.save(obj);
+		}
+		else {
+			throw new UserAlreadyRegisteredException(" com o username: " + obj.getUsername());
+		}
+		//return repository.save(obj);
 	}
 	
 	public void delete(Long id) {
