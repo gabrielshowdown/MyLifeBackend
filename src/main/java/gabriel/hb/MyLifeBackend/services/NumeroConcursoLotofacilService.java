@@ -41,6 +41,10 @@ public class NumeroConcursoLotofacilService {
 	    } catch (DataIntegrityViolationException e) {			
 	        throw new DatabaseException(e.getMessage());		
 	    }	
-	} 
+	}
+	
+	public List<NumeroConcursoLotofacil> findByConcursoId(Long concursoId) {
+		return repository.findByConcursoId(concursoId);
+	}
 	
 }
