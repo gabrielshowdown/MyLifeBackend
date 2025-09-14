@@ -18,7 +18,7 @@ import gabriel.hb.MyLifeBackend.entities.TotaisParidadeLotofacil;
 import gabriel.hb.MyLifeBackend.services.TotaisParidadeLotofacilService;
 
 @RestController
-@RequestMapping(value = "/totaisParidadeLotofacil")
+@RequestMapping(value = "/totaisParidadesLotofacil")
 public class TotaisParidadeLotofacilResource {
 	
 	@Autowired //O Spring resolve essa injeção de dependencia e associar uma instancia de TotaisParidadeLotofacilService

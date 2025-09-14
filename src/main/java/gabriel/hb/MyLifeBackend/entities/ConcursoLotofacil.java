@@ -26,9 +26,9 @@ public class ConcursoLotofacil implements Serializable{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private int qtd_pares;
-    private int qtd_Impares;
-    private int qtd_Repetidos;
+    private int qtdPares; // É gerado como 'qtd_pares' no banco, seria como colocar um @Column(name="qtd_pares")
+    private int qtdImpares;
+    private int qtdRepetidos;
     
     @JsonIgnore
     @OneToMany(mappedBy = "concurso", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
@@ -39,9 +39,9 @@ public class ConcursoLotofacil implements Serializable{
     public ConcursoLotofacil() {
     }
 
-    public ConcursoLotofacil(int qtd_pares, int qtd_Impares) {
-        this.qtd_pares = qtd_pares;
-        this.qtd_Impares = qtd_Impares;
+    public ConcursoLotofacil(int qtdPares, int qtdImpares) {
+        this.qtdPares = qtdPares;
+        this.qtdImpares = qtdImpares;
     }
 
 	// Métodos Acessores
@@ -53,28 +53,28 @@ public class ConcursoLotofacil implements Serializable{
 		this.id = id;
 	}
 
-	public int getqtd_pares() {
-		return qtd_pares;
+	public int getQtdPares() {
+		return qtdPares;
 	}
 
-	public void setqtd_pares(int qtd_pares) {
-		this.qtd_pares = qtd_pares;
+	public void setQtdPares(int qtdPares) {
+		this.qtdPares = qtdPares;
 	}
 
 	public int getQtdImpares() {
-		return qtd_Impares;
+		return qtdImpares;
 	}
 
 	public void setQtdImpares(int qtdImpares) {
-		this.qtd_Impares = qtdImpares;
+		this.qtdImpares = qtdImpares;
 	}
 
 	public int getQtdRepetidos() {
-		return qtd_Repetidos;
+		return qtdRepetidos;
 	}
 
 	public void setQtdRepetidos(int qtdRepetidos) {
-		this.qtd_Repetidos = qtdRepetidos;
+		this.qtdRepetidos = qtdRepetidos;
 	}
 
 	public List<NumeroConcursoLotofacil> getNumerosConcurso() {
