@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import gabriel.hb.MyLifeBackend.entities.ConcursoLotofacil;
+import gabriel.hb.MyLifeBackend.resources.dto.generateContestRequestDTO;
 import gabriel.hb.MyLifeBackend.services.ConcursoLotofacilService;
 
 @RestController
@@ -43,6 +44,12 @@ public class ConcursoLotofacilResource {
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").
 				  buildAndExpand(obj.getId()).toUri();
 		return ResponseEntity.created(uri).body(obj); 
+	}
+	
+	@PostMapping("/generate") // Método POST para insercao
+	public ResponseEntity<ConcursoLotofacil> generateContest (@RequestBody generateContestRequestDTO obj){ // Objeto chega como JSON e é deserializado para um obj ConcursoLotofacil
+		ConcursoLotofacil contestGenerated = service.generateContest(obj.getConcursoAnteriorId(), obj.getQtdRepetidos(), obj.getQtdImpares(), obj.getQtdPares());
+		return ResponseEntity.ok().body(contestGenerated);
 	}
 	
 	@DeleteMapping(value = "/{id}") // Método DELETE do HTTP
