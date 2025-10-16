@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -52,15 +53,6 @@ public class ConcursoLotofacilService {
 	
 	public ConcursoLotofacil generateContest(Long concursoAnteriorId, int qtdRepetidos, int qtdImpares, int qtdPares) {
 		
-    	/**
-    	Cálculo que deve ser feito para verificar a compatibilidade do jogo gerado:
-    	
-    	Pegar o total desejado de repeticao e subtrair pelo menor do par ou impar
-    	Exemplo: se o ultimo jogo tiver 11I / 4P , e for informado rep 9
-    	Pegar o 9 e subtrair por 4 (que é o menor de par/impar, nesse caso o par)
-		Esse resultado de 5 colocar como impar 
-		Ou seja, o mínimo para um jogo é 5i/10p
-    	*/
 		
 		System.out.println("concursoAnteriorId " + concursoAnteriorId);
 		System.out.println("qtdRepetidos " + qtdRepetidos);
@@ -77,14 +69,14 @@ public class ConcursoLotofacilService {
 		
 		int impLastConc = 0;
     	int parLastConc = 0;
-    	int impNextConc = 0;
-    	int parNextConc = 0;
+    	boolean semRepeticao = false;
+    	int repetidosConcGener = 0;
+    	int imparesConcGener = 0;
+    	int paresConcGener = 0;
+		Set<Integer> concGenerate = new HashSet<>();
     	
-    	int menorPrd;
-    	String menorPrdString;
-    	int rep = 0;
-    	int qtdMinimaPrd;
-    	int nextConcurso;
+    	semRepeticao = (qtdRepetidos == 0) ?  true : false;
+    	
 		List<Integer>listIntUltConc = new ArrayList<>();
 		
 		ConcursoLotofacil c = findById(concursoAnteriorId);
@@ -96,39 +88,90 @@ public class ConcursoLotofacilService {
 		System.out.println("listIntUltConc " + listIntUltConc);
 		System.out.println("impLastConc " + impLastConc);
 		System.out.println("parLastConc " + parLastConc);
+		int minimoImpar;
+		int minimoPar;
 		
-		// Set do concurso que será gerado
-    	Set<Integer> concGenerate = new HashSet<>();
-    	
-    	// Verifica se tem mais impar ou impar (Por exemplo: o último conc tem 9Ie6P , o 'menorPrd' fica 6 e o 'menorPrdString'
-    	menorPrd = (impLastConc < parLastConc) ? impLastConc : parLastConc;
-    	menorPrdString = (impLastConc < parLastConc) ? "Impar" : "Par";
-    	System.out.println("Menor Paridade do último concurso : " + menorPrdString + " com " + menorPrd );
-    	
-    	// Lógica que verifica se é possível gerar um concurso com os atributos desejados
-    	qtdMinimaPrd = qtdRepetidos - menorPrd;
-    	
-    	if(menorPrdString.equals("Impar")) {
-    		impNextConc = 15 - qtdMinimaPrd;
-    		parNextConc = qtdMinimaPrd;
-    	}
-    	else{
-    		impNextConc = qtdMinimaPrd;
-    		parNextConc = 15 - qtdMinimaPrd;
-    	}
-    	
-    	System.out.println("Jogo mínino para o concurso é : " + impNextConc + "I/" + parNextConc + "P");
-    	
-		// Verifica se o valor digitado pelo usuário é menor que o jogo mínimo
-		if (menorPrdString.equals("Par") && (qtdImpares < impNextConc && qtdPares > parNextConc) || (menorPrdString.equals("Impar") && (qtdImpares > impNextConc && qtdPares < parNextConc))) {
-			throw new InvalidLParametersContestException ("Não é possível gerar o jogo! Jogo mínino para o concurso é : " + impNextConc + "I/" + parNextConc + "P");
+		minimoImpar = qtdRepetidos - parLastConc;
+		minimoPar = qtdRepetidos - impLastConc;
+		
+		System.out.println("minimoPar: " + minimoPar + " minimoImpar: " + minimoImpar);
+		
+		if (qtdImpares < minimoImpar || qtdPares < minimoPar && semRepeticao == false) {
+			
+			System.out.println("Impossível gerar jogo");
+			if (qtdImpares < minimoImpar) {
+				throw new InvalidLParametersContestException ("Não é possível gerar o jogo! Jogo mínino para o concurso é : " + minimoImpar + "I/" + (15 - minimoImpar) + "P");
+			}
+			else {
+				throw new InvalidLParametersContestException ("Não é possível gerar o jogo! Jogo mínino para o concurso é : " + (15 - minimoPar) + "I/" + minimoPar + "P");
+			}
 		}
 		else {
-			System.out.println("É possível gerar jogo : " + impNextConc + "I/" + parNextConc + "P");
-			int imparesConcGener = 0;
-			int repetidosConcGener = 0;
-    	
+			
+			System.out.println("É possível gerar");
+			boolean gameValidate = false;
+			
+			do {
+				int numero = new Random().nextInt(25) + 1;
+				
+				if (concGenerate.size() < 15) {
+					concGenerate.add(numero);
+				}
+				
+				// Indica que já preencheu tudo
+				if (concGenerate.size() == 15) { 
+					
+					imparesConcGener = 0;
+					
+					// Armezena quantos impares foram gerados no concurso
+					for (Integer n : concGenerate) {
+						if (n %2 == 1) {
+							imparesConcGener ++;
+						}
+						
+					}
+					
+					if (qtdImpares == imparesConcGener) {
+						gameValidate = true;
+					}
+					else {
+						concGenerate.clear();
+						gameValidate = false;
+						imparesConcGener = 0;
+					}
+					
+					if (gameValidate = true) {
+						
+						repetidosConcGener = 0;
+						
+						for (int i = 0; i < 15; i++) {
+							if (concGenerate.contains(listIntUltConc.get(i))) {
+								repetidosConcGener ++;								
+							}
+						}
+						
+						if (qtdRepetidos == repetidosConcGener || semRepeticao == true) {
+							gameValidate = true;
+							// System.out.println("Os números repetidos do jogo anterior " + repetidosConcGener + ", batem com o selecionado pelo usuário " + qtdRepetidos);
+						}
+						else {
+							gameValidate = false;
+							concGenerate.clear();
+							// System.out.println("Os números repetidos do jogo anterior " + repetidosConcGener + ", não batem com o selecionado pelo usuário " + qtdRepetidos);
+							repetidosConcGener = 0;
+						}
+						
+					}
+					
+				}
+				
+				
+			} while(concGenerate.size() < 15 && gameValidate == false);
 		}
+		
+		System.out.println("concGenerate: " + concGenerate);
+    	
+    	
 		return null;
 	}
 	
