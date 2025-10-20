@@ -25,7 +25,6 @@ public class NumeroConcursoLotofacil implements Serializable{
     private int numero;
     private boolean repetido;
 
-    @JsonIgnore
     @ManyToOne
     private ConcursoLotofacil concurso;
 
@@ -65,6 +64,8 @@ public class NumeroConcursoLotofacil implements Serializable{
         this.repetido = repetido;
     }
 
+    // o Jackson usa os métodos getters para serializar
+    @JsonIgnore
     public ConcursoLotofacil getSorteio() {
         return concurso;
     }

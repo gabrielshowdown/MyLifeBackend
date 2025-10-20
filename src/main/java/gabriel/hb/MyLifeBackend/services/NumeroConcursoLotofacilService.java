@@ -43,8 +43,9 @@ public class NumeroConcursoLotofacilService {
 	    }	
 	}
 	
+	/*
 	public List<NumeroConcursoLotofacil> findByConcursoId(Long concursoId) {
 		return repository.findByConcursoId(concursoId);
 	}
-	
+	*/
 }

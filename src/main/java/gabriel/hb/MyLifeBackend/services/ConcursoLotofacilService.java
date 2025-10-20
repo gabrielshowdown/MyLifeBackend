@@ -59,6 +59,17 @@ public class ConcursoLotofacilService {
 		System.out.println("qtdImpares " + qtdImpares);
 		System.out.println("qtdPares " + qtdPares);
 		
+		int impLastConc = 0;
+    	int parLastConc = 0;
+    	boolean semRepeticao = false;
+    	boolean semParidade = false;
+    	int repetidosConcGener = 0;
+    	int imparesConcGener = 0;
+		int minimoImpar;
+		int minimoPar;
+		Set<Integer> concGenerate = new HashSet<>();
+		List<Integer>listIntUltConc = new ArrayList<>();
+		
 		if (qtdImpares + qtdPares != 15 && qtdImpares + qtdPares != 0) {
 			throw new InvalidLParametersException("Pares:" + qtdPares + " Impares:" + qtdImpares);
         }
@@ -67,36 +78,27 @@ public class ConcursoLotofacilService {
 			throw new InvalidLParametersException("Repetição tem que ser entre 6 e 12 ");
         }
 		
-		int impLastConc = 0;
-    	int parLastConc = 0;
-    	boolean semRepeticao = false;
-    	int repetidosConcGener = 0;
-    	int imparesConcGener = 0;
-    	int paresConcGener = 0;
-		Set<Integer> concGenerate = new HashSet<>();
-    	
     	semRepeticao = (qtdRepetidos == 0) ?  true : false;
-    	
-		List<Integer>listIntUltConc = new ArrayList<>();
+    	semParidade = (qtdImpares == 0) ? true : false;
+    	System.out.println("semRepeticao " + semRepeticao);
+    	System.out.println("semParidade " + semParidade);
 		
-		ConcursoLotofacil c = findById(concursoAnteriorId);
-		List<NumeroConcursoLotofacil> listUltConc = c.getNumerosConcurso();
+		ConcursoLotofacil lastConc = findById(concursoAnteriorId);
+		List<NumeroConcursoLotofacil> listUltConc = lastConc.getNumerosConcurso();
 		listIntUltConc = listUltConc.stream().map(n -> n.getNumero()).collect(Collectors.toList());
-		impLastConc = c.getQtdImpares();
-		parLastConc = c.getQtdPares();
+		impLastConc = lastConc.getQtdImpares();
+		parLastConc = lastConc.getQtdPares();
 		
 		System.out.println("listIntUltConc " + listIntUltConc);
 		System.out.println("impLastConc " + impLastConc);
 		System.out.println("parLastConc " + parLastConc);
-		int minimoImpar;
-		int minimoPar;
 		
 		minimoImpar = qtdRepetidos - parLastConc;
 		minimoPar = qtdRepetidos - impLastConc;
 		
 		System.out.println("minimoPar: " + minimoPar + " minimoImpar: " + minimoImpar);
 		
-		if (qtdImpares < minimoImpar || qtdPares < minimoPar && semRepeticao == false) {
+		if ((semParidade == false && (qtdImpares < minimoImpar || qtdPares < minimoPar)) && semRepeticao == false) {
 			
 			System.out.println("Impossível gerar jogo");
 			if (qtdImpares < minimoImpar) {
@@ -131,7 +133,7 @@ public class ConcursoLotofacilService {
 						
 					}
 					
-					if (qtdImpares == imparesConcGener) {
+					if (qtdImpares == imparesConcGener || semParidade == true) {
 						gameValidate = true;
 					}
 					else {
@@ -140,7 +142,7 @@ public class ConcursoLotofacilService {
 						imparesConcGener = 0;
 					}
 					
-					if (gameValidate = true) {
+					if (gameValidate == true) {
 						
 						repetidosConcGener = 0;
 						
@@ -167,12 +169,33 @@ public class ConcursoLotofacilService {
 				
 				
 			} while(concGenerate.size() < 15 && gameValidate == false);
+			
+			System.out.println("concGenerate: " + concGenerate);
+			
+			System.out.println("qtdImparesGerados: " + imparesConcGener);
+			System.out.println("qtdParesGerados: " + (15 - imparesConcGener));
+			System.out.println("qtdRepetidosGerados: " + repetidosConcGener);
+			
+			List<NumeroConcursoLotofacil> listConcGenerate = new ArrayList<>();	 	
+			 
+			ConcursoLotofacil concLotoGenerate = new ConcursoLotofacil();
+			
+			concLotoGenerate.setQtdImpares(imparesConcGener);
+			concLotoGenerate.setQtdPares(15 - imparesConcGener);
+			concLotoGenerate.setQtdRepetidos(repetidosConcGener);
+			concLotoGenerate.setId(concursoAnteriorId + 1);
+			
+			
+			for (Integer num : concGenerate) {
+				listConcGenerate.add(new NumeroConcursoLotofacil(num, (listIntUltConc.contains(num) ? true : false), concLotoGenerate));
+		 	}
+			
+			concLotoGenerate.setNumerosConcurso(listConcGenerate);
+			
+			return concLotoGenerate;
+			
 		}
-		
-		System.out.println("concGenerate: " + concGenerate);
-    	
-    	
-		return null;
+
 	}
 	
 }

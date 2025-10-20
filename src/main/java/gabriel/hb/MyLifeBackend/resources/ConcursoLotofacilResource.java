@@ -48,8 +48,8 @@ public class ConcursoLotofacilResource {
 	
 	@PostMapping("/generate") // Método POST para insercao
 	public ResponseEntity<ConcursoLotofacil> generateContest (@RequestBody generateContestRequestDTO obj){ // Objeto chega como JSON e é deserializado para um obj ConcursoLotofacil
-		ConcursoLotofacil contestGenerated = service.generateContest(obj.getConcursoAnteriorId(), obj.getQtdRepetidos(), obj.getQtdImpares(), obj.getQtdPares());
-		return ResponseEntity.ok().body(contestGenerated);
+		ConcursoLotofacil conc = service.generateContest(obj.getConcursoAnteriorId(), obj.getQtdRepetidos(), obj.getQtdImpares(), obj.getQtdPares());
+		return ResponseEntity.ok().body(conc);
 	}
 	
 	@DeleteMapping(value = "/{id}") // Método DELETE do HTTP

@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -30,7 +28,6 @@ public class ConcursoLotofacil implements Serializable{
     private int qtdImpares;
     private int qtdRepetidos;
     
-    @JsonIgnore
     @OneToMany(mappedBy = "concurso", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<NumeroConcursoLotofacil> numerosConcurso = new ArrayList<>();
 

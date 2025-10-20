@@ -51,11 +51,11 @@ public class NumeroConcursoLotofacilResource {
 		return ResponseEntity.noContent().build(); // Retorna uma resposta vazia (código 204)
 	}
 	
-	// Novo endpoint para buscar números por ID do concurso
+	/** Novo endpoint para buscar números por ID do concurso
 	@GetMapping(value = "/concurso/{concursoId}")
 	public ResponseEntity<List<NumeroConcursoLotofacil>> findByConcursoId(@PathVariable Long concursoId){
 		List<NumeroConcursoLotofacil> list = service.findByConcursoId(concursoId);
 		return ResponseEntity.ok().body(list);
 	}	
-	
+	*/
 }
