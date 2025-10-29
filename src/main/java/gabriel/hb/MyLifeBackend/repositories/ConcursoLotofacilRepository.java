@@ -1,5 +1,7 @@
 package gabriel.hb.MyLifeBackend.repositories;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -8,5 +10,8 @@ import gabriel.hb.MyLifeBackend.entities.ConcursoLotofacil;
 @Repository //Registra a classe como um componente/repository do spring e vai poder ser injetado no ConcursoLotofacilService 
 			//(não é obrigatório, pois essa interface já herda isso do JpaRepository)
 public interface ConcursoLotofacilRepository extends JpaRepository<ConcursoLotofacil, Long>{
+	
+	// Novo método: Busca o concurso com o ID mais alto (o último)
+    Optional<ConcursoLotofacil> findTopByOrderByIdDesc();
 	
 }

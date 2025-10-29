@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import gabriel.hb.MyLifeBackend.entities.ConcursoLotofacil;
 import gabriel.hb.MyLifeBackend.entities.NumeroConcursoLotofacil;
@@ -25,6 +26,7 @@ public class ConcursoLotofacilService {
 	
 	@Autowired //O Spring resolve essa injeção de dependencia e associar uma instancia de ConcursoLotofacilRepository
 	private ConcursoLotofacilRepository repository;
+	private final String CAIXA_API_URL = "https://servicebus2.caixa.gov.br/portaldeloterias/api/lotofacil/";
 	
 	public List<ConcursoLotofacil> findAll(){
 		return repository.findAll();
@@ -197,5 +199,92 @@ public class ConcursoLotofacilService {
 		}
 
 	}
+	
+	public String synchronizeWithCaixaApi() {
+        RestTemplate restTemplate = new RestTemplate();
+
+        // 1. Descobrir o último concurso na API da Caixa
+        // (Precisamos de um DTO para mapear a resposta da Caixa)
+        CaixaConcursoDTO ultimoConcursoCaixa = restTemplate.getForObject(CAIXA_API_URL, CaixaConcursoDTO.class);
+        long ultimoConcursoRemotoId = ultimoConcursoCaixa.getNumero();
+
+        // 2. Descobrir o último concurso no nosso DB local
+        Optional<ConcursoLotofacil> ultimoLocalOpt = repository.findTopByOrderByIdDesc();
+        long ultimoConcursoLocalId = ultimoLocalOpt.isPresent() ? ultimoLocalOpt.get().getId() : 0;
+
+        if (ultimoConcursoLocalId >= ultimoConcursoRemotoId) {
+            return "Banco de dados já está atualizado. (Último: " + ultimoConcursoLocalId + ")";
+        }
+
+        int concursosAdicionados = 0;
+        List<Integer> dezenasAnteriores = ultimoLocalOpt.isPresent() 
+            ? ultimoLocalOpt.get().getNumerosConcurso().stream()
+                .map(NumeroConcursoLotofacil::getNumero)
+                .collect(Collectors.toList())
+            : new ArrayList<>();
+
+        // 3. Loop: Do nosso último + 1 até o último da Caixa
+        for (long id = ultimoConcursoLocalId + 1; id <= ultimoConcursoRemotoId; id++) {
+            
+            // 4. Buscar concurso 'id' da Caixa
+            CaixaConcursoDTO concursoCaixa = restTemplate.getForObject(CAIXA_API_URL + id, CaixaConcursoDTO.class);
+            
+            // 5. Transformar DTO da Caixa -> Nossas Entidades
+            ConcursoLotofacil novoConcurso = new ConcursoLotofacil();
+            novoConcurso.setId(concursoCaixa.getNumero()); // Define o ID manualmente
+
+            int pares = 0;
+            int impares = 0;
+            int repetidos = 0;
+            
+            List<Integer> dezenasAtuais = new ArrayList<>();
+            for (String dezenaStr : concursoCaixa.getListaDezenas()) {
+                int dezena = Integer.parseInt(dezenaStr);
+                dezenasAtuais.add(dezena);
+
+                // Calcula paridade
+                if (dezena % 2 == 0) pares++;
+                else impares++;
+
+                // Calcula repetidos (comparando com 'dezenasAnteriores')
+                if (dezenasAnteriores.contains(dezena)) {
+                    repetidos++;
+                }
+                
+                // (O NumeroConcursoLotofacil será criado abaixo)
+            }
+            
+            novoConcurso.setQtdPares(pares);
+            novoConcurso.setQtdImpares(impares);
+            novoConcurso.setQtdRepetidos(repetidos);
+
+            // 6. Criar os números filhos
+            for (int dezena : dezenasAtuais) {
+                boolean isRepetido = dezenasAnteriores.contains(dezena);
+                // O construtor de NumeroConcursoLotofacil já associa ao 'pai'
+                novoConcurso.adicionarNumeroSorteio(new NumeroConcursoLotofacil(dezena, isRepetido, novoConcurso));
+            }
+
+            // 7. Salvar no banco
+            repository.save(novoConcurso);
+            
+            // 8. Atualizar 'dezenasAnteriores' para o próximo loop
+            dezenasAnteriores = dezenasAtuais;
+            concursosAdicionados++;
+        }
+
+        return "Sincronização concluída. " + concursosAdicionados + " novos concursos adicionados.";
+    }
+	
+	static class CaixaConcursoDTO {
+        private long numero;
+        private List<String> listaDezenas;
+        
+        // Getters e Setters
+        public long getNumero() { return numero; }
+        public void setNumero(long numero) { this.numero = numero; }
+        public List<String> getListaDezenas() { return listaDezenas; }
+        public void setListaDezenas(List<String> listaDezenas) { this.listaDezenas = listaDezenas; }
+    }
 	
 }

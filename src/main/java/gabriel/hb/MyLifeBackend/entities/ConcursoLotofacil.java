@@ -21,7 +21,7 @@ public class ConcursoLotofacil implements Serializable{
 	
 	// Atributos
 	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    // @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private int qtdPares; // É gerado como 'qtd_pares' no banco, seria como colocar um @Column(name="qtd_pares")

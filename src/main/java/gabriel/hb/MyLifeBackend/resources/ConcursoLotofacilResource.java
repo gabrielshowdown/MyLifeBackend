@@ -58,4 +58,15 @@ public class ConcursoLotofacilResource {
 		return ResponseEntity.noContent().build(); // Retorna uma resposta vazia (código 204)
 	}
 	
+	@PostMapping("/synchronize")
+    public ResponseEntity<String> synchronizeContests() {
+        try {
+            // Delega toda a lógica para o Service
+            String resultado = service.synchronizeWithCaixaApi(); 
+            return ResponseEntity.ok().body(resultado);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Erro durante a sincronização: " + e.getMessage());
+        }
+    }
+	
 }
