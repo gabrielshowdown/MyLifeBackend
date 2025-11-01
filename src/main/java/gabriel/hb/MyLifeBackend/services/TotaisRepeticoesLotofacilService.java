@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import gabriel.hb.MyLifeBackend.entities.TotaisRepeticoesLotofacil;
 import gabriel.hb.MyLifeBackend.repositories.TotaisRepeticoesLotofacilRepository;
@@ -41,6 +42,36 @@ public class TotaisRepeticoesLotofacilService {
 	    } catch (DataIntegrityViolationException e) {			
 	        throw new DatabaseException(e.getMessage());		
 	    }	
-	} 
+	}
+
+	@Transactional
+    public void atualizaTotais(int repetidos, Long idConcurso) {
+		
+        // 1. Buscar o registro correspondente ao número de repetidos
+        TotaisRepeticoesLotofacil total = repository.findByRepetido(repetidos).orElseThrow(() -> new RuntimeException("Registro de repetição " + repetidos + " não encontrado."));
+
+        // 2. Incrementar a quantidade
+        total.setQtd(total.getQtd() + 1);
+        repository.save(total);
+
+        // 3. Recalcular porcentagem para todos os registros
+        recalcularPorcentagens();
+    }
+	
+	private void recalcularPorcentagens() {
+        List<TotaisRepeticoesLotofacil> totais = repository.findAll();
+
+        // Soma total de todas as quantidades
+        int somaTotal = totais.stream().mapToInt(TotaisRepeticoesLotofacil::getQtd).sum();
+
+        if (somaTotal == 0) return;
+
+        for (TotaisRepeticoesLotofacil total : totais) {
+            double porcentagem = (total.getQtd() * 100.0) / somaTotal;
+            total.setPorcentagem(porcentagem);
+        }
+
+        repository.saveAll(totais);
+    }
 	
 }

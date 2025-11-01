@@ -26,6 +26,9 @@ public class ConcursoLotofacilService {
 	
 	@Autowired //O Spring resolve essa injeção de dependencia e associar uma instancia de ConcursoLotofacilRepository
 	private ConcursoLotofacilRepository repository;
+	@Autowired
+	private TotaisRepeticoesLotofacilService totaisRepeticoesLotofacilService;
+	
 	private final String CAIXA_API_URL = "https://servicebus2.caixa.gov.br/portaldeloterias/api/lotofacil/";
 	
 	public List<ConcursoLotofacil> findAll(){
@@ -207,24 +210,25 @@ public class ConcursoLotofacilService {
         // (Precisamos de um DTO para mapear a resposta da Caixa)
         CaixaConcursoDTO ultimoConcursoCaixa = restTemplate.getForObject(CAIXA_API_URL, CaixaConcursoDTO.class);
         long ultimoConcursoRemotoId = ultimoConcursoCaixa.getNumero();
+        
+        System.out.println("ultimoConcursoRemotoId: " + ultimoConcursoRemotoId);
 
         // 2. Descobrir o último concurso no nosso DB local
         Optional<ConcursoLotofacil> ultimoLocalOpt = repository.findTopByOrderByIdDesc();
         long ultimoConcursoLocalId = ultimoLocalOpt.isPresent() ? ultimoLocalOpt.get().getId() : 0;
+        
+        System.out.println("ultimoConcursoLocalId: " + ultimoConcursoLocalId);
 
         if (ultimoConcursoLocalId >= ultimoConcursoRemotoId) {
             return "Banco de dados já está atualizado. (Último: " + ultimoConcursoLocalId + ")";
         }
 
         int concursosAdicionados = 0;
-        List<Integer> dezenasAnteriores = ultimoLocalOpt.isPresent() 
-            ? ultimoLocalOpt.get().getNumerosConcurso().stream()
-                .map(NumeroConcursoLotofacil::getNumero)
-                .collect(Collectors.toList())
-            : new ArrayList<>();
+        List<Integer> dezenasAnteriores = 
+        		ultimoLocalOpt.isPresent() ? ultimoLocalOpt.get().getNumerosConcurso().stream().map(NumeroConcursoLotofacil::getNumero).collect(Collectors.toList()) : new ArrayList<>();
 
         // 3. Loop: Do nosso último + 1 até o último da Caixa
-        for (long id = ultimoConcursoLocalId + 1; id <= ultimoConcursoRemotoId; id++) {
+        for (long id = ultimoConcursoLocalId + 1; id <= 10; id++) { // ultimoConcursoRemotoId trocado por 10
             
             // 4. Buscar concurso 'id' da Caixa
             CaixaConcursoDTO concursoCaixa = restTemplate.getForObject(CAIXA_API_URL + id, CaixaConcursoDTO.class);
@@ -267,6 +271,7 @@ public class ConcursoLotofacilService {
 
             // 7. Salvar no banco
             repository.save(novoConcurso);
+            if(novoConcurso.getId() != 1) totaisRepeticoesLotofacilService.atualizaTotais(repetidos, novoConcurso.getId());
             
             // 8. Atualizar 'dezenasAnteriores' para o próximo loop
             dezenasAnteriores = dezenasAtuais;
