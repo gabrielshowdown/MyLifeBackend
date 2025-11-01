@@ -28,6 +28,8 @@ public class ConcursoLotofacilService {
 	private ConcursoLotofacilRepository repository;
 	@Autowired
 	private TotaisRepeticoesLotofacilService totaisRepeticoesLotofacilService;
+	@Autowired
+	private TotaisParidadeLotofacilService totaisParidadeLotofacilService;
 	
 	private final String CAIXA_API_URL = "https://servicebus2.caixa.gov.br/portaldeloterias/api/lotofacil/";
 	
@@ -272,6 +274,7 @@ public class ConcursoLotofacilService {
             // 7. Salvar no banco
             repository.save(novoConcurso);
             if(novoConcurso.getId() != 1) totaisRepeticoesLotofacilService.atualizaTotais(repetidos, novoConcurso.getId());
+            totaisParidadeLotofacilService.atualizaTotais(pares, impares, novoConcurso.getId());
             
             // 8. Atualizar 'dezenasAnteriores' para o próximo loop
             dezenasAnteriores = dezenasAtuais;
