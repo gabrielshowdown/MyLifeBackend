@@ -30,6 +30,8 @@ public class ConcursoLotofacilService {
 	private TotaisRepeticoesLotofacilService totaisRepeticoesLotofacilService;
 	@Autowired
 	private TotaisParidadeLotofacilService totaisParidadeLotofacilService;
+	@Autowired
+	private TotaisNumerosLotofacilService totaisNumerosLotofacilService;
 	
 	private final String CAIXA_API_URL = "https://servicebus2.caixa.gov.br/portaldeloterias/api/lotofacil/";
 	
@@ -230,7 +232,7 @@ public class ConcursoLotofacilService {
         		ultimoLocalOpt.isPresent() ? ultimoLocalOpt.get().getNumerosConcurso().stream().map(NumeroConcursoLotofacil::getNumero).collect(Collectors.toList()) : new ArrayList<>();
 
         // 3. Loop: Do nosso último + 1 até o último da Caixa
-        for (long id = ultimoConcursoLocalId + 1; id <= 10; id++) { // ultimoConcursoRemotoId trocado por 10
+        for (long id = ultimoConcursoLocalId + 1; id <= 12; id++) { // ultimoConcursoRemotoId trocado por 10
             
             // 4. Buscar concurso 'id' da Caixa
             CaixaConcursoDTO concursoCaixa = restTemplate.getForObject(CAIXA_API_URL + id, CaixaConcursoDTO.class);
@@ -275,6 +277,7 @@ public class ConcursoLotofacilService {
             repository.save(novoConcurso);
             if(novoConcurso.getId() != 1) totaisRepeticoesLotofacilService.atualizaTotais(repetidos, novoConcurso.getId());
             totaisParidadeLotofacilService.atualizaTotais(pares, impares, novoConcurso.getId());
+            totaisNumerosLotofacilService.atualizaTotais(dezenasAtuais, novoConcurso.getId());
             
             // 8. Atualizar 'dezenasAnteriores' para o próximo loop
             dezenasAnteriores = dezenasAtuais;

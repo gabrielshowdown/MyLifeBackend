@@ -41,6 +41,33 @@ public class TotaisNumerosLotofacilService {
 	    } catch (DataIntegrityViolationException e) {			
 	        throw new DatabaseException(e.getMessage());		
 	    }	
+	}
+
+	public void atualizaTotais(List<Integer> dezenasAtuais, Long ultimoConcid) {
+		
+		for(long n : dezenasAtuais) {
+			TotaisNumerosLotofacil total = repository.findById(n).orElseThrow(() -> new RuntimeException("Registro de número " + n + " não encontrado."));
+			total.setQtd(total.getQtd() + 1);
+	        repository.save(total);
+		}
+		
+		recalcularPorcentagens(ultimoConcid);
+		
+	}
+
+	private void recalcularPorcentagens(Long ultimoConcid) {
+		
+		List<TotaisNumerosLotofacil> totais = repository.findAll();
+
+        if (ultimoConcid == 0) return;
+
+        for (TotaisNumerosLotofacil total : totais) {
+            double porcentagem = (total.getQtd() * 100.0) / ultimoConcid;
+            total.setPorcentagem(porcentagem);
+        }
+
+        repository.saveAll(totais);
+		
 	} 
 	
 }
