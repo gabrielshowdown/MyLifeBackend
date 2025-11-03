@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import gabriel.hb.MyLifeBackend.entities.ConcursoLotofacil;
-import gabriel.hb.MyLifeBackend.resources.dto.generateContestRequestDTO;
+import gabriel.hb.MyLifeBackend.resources.dto.GenerateContestRequestDTO;
 import gabriel.hb.MyLifeBackend.services.ConcursoLotofacilService;
 
 @RestController
@@ -47,7 +47,7 @@ public class ConcursoLotofacilResource {
 	}
 	
 	@PostMapping("/generate") // Método POST para insercao
-	public ResponseEntity<ConcursoLotofacil> generateContest (@RequestBody generateContestRequestDTO obj){ // Objeto chega como JSON e é deserializado para um obj ConcursoLotofacil
+	public ResponseEntity<ConcursoLotofacil> generateContest (@RequestBody GenerateContestRequestDTO obj){ // Objeto chega como JSON e é deserializado para um obj ConcursoLotofacil
 		ConcursoLotofacil conc = service.generateContest(obj.getConcursoAnteriorId(), obj.getQtdRepetidos(), obj.getQtdImpares(), obj.getQtdPares());
 		return ResponseEntity.ok().body(conc);
 	}

@@ -16,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 import gabriel.hb.MyLifeBackend.entities.ConcursoLotofacil;
 import gabriel.hb.MyLifeBackend.entities.NumeroConcursoLotofacil;
 import gabriel.hb.MyLifeBackend.repositories.ConcursoLotofacilRepository;
+import gabriel.hb.MyLifeBackend.resources.dto.CaixaConcursoDTO;
 import gabriel.hb.MyLifeBackend.services.exceptions.DatabaseException;
 import gabriel.hb.MyLifeBackend.services.exceptions.InvalidLParametersContestException;
 import gabriel.hb.MyLifeBackend.services.exceptions.InvalidLParametersException;
@@ -232,7 +233,7 @@ public class ConcursoLotofacilService {
         		ultimoLocalOpt.isPresent() ? ultimoLocalOpt.get().getNumerosConcurso().stream().map(NumeroConcursoLotofacil::getNumero).collect(Collectors.toList()) : new ArrayList<>();
 
         // 3. Loop: Do nosso último + 1 até o último da Caixa
-        for (long id = ultimoConcursoLocalId + 1; id <= 12; id++) { // ultimoConcursoRemotoId trocado por 10
+        for (long id = ultimoConcursoLocalId + 1; id <= 13; id++) {
             
             // 4. Buscar concurso 'id' da Caixa
             CaixaConcursoDTO concursoCaixa = restTemplate.getForObject(CAIXA_API_URL + id, CaixaConcursoDTO.class);
@@ -285,17 +286,6 @@ public class ConcursoLotofacilService {
         }
 
         return "Sincronização concluída. " + concursosAdicionados + " novos concursos adicionados.";
-    }
-	
-	static class CaixaConcursoDTO {
-        private long numero;
-        private List<String> listaDezenas;
-        
-        // Getters e Setters
-        public long getNumero() { return numero; }
-        public void setNumero(long numero) { this.numero = numero; }
-        public List<String> getListaDezenas() { return listaDezenas; }
-        public void setListaDezenas(List<String> listaDezenas) { this.listaDezenas = listaDezenas; }
     }
 	
 }
