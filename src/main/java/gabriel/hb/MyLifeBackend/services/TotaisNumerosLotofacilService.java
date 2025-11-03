@@ -51,11 +51,11 @@ public class TotaisNumerosLotofacilService {
 	        repository.save(total);
 		}
 		
-		recalcularPorcentagens(ultimoConcid);
+		// recalcularPorcentagens(ultimoConcid);
 		
 	}
 
-	private void recalcularPorcentagens(Long ultimoConcid) {
+	public void recalcularPorcentagens(Long ultimoConcid) {
 		
 		List<TotaisNumerosLotofacil> totais = repository.findAll();
 

@@ -215,6 +215,7 @@ public class ConcursoLotofacilService {
         // (Precisamos de um DTO para mapear a resposta da Caixa)
         CaixaConcursoDTO ultimoConcursoCaixa = restTemplate.getForObject(CAIXA_API_URL, CaixaConcursoDTO.class);
         long ultimoConcursoRemotoId = ultimoConcursoCaixa.getNumero();
+        long lastConcCadastrado = 0;
         
         System.out.println("ultimoConcursoRemotoId: " + ultimoConcursoRemotoId);
 
@@ -233,7 +234,7 @@ public class ConcursoLotofacilService {
         		ultimoLocalOpt.isPresent() ? ultimoLocalOpt.get().getNumerosConcurso().stream().map(NumeroConcursoLotofacil::getNumero).collect(Collectors.toList()) : new ArrayList<>();
 
         // 3. Loop: Do nosso último + 1 até o último da Caixa
-        for (long id = ultimoConcursoLocalId + 1; id <= 13; id++) {
+        for (long id = ultimoConcursoLocalId + 1; id <= 13; id++) { // ultimoConcursoRemotoId
             
             // 4. Buscar concurso 'id' da Caixa
             CaixaConcursoDTO concursoCaixa = restTemplate.getForObject(CAIXA_API_URL + id, CaixaConcursoDTO.class);
@@ -279,10 +280,19 @@ public class ConcursoLotofacilService {
             if(novoConcurso.getId() != 1) totaisRepeticoesLotofacilService.atualizaTotais(repetidos, novoConcurso.getId());
             totaisParidadeLotofacilService.atualizaTotais(pares, impares, novoConcurso.getId());
             totaisNumerosLotofacilService.atualizaTotais(dezenasAtuais, novoConcurso.getId());
-            
+            lastConcCadastrado = novoConcurso.getId();
             // 8. Atualizar 'dezenasAnteriores' para o próximo loop
             dezenasAnteriores = dezenasAtuais;
             concursosAdicionados++;
+        }
+        
+        if (concursosAdicionados > 0) {
+            System.out.println("Recalculando todas as porcentagens...");
+            // (Assumindo que o ID do último concurso é 'ultimoConcursoRemotoId')
+            totaisRepeticoesLotofacilService.recalcularPorcentagens(); // Ajustar o service para ter o método público
+            totaisParidadeLotofacilService.recalcularPorcentagens();
+            totaisNumerosLotofacilService.recalcularPorcentagens(lastConcCadastrado);
+            System.out.println("Recálculo concluído.");
         }
 
         return "Sincronização concluída. " + concursosAdicionados + " novos concursos adicionados.";

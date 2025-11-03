@@ -62,10 +62,10 @@ public class TotaisParidadeLotofacilService {
 		repository.save(total);
 
 		// 4. Recalcular porcentagens
-		recalcularPorcentagens();
+		// recalcularPorcentagens();
 	}
 
-	private void recalcularPorcentagens() {
+	public void recalcularPorcentagens() {
 		List<TotaisParidadeLotofacil> totais = repository.findAll();
 
 		int somaTotal = totais.stream().mapToInt(TotaisParidadeLotofacil::getQtd).sum();

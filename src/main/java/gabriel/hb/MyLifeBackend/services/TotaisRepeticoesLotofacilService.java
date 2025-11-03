@@ -55,10 +55,10 @@ public class TotaisRepeticoesLotofacilService {
         repository.save(total);
 
         // 3. Recalcular porcentagem para todos os registros
-        recalcularPorcentagens();
+        // recalcularPorcentagens();
     }
 	
-	private void recalcularPorcentagens() {
+	public void recalcularPorcentagens() {
         List<TotaisRepeticoesLotofacil> totais = repository.findAll();
 
         // Soma total de todas as quantidades
