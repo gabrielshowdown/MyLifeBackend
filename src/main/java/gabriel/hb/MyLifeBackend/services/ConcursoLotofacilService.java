@@ -1,5 +1,7 @@
 package gabriel.hb.MyLifeBackend.services;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -17,6 +19,7 @@ import gabriel.hb.MyLifeBackend.entities.ConcursoLotofacil;
 import gabriel.hb.MyLifeBackend.entities.NumeroConcursoLotofacil;
 import gabriel.hb.MyLifeBackend.repositories.ConcursoLotofacilRepository;
 import gabriel.hb.MyLifeBackend.resources.dto.CaixaConcursoDTO;
+import gabriel.hb.MyLifeBackend.resources.dto.SyncronizeContestResponseDTO;
 import gabriel.hb.MyLifeBackend.services.exceptions.DatabaseException;
 import gabriel.hb.MyLifeBackend.services.exceptions.InvalidLParametersContestException;
 import gabriel.hb.MyLifeBackend.services.exceptions.InvalidLParametersException;
@@ -35,6 +38,7 @@ public class ConcursoLotofacilService {
 	private TotaisNumerosLotofacilService totaisNumerosLotofacilService;
 	
 	private final String CAIXA_API_URL = "https://servicebus2.caixa.gov.br/portaldeloterias/api/lotofacil/";
+	DateTimeFormatter fmt1 = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 	
 	public List<ConcursoLotofacil> findAll(){
 		return repository.findAll();
@@ -208,33 +212,47 @@ public class ConcursoLotofacilService {
 
 	}
 	
-	public String synchronizeWithCaixaApi() {
+	public SyncronizeContestResponseDTO synchronizeWithCaixaApi() {
+		
         RestTemplate restTemplate = new RestTemplate();
-
-        // 1. Descobrir o último concurso na API da Caixa
-        // (Precisamos de um DTO para mapear a resposta da Caixa)
         CaixaConcursoDTO ultimoConcursoCaixa = restTemplate.getForObject(CAIXA_API_URL, CaixaConcursoDTO.class);
+        
         long ultimoConcursoRemotoId = ultimoConcursoCaixa.getNumero();
+        long numeroConcursoProximo = ultimoConcursoCaixa.getNumeroConcursoProximo();
+        LocalDate dateNextContest = LocalDate.parse(ultimoConcursoCaixa.getDataProximoConcurso(), fmt1);
+        String textReturnedSyoncronized = "";
         long lastConcCadastrado = 0;
+        long idConcASerSincronizado = 0;
         
         System.out.println("ultimoConcursoRemotoId: " + ultimoConcursoRemotoId);
-
+        System.out.println("data" + ultimoConcursoCaixa.getDataProximoConcurso());
+        
         // 2. Descobrir o último concurso no nosso DB local
         Optional<ConcursoLotofacil> ultimoLocalOpt = repository.findTopByOrderByIdDesc();
         long ultimoConcursoLocalId = ultimoLocalOpt.isPresent() ? ultimoLocalOpt.get().getId() : 0;
         
         System.out.println("ultimoConcursoLocalId: " + ultimoConcursoLocalId);
-
+        /*
         if (ultimoConcursoLocalId >= ultimoConcursoRemotoId) {
             return "Banco de dados já está atualizado. (Último: " + ultimoConcursoLocalId + ")";
         }
-
+        */
+        idConcASerSincronizado = (ultimoConcursoRemotoId - ultimoConcursoLocalId >= 100) ? ultimoConcursoLocalId + 100 : ultimoConcursoRemotoId;
+        /*
+        if (ultimoConcursoRemotoId - lastConcCadastrado >= 100) {
+        	idConcASerSincronizado = lastConcCadastrado + 100;
+        }
+        else {
+        	idConcASerSincronizado = ultimoConcursoRemotoId;
+        }
+        */
+        System.out.println("idConcASerSincronizado: " + idConcASerSincronizado);
         int concursosAdicionados = 0;
         List<Integer> dezenasAnteriores = 
         		ultimoLocalOpt.isPresent() ? ultimoLocalOpt.get().getNumerosConcurso().stream().map(NumeroConcursoLotofacil::getNumero).collect(Collectors.toList()) : new ArrayList<>();
-
+        
         // 3. Loop: Do nosso último + 1 até o último da Caixa
-        for (long id = ultimoConcursoLocalId + 1; id <= 13; id++) { // ultimoConcursoRemotoId
+        for (long id = ultimoConcursoLocalId + 1; id <= idConcASerSincronizado; id++) { // ultimoConcursoRemotoId
             
             // 4. Buscar concurso 'id' da Caixa
             CaixaConcursoDTO concursoCaixa = restTemplate.getForObject(CAIXA_API_URL + id, CaixaConcursoDTO.class);
@@ -294,8 +312,10 @@ public class ConcursoLotofacilService {
             totaisNumerosLotofacilService.recalcularPorcentagens(lastConcCadastrado);
             System.out.println("Recálculo concluído.");
         }
-
-        return "Sincronização concluída. " + concursosAdicionados + " novos concursos adicionados.";
+        
+        textReturnedSyoncronized = "Sincronização concluída. " + concursosAdicionados + " novos concursos adicionados.";
+        return new SyncronizeContestResponseDTO(lastConcCadastrado, concursosAdicionados, dateNextContest, textReturnedSyoncronized, numeroConcursoProximo);
+        // return "Sincronização concluída. " + concursosAdicionados + " novos concursos adicionados.";
     }
 	
 }

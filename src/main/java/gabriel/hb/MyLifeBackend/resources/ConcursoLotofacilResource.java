@@ -16,6 +16,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import gabriel.hb.MyLifeBackend.entities.ConcursoLotofacil;
 import gabriel.hb.MyLifeBackend.resources.dto.GenerateContestRequestDTO;
+import gabriel.hb.MyLifeBackend.resources.dto.SyncronizeContestResponseDTO;
 import gabriel.hb.MyLifeBackend.services.ConcursoLotofacilService;
 
 @RestController
@@ -59,14 +60,14 @@ public class ConcursoLotofacilResource {
 	}
 	
 	@PostMapping("/synchronize")
-    public ResponseEntity<String> synchronizeContests() {
-        try {
+    public ResponseEntity<SyncronizeContestResponseDTO> synchronizeContests() {
+        //try {
             // Delega toda a lógica para o Service
-            String resultado = service.synchronizeWithCaixaApi(); 
+        	SyncronizeContestResponseDTO resultado = service.synchronizeWithCaixaApi(); 
             return ResponseEntity.ok().body(resultado);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Erro durante a sincronização: " + e.getMessage());
-        }
+        //} catch (Exception e) {
+        //    return ResponseEntity.status(500).body("Erro durante a sincronização: " + e.getMessage());
+        //}
     }
 	
 }

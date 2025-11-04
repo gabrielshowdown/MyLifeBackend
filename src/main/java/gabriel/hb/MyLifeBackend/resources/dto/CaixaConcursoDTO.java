@@ -6,6 +6,8 @@ public class CaixaConcursoDTO {
 
 	private long numero;
 	private List<String> listaDezenas;
+	private String dataProximoConcurso;
+	private Long numeroConcursoProximo;
 
 	// Getters e Setters
 	public long getNumero() {
@@ -22,5 +24,21 @@ public class CaixaConcursoDTO {
 
 	public void setListaDezenas(List<String> listaDezenas) {
 		this.listaDezenas = listaDezenas;
+	}
+
+	public String getDataProximoConcurso() {
+		return dataProximoConcurso;
+	}
+
+	public void setDataProximoConcurso(String dataProximoConcurso) {
+		this.dataProximoConcurso = dataProximoConcurso;
+	}
+
+	public Long getNumeroConcursoProximo() {
+		return numeroConcursoProximo;
+	}
+
+	public void setNumeroConcursoProximo(Long numeroConcursoProximo) {
+		this.numeroConcursoProximo = numeroConcursoProximo;
 	}
 }
