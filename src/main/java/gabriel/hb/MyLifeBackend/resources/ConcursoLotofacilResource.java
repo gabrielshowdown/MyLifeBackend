@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import gabriel.hb.MyLifeBackend.entities.ConcursoLotofacil;
+import gabriel.hb.MyLifeBackend.resources.dto.AddContestRequestDTO;
 import gabriel.hb.MyLifeBackend.resources.dto.GenerateContestRequestDTO;
 import gabriel.hb.MyLifeBackend.resources.dto.SyncronizeContestResponseDTO;
 import gabriel.hb.MyLifeBackend.services.ConcursoLotofacilService;
@@ -36,15 +37,6 @@ public class ConcursoLotofacilResource {
 	public ResponseEntity<ConcursoLotofacil> findById(@PathVariable Long id){ // Pega o valor passado de parâmetro da URL
 		ConcursoLotofacil obj = service.findById(id);
 		return ResponseEntity.ok().body(obj);
-	}
-
-	@PostMapping // Método POST para insercao
-	public ResponseEntity<ConcursoLotofacil> insert(@RequestBody ConcursoLotofacil obj){ // Objeto chega como JSON e é deserializado para um obj ConcursoLotofacil
-		obj = service.insert(obj);
-		// Trecho abaixo para retorna o código 201 e não o 200, e mostrar o id do user criado
-		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").
-				  buildAndExpand(obj.getId()).toUri();
-		return ResponseEntity.created(uri).body(obj); 
 	}
 	
 	@PostMapping("/generate") // Método POST para insercao
@@ -68,6 +60,16 @@ public class ConcursoLotofacilResource {
         //} catch (Exception e) {
         //    return ResponseEntity.status(500).body("Erro durante a sincronização: " + e.getMessage());
         //}
+    }
+	
+    @PostMapping("/insert")
+    public ResponseEntity<ConcursoLotofacil> insertManually(@RequestBody AddContestRequestDTO dto) {
+        ConcursoLotofacil novoConcurso = service.insertManually(dto);
+        
+        // Retorna 201 Created (igual ao 'insert' padrão)
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+                  .buildAndExpand(novoConcurso.getId()).toUri();
+        return ResponseEntity.created(uri).body(novoConcurso); 
     }
 	
 }

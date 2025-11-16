@@ -18,6 +18,7 @@ import org.springframework.web.client.RestTemplate;
 import gabriel.hb.MyLifeBackend.entities.ConcursoLotofacil;
 import gabriel.hb.MyLifeBackend.entities.NumeroConcursoLotofacil;
 import gabriel.hb.MyLifeBackend.repositories.ConcursoLotofacilRepository;
+import gabriel.hb.MyLifeBackend.resources.dto.AddContestRequestDTO;
 import gabriel.hb.MyLifeBackend.resources.dto.CaixaConcursoDTO;
 import gabriel.hb.MyLifeBackend.resources.dto.SyncronizeContestResponseDTO;
 import gabriel.hb.MyLifeBackend.services.exceptions.DatabaseException;
@@ -316,6 +317,91 @@ public class ConcursoLotofacilService {
         textReturnedSyoncronized = "Sincronização concluída. " + concursosAdicionados + " novos concursos adicionados.";
         return new SyncronizeContestResponseDTO(lastConcCadastrado, concursosAdicionados, dateNextContest, textReturnedSyoncronized, numeroConcursoProximo);
         // return "Sincronização concluída. " + concursosAdicionados + " novos concursos adicionados.";
+    }
+
+	public ConcursoLotofacil insertManually(AddContestRequestDTO dto) {
+        Long novoConcursoId = dto.getConcursoId();
+
+        // 1. Validar se o concurso já existe
+        if (repository.existsById(novoConcursoId)) {
+            throw new DatabaseException("Concurso " + novoConcursoId + " já cadastrado.");
+        }
+
+        // 2. Buscar dezenas do concurso anterior (para calcular repetidos)
+        List<Integer> dezenasAnteriores = new ArrayList<>();
+        if (novoConcursoId > 1) {
+            try {
+                ConcursoLotofacil concursoAnterior = findById(novoConcursoId - 1);
+                dezenasAnteriores = concursoAnterior.getNumerosConcurso().stream()
+                                    .map(NumeroConcursoLotofacil::getNumero)
+                                    .collect(Collectors.toList());
+            } catch (ResourceNotFoundException e) {
+                // Se o anterior não existir (ex: cadastrando o 2 sem ter o 1), apenas não calcula repetidos
+                System.out.println("Aviso: Concurso anterior " + (novoConcursoId - 1) + " não encontrado. Repetidos serão 0.");
+            }
+        }
+
+        // 3. Criar a nova entidade ConcursoLotofacil
+        ConcursoLotofacil novoConcurso = new ConcursoLotofacil();
+        novoConcurso.setId(novoConcursoId); // Define o ID manualmente (igual na sincronização)
+
+        int pares = 0;
+        int impares = 0;
+        int repetidos = 0;
+        
+        // Converte a List<String> do DTO para List<Integer>
+        List<Integer> dezenasAtuais = dto.getDezenas().stream()
+                                          .map(Integer::parseInt)
+                                          .collect(Collectors.toList());
+
+        // 4. Calcular estatísticas e criar números filhos
+        for (int dezena : dezenasAtuais) {
+            // Calcula paridade
+            if (dezena % 2 == 0) pares++;
+            else impares++;
+
+            // Calcula repetidos
+            boolean isRepetido = dezenasAnteriores.contains(dezena);
+            if (isRepetido) {
+                repetidos++;
+            }
+            
+            // Cria a entidade filha e associa ao "pai"
+            novoConcurso.adicionarNumeroSorteio(new NumeroConcursoLotofacil(dezena, isRepetido, novoConcurso));
+        }
+        
+        novoConcurso.setQtdPares(pares);
+        novoConcurso.setQtdImpares(impares);
+        novoConcurso.setQtdRepetidos(repetidos);
+
+        // 5. Salvar no banco
+        ConcursoLotofacil concursoSalvo;
+        try {
+             concursoSalvo = repository.save(novoConcurso);
+        } catch (DataIntegrityViolationException e) {
+             throw new DatabaseException("Falha ao salvar concurso: " + e.getMessage());
+        }
+
+
+        // 6. ATUALIZAR AS ESTATÍSTICAS (CRUCIAL!)
+        // (Copiado do método synchronizeWithCaixaApi)
+        if(concursoSalvo.getId() != 1) {
+            totaisRepeticoesLotofacilService.atualizaTotais(repetidos, concursoSalvo.getId());
+        }
+        totaisParidadeLotofacilService.atualizaTotais(pares, impares, concursoSalvo.getId());
+        totaisNumerosLotofacilService.atualizaTotais(dezenasAtuais, concursoSalvo.getId());
+        
+        // 7. RECALCULAR PORCENTAGENS (CRUCIAL!)
+        // (Copiado do método synchronizeWithCaixaApi)
+        System.out.println("Recalculando todas as porcentagens após inserção manual...");
+        totaisRepeticoesLotofacilService.recalcularPorcentagens();
+        totaisParidadeLotofacilService.recalcularPorcentagens();
+        totaisNumerosLotofacilService.recalcularPorcentagens(concursoSalvo.getId());
+        System.out.println("Recálculo concluído.");
+
+        // 8. Retornar o concurso salvo
+        // O frontend espera um ConcursoDetalhado (que é serializado a partir de ConcursoLotofacil)
+        return concursoSalvo;
     }
 	
 }
