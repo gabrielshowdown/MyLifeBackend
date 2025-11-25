@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -403,5 +405,9 @@ public class ConcursoLotofacilService {
         // O frontend espera um ConcursoDetalhado (que é serializado a partir de ConcursoLotofacil)
         return concursoSalvo;
     }
+	
+	public Page<ConcursoLotofacil> findAllPaginated(Pageable pageable){
+	    return repository.findAll(pageable);
+	}
 	
 }

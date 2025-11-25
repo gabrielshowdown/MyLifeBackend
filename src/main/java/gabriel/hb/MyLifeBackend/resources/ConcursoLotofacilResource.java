@@ -4,6 +4,10 @@ import java.net.URI;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -70,6 +74,13 @@ public class ConcursoLotofacilResource {
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                   .buildAndExpand(novoConcurso.getId()).toUri();
         return ResponseEntity.created(uri).body(novoConcurso); 
+    }
+    
+    @GetMapping(value = "/paginated")
+    public ResponseEntity<Page<ConcursoLotofacil>> findAllPaginated(
+            @PageableDefault(sort = "id", direction = Sort.Direction.DESC, page = 0, size = 4) Pageable pageable) {
+        Page<ConcursoLotofacil> list = service.findAllPaginated(pageable);
+        return ResponseEntity.ok().body(list);
     }
 	
 }
