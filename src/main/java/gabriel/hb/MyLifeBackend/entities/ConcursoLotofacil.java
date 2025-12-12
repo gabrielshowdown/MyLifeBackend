@@ -8,8 +8,6 @@ import java.util.Objects;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -23,14 +21,12 @@ public class ConcursoLotofacil implements Serializable{
 	@Id
     // @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private int qtdPares; // É gerado como 'qtd_pares' no banco, seria como colocar um @Column(name="qtd_pares")
     private int qtdImpares;
     private int qtdRepetidos;
     
     @OneToMany(mappedBy = "concurso", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<NumeroConcursoLotofacil> numerosConcurso = new ArrayList<>();
-
 	
 	// Construtores
     public ConcursoLotofacil() {

@@ -16,16 +16,15 @@ import gabriel.hb.MyLifeBackend.repositories.TotaisRepeticoesLotofacilRepository
 @Profile("test") // Colocar o ambiente do Application.properties que deseja mockar os dados
 public class TestConfig implements CommandLineRunner{ // Interface que tem um método que executa quando a aplicação for iniciada
 	
-	@Autowired //o Spring resolve essa injeção de dependencia e associar uma instancia de Repository
-	private TotaisRepeticoesLotofacilRepository totaisRepeticoesLotofacilRepository;
-	@Autowired
-	private TotaisParidadeLotofacilRepository totaisParidadeLotofacilRepository;
-	@Autowired
-	private TotaisNumerosLotofacilRepository totaisNumerosLotofacilRepository;
+	//o Spring resolve essa injeção de dependencia e associar uma instancia de Repository
+	@Autowired private TotaisRepeticoesLotofacilRepository totaisRepeticoesLotofacilRepository;
+	@Autowired private TotaisParidadeLotofacilRepository totaisParidadeLotofacilRepository;
+	@Autowired private TotaisNumerosLotofacilRepository totaisNumerosLotofacilRepository;
 	
 	@Override
 	public void run(String... args) throws Exception {
 		
+		/* Trechos para inciar as tabelas de totais caso estejam vazias */
 		if (totaisRepeticoesLotofacilRepository.count() == 0) {
 			int i = 5;
 			do {

@@ -21,13 +21,11 @@ public class NumeroConcursoLotofacil implements Serializable{
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private int numero;
     private boolean repetido;
 
     @ManyToOne
     private ConcursoLotofacil concurso;
-
 	
 	// Construtores
     public NumeroConcursoLotofacil() {

@@ -2,19 +2,22 @@ package gabriel.hb.MyLifeBackend.resources.dto;
 
 import java.time.LocalDate;
 
-public class SyncronizeContestResponseDTO {
+/* Classe para tratar a resposta para o frontend de quando for sincronizado os concursos */
+public class SyncronizeContestResponse {
 	
+	/* Atributos */
 	private Long lastConcCadastrado;
     private int totContestSyncronized;
     private LocalDate dateNextContest;
     private String textReturnedSyoncronized;
     private Long nextContest;
     
-    public SyncronizeContestResponseDTO() {
+    /* Construtores */
+    public SyncronizeContestResponse() {
     	
     }
 
-	public SyncronizeContestResponseDTO(Long lastConcCadastrado, int totContestSyncronized, LocalDate dateNextContest, String textReturnedSyoncronized, Long nextContest) {
+	public SyncronizeContestResponse(Long lastConcCadastrado, int totContestSyncronized, LocalDate dateNextContest, String textReturnedSyoncronized, Long nextContest) {
 		super();
 		this.lastConcCadastrado = lastConcCadastrado;
 		this.totContestSyncronized = totContestSyncronized;
@@ -23,6 +26,7 @@ public class SyncronizeContestResponseDTO {
 		this.nextContest = nextContest;
 	}
 
+	/* Getters e Setters */
 	public Long getLastConcCadastrado() {
 		return lastConcCadastrado;
 	}

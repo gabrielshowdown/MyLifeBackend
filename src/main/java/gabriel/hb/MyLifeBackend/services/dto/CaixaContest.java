@@ -1,15 +1,17 @@
-package gabriel.hb.MyLifeBackend.resources.dto;
+package gabriel.hb.MyLifeBackend.services.dto;
 
 import java.util.List;
 
-public class CaixaConcursoDTO {
+/* Classe para tratar os dados recebidos da API da Caixa na busca de concurso (usado na sincronização) */
+public class CaixaContest {
 
+	/* Atributos */
 	private long numero;
 	private List<String> listaDezenas;
 	private String dataProximoConcurso;
 	private Long numeroConcursoProximo;
 
-	// Getters e Setters
+	/* Getters e Setters */
 	public long getNumero() {
 		return numero;
 	}

@@ -15,10 +15,11 @@ import gabriel.hb.MyLifeBackend.services.exceptions.ResourceNotFoundException;
 import gabriel.hb.MyLifeBackend.services.exceptions.UserAlreadyRegisteredException;
 import jakarta.servlet.http.HttpServletRequest;
 
-@ControllerAdvice // Intercepta as exceções que acontecem, para que esse objeto faça um possível tratamento.
+@ControllerAdvice /* Intercepta as exceções que acontecem, para que as classes mencionadas façam um possível tratamento. */
 public class ResourceExceptionHandler {
 	
-	@ExceptionHandler(ResourceNotFoundException.class) // Esse método 'resourceNotFound' vai interceptar qq exceção desse tipo 'ResourceNotFoundException' 
+	/* Esse método 'resourceNotFound' vai interceptar qq exceção desse tipo 'ResourceNotFoundException' */
+	@ExceptionHandler(ResourceNotFoundException.class)  
 	public ResponseEntity<StandardError> resourceNotFound(ResourceNotFoundException e, HttpServletRequest request){
 		String error = "Resource not found";
 		HttpStatus status = HttpStatus.NOT_FOUND;
@@ -26,7 +27,8 @@ public class ResourceExceptionHandler {
 		return ResponseEntity.status(status).body(err);
 	}
 	
-	@ExceptionHandler(DatabaseException.class) // Esse método 'database' vai interceptar qq exceção desse tipo 'DatabaseException' 
+	/* Esse método 'database' vai interceptar qq exceção desse tipo 'DatabaseException' */
+	@ExceptionHandler(DatabaseException.class)
 	public ResponseEntity<StandardError> database(DatabaseException e, HttpServletRequest request){
 		String error = "Database error";
 		HttpStatus status = HttpStatus.BAD_REQUEST;
@@ -34,7 +36,8 @@ public class ResourceExceptionHandler {
 		return ResponseEntity.status(status).body(err);
 	}
 	
-	@ExceptionHandler(InvalidLoginException.class) // Esse método 'invalidLogin' vai interceptar qq exceção desse tipo 'InvalidLoginException' 
+	/* Esse método 'invalidLogin' vai interceptar qq exceção desse tipo 'InvalidLoginException' */
+	@ExceptionHandler(InvalidLoginException.class)
 	public ResponseEntity<StandardError> invalidLogin(InvalidLoginException e, HttpServletRequest request){
 		String error = "Login invalid";
 		HttpStatus status = HttpStatus.UNAUTHORIZED;
@@ -42,7 +45,8 @@ public class ResourceExceptionHandler {
 		return ResponseEntity.status(status).body(err);
 	}
 	
-	@ExceptionHandler(UserAlreadyRegisteredException.class) // Esse método 'userAlreadyRegistered' vai interceptar qq exceção desse tipo 'UserAlreadyRegisteredException' 
+	/* Esse método 'userAlreadyRegistered' vai interceptar qq exceção desse tipo 'UserAlreadyRegisteredException' */
+	@ExceptionHandler(UserAlreadyRegisteredException.class) 
 	public ResponseEntity<StandardError> userAlreadyRegistered(UserAlreadyRegisteredException e, HttpServletRequest request){
 		String error = "Username already registered";
 		HttpStatus status = HttpStatus.CONFLICT;
@@ -50,7 +54,8 @@ public class ResourceExceptionHandler {
 		return ResponseEntity.status(status).body(err);
 	}
 	
-	@ExceptionHandler(InvalidLParametersException.class) // Esse método 'parametersInvalid' vai interceptar qq exceção desse tipo 'InvalidLParametersException' 
+	/* Esse método 'parametersInvalid' vai interceptar qq exceção desse tipo 'InvalidLParametersException' */
+	@ExceptionHandler(InvalidLParametersException.class)
 	public ResponseEntity<StandardError> parametersInvalid(InvalidLParametersException e, HttpServletRequest request){
 		String error = "Contest Parameters Invalid";
 		HttpStatus status = HttpStatus.BAD_REQUEST;
@@ -58,7 +63,8 @@ public class ResourceExceptionHandler {
 		return ResponseEntity.status(status).body(err);
 	}
 	
-	@ExceptionHandler(InvalidLParametersContestException.class) // Esse método 'parametersContestInvalid' vai interceptar qq exceção desse tipo 'InvalidLParametersContestException' 
+	/* Esse método 'parametersContestInvalid' vai interceptar qq exceção desse tipo 'InvalidLParametersContestException' */
+	@ExceptionHandler(InvalidLParametersContestException.class) 
 	public ResponseEntity<StandardError> parametersContestInvalid(InvalidLParametersContestException e, HttpServletRequest request){
 		String error = "Contest Parameters Contest Invalid";
 		HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;

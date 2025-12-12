@@ -2,16 +2,18 @@ package gabriel.hb.MyLifeBackend.resources.dto;
 
 import java.util.List;
 
-public class AddContestRequestDTO {
+/* Classe para tratar a requisiçao que vem do frontend para adicionar concurso manualmente */
+public class AddContestRequest {
 	
+	/* Atributos */
 	private Long concursoId;
     private List<String> dezenas; // Ex: ["01", "06", "07", ...]
 
-    // Construtor padrão
-    public AddContestRequestDTO() {
+    /* Construtor padrão */
+    public AddContestRequest() {
     }
 
-    // Getters e Setters
+    /* Getters e Setters */
     public Long getConcursoId() {
         return concursoId;
     }

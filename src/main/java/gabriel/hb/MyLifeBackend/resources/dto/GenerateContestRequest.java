@@ -1,17 +1,20 @@
 package gabriel.hb.MyLifeBackend.resources.dto;
 
-public class GenerateContestRequestDTO {
+/* Classe para tratar a requisiçao que vem do frontend para gerar concurso */
+public class GenerateContestRequest {
 	
+	/* Atributos */
 	private Long concursoAnteriorId;
     private int qtdPares;
     private int qtdImpares;
     private int qtdRepetidos;
     
-    public GenerateContestRequestDTO() {
+    /* Construtores */
+    public GenerateContestRequest() {
     	
     }
     
-	public GenerateContestRequestDTO(Long concursoAnteriorId, int qtdPares, int qtdImpares, int qtdRepetidos) {
+	public GenerateContestRequest(Long concursoAnteriorId, int qtdPares, int qtdImpares, int qtdRepetidos) {
 		super();
 		this.concursoAnteriorId = concursoAnteriorId;
 		this.qtdPares = qtdPares;
@@ -19,6 +22,7 @@ public class GenerateContestRequestDTO {
 		this.qtdRepetidos = qtdRepetidos;
 	}
 
+	/* Getters e Setters */
 	public Long getConcursoAnteriorId() {
 		return concursoAnteriorId;
 	}

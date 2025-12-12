@@ -21,31 +21,33 @@ import gabriel.hb.MyLifeBackend.services.TotaisParidadeLotofacilService;
 @RequestMapping(value = "/totaisParidadesLotofacil")
 public class TotaisParidadeLotofacilResource {
 	
-	@Autowired //O Spring resolve essa injeção de dependencia e associar uma instancia de TotaisParidadeLotofacilService
+	@Autowired /* O Spring resolve essa injeção de dependencia e associar uma instancia de TotaisParidadeLotofacilService */
 	private TotaisParidadeLotofacilService service;
 	
+	/* Método para retorno de todos totais de paridade */
 	@GetMapping
 	public ResponseEntity<List<TotaisParidadeLotofacil>> findAll(){
 		List<TotaisParidadeLotofacil> list = service.findAll();
 		return ResponseEntity.ok().body(list);
 	}
 	
+	/* Método para retorno por ID */
 	@GetMapping(value = "/{id}")
 	public ResponseEntity<TotaisParidadeLotofacil> findById(@PathVariable Long id){ // Pega o valor passado de parâmetro da URL
 		TotaisParidadeLotofacil obj = service.findById(id);
 		return ResponseEntity.ok().body(obj);
 	}
 
-	@PostMapping // Método POST para insercao
+	/* Método para a inserção */
+	@PostMapping
 	public ResponseEntity<TotaisParidadeLotofacil> insert(@RequestBody TotaisParidadeLotofacil obj){ // Objeto chega como JSON e é deserializado para um obj TotaisParidadeLotofacil
 		obj = service.insert(obj);
-		// Trecho abaixo para retorna o código 201 e não o 200, e mostrar o id do user criado
-		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").
-				  buildAndExpand(obj.getId()).toUri();
-		return ResponseEntity.created(uri).body(obj); 
+		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(obj.getId()).toUri();
+		return ResponseEntity.created(uri).body(obj); // Trecho para retornar o código 201 e não o 200, e mostrar o id do user criado
 	}
 	
-	@DeleteMapping(value = "/{id}") // Método DELETE do HTTP
+	/* Método para delete */
+	@DeleteMapping(value = "/{id}")
 	public ResponseEntity<Void> delete (@PathVariable Long id){ // Parâmetro passado na URL
 		service.delete(id);
 		return ResponseEntity.noContent().build(); // Retorna uma resposta vazia (código 204)
