@@ -3,6 +3,7 @@ package gabriel.hb.MyLifeBackend.entities;
 import java.io.Serializable;
 import java.util.Objects;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -11,24 +12,26 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name="tb_totais_numeros_lotofacil")
-public class TotaisNumerosLotofacil implements Serializable{
+public class LotofacilTotalsNumbers implements Serializable{
 	private static final long serialVersionUID = 1L;
 	
 	// Atributos
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private Integer qtd;
-    private Double porcentagem;
+	@Column(name = "qtd")
+	private Integer quantity;
+	@Column(name = "porcentagem")
+	private Double percentage;
 	
 	// Construtores
-    public TotaisNumerosLotofacil() {
+    public LotofacilTotalsNumbers() {
     	
     }
     
-    public TotaisNumerosLotofacil(int qtd, double porc) {
-    	this.qtd = qtd;
-    	this.porcentagem = porc;
+    public LotofacilTotalsNumbers(int quantity, double percentage) {
+    	this.quantity = quantity;
+    	this.percentage = percentage;
     }
 
 	// Métodos Acessores
@@ -40,20 +43,20 @@ public class TotaisNumerosLotofacil implements Serializable{
 		this.id = id;
 	}
 
-	public Integer getQtd() {
-		return qtd;
+	public Integer getQuantity() {
+		return quantity;
 	}
 
-	public void setQtd(Integer qtd) {
-		this.qtd = qtd;
+	public void setQuantity(Integer quantity) {
+		this.quantity = quantity;
 	}
 
-	public Double getPorcentagem() {
-		return porcentagem;
+	public Double getPercentage() {
+		return percentage;
 	}
 
-	public void setPorcentagem(Double porcentagem) {
-		this.porcentagem = porcentagem;
+	public void setPercentage(Double percentage) {
+		this.percentage = percentage;
 	}
 
 	@Override
@@ -64,7 +67,7 @@ public class TotaisNumerosLotofacil implements Serializable{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		TotaisNumerosLotofacil other = (TotaisNumerosLotofacil) obj;
+		LotofacilTotalsNumbers other = (LotofacilTotalsNumbers) obj;
 		return Objects.equals(id, other.id);
 	}
 

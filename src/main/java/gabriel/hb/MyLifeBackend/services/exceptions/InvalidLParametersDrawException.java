@@ -1,9 +1,9 @@
 package gabriel.hb.MyLifeBackend.services.exceptions;
 
-public class InvalidLParametersContestException extends RuntimeException {
+public class InvalidLParametersDrawException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 
-	public InvalidLParametersContestException(String msg) {
+	public InvalidLParametersDrawException(String msg) {
         super("Parâmetros de concurso inválidos " + msg);
 	}
 	

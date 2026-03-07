@@ -5,36 +5,41 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name="tb_numero_concurso_lotofacil")
-public class NumeroConcursoLotofacil implements Serializable{
+public class LotofacilDrawNumber implements Serializable{
 	private static final long serialVersionUID = 1L;
 	
 	// Atributos
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private int numero;
-    private boolean repetido;
+	@Column(name = "numero")
+    private int number;
+	@Column(name = "repetido")
+    private boolean isRepeated;
 
     @ManyToOne
-    private ConcursoLotofacil concurso;
+    @JoinColumn(name = "concurso_id") // iria criar a coluna como draw_id automaticamente
+    private LotofacilDraw draw;
 	
 	// Construtores
-    public NumeroConcursoLotofacil() {
+    public LotofacilDrawNumber() {
     }
 
-    public NumeroConcursoLotofacil(int numero, boolean repetido, ConcursoLotofacil sorteio) {
-        this.numero = numero;
-        this.repetido = repetido;
-        this.concurso = sorteio;
+    public LotofacilDrawNumber(int number, boolean isRepeated, LotofacilDraw draw) {
+        this.number = number;
+        this.isRepeated = isRepeated;
+        this.draw = draw;
     }
 
 	// Métodos Acessores
@@ -46,30 +51,30 @@ public class NumeroConcursoLotofacil implements Serializable{
         this.id = id;
     }
 
-    public int getNumero() {
-        return numero;
+    public int getNumber() {
+        return number;
     }
 
-    public void setNumero(int numero) {
-        this.numero = numero;
+    public void setNumber(int number) {
+        this.number = number;
     }
     
-    public boolean getRepetido() {
-        return repetido;
+    public boolean getIsRepeated() {
+        return isRepeated;
     }
 
-    public void setRepetido(boolean repetido) {
-        this.repetido = repetido;
+    public void setIsRepeated(boolean isRepeated) {
+        this.isRepeated = isRepeated;
     }
 
     // o Jackson usa os métodos getters para serializar
     @JsonIgnore
-    public ConcursoLotofacil getSorteio() {
-        return concurso;
+    public LotofacilDraw getDraw() {
+        return draw;
     }
 
-    public void setSorteio(ConcursoLotofacil concurso) {
-        this.concurso = concurso;
+    public void setDraw(LotofacilDraw draw) {
+        this.draw = draw;
     }
 
 	@Override
@@ -80,7 +85,7 @@ public class NumeroConcursoLotofacil implements Serializable{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		NumeroConcursoLotofacil other = (NumeroConcursoLotofacil) obj;
+		LotofacilDrawNumber other = (LotofacilDrawNumber) obj;
 		return Objects.equals(id, other.id);
 	}
 

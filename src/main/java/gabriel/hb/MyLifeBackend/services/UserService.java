@@ -34,8 +34,8 @@ public class UserService {
         return repository.findByUsername(name);
     }
 	
-	public User validateUser(String username, String senha) {
-		Optional<User> obj = repository.findByUsernameAndSenha(username, senha);
+	public User validateUser(String username, String password) {
+		Optional<User> obj = repository.findByUsernameAndPassword(username, password);
 		return obj.orElseThrow(() -> new InvalidLoginException(""));
 		// Caso quisesse o booleano, poderia colocar repository.findByUsernameAndSenha(username, senha).isPresent();
     }
@@ -47,7 +47,6 @@ public class UserService {
 		else {
 			throw new UserAlreadyRegisteredException(" com o username: " + obj.getUsername());
 		}
-		//return repository.save(obj);
 	}
 	
 	public void delete(Long id) {
@@ -75,8 +74,8 @@ public class UserService {
 
 	private void updateData(User entity, User obj) {
 		entity.setUsername(obj.getUsername());
-		entity.setSenha(obj.getSenha());
-		entity.setGenero(obj.getGenero());
-		entity.setLocalizacao(obj.getLocalizacao());
+		entity.setPassword(obj.getPassword());
+		entity.setGender(obj.getGender());
+		entity.setLocation(obj.getLocation());
 	}
 }

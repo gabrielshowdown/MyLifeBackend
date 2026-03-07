@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import gabriel.hb.MyLifeBackend.services.exceptions.DatabaseException;
-import gabriel.hb.MyLifeBackend.services.exceptions.InvalidLParametersContestException;
+import gabriel.hb.MyLifeBackend.services.exceptions.InvalidLParametersDrawException;
 import gabriel.hb.MyLifeBackend.services.exceptions.InvalidLParametersException;
 import gabriel.hb.MyLifeBackend.services.exceptions.InvalidLoginException;
 import gabriel.hb.MyLifeBackend.services.exceptions.ResourceNotFoundException;
@@ -57,16 +57,16 @@ public class ResourceExceptionHandler {
 	/* Esse método 'parametersInvalid' vai interceptar qq exceção desse tipo 'InvalidLParametersException' */
 	@ExceptionHandler(InvalidLParametersException.class)
 	public ResponseEntity<StandardError> parametersInvalid(InvalidLParametersException e, HttpServletRequest request){
-		String error = "Contest Parameters Invalid";
+		String error = "Draw Parameters Invalid";
 		HttpStatus status = HttpStatus.BAD_REQUEST;
 		StandardError err = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
 		return ResponseEntity.status(status).body(err);
 	}
 	
-	/* Esse método 'parametersContestInvalid' vai interceptar qq exceção desse tipo 'InvalidLParametersContestException' */
-	@ExceptionHandler(InvalidLParametersContestException.class) 
-	public ResponseEntity<StandardError> parametersContestInvalid(InvalidLParametersContestException e, HttpServletRequest request){
-		String error = "Contest Parameters Contest Invalid";
+	/* Esse método 'parametersDrawInvalid' vai interceptar qq exceção desse tipo 'InvalidLParametersDrawException' */
+	@ExceptionHandler(InvalidLParametersDrawException.class) 
+	public ResponseEntity<StandardError> parametersDrawInvalid(InvalidLParametersDrawException e, HttpServletRequest request){
+		String error = "Draw Parameters Invalid";
 		HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
 		StandardError err = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
 		return ResponseEntity.status(status).body(err);

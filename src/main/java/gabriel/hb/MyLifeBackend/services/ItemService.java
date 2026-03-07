@@ -57,11 +57,10 @@ public class ItemService {
 	}
 
 	private void updateData(Item entity, Item obj) {
-		entity.setNome(obj.getNome());
-		entity.setCategoria(obj.getCategoria());
-		entity.setObervacao(obj.getObervacao());
-		entity.setImagem(obj.getImagem());
-		entity.setLocal(obj.getLocal());
-		entity.setValidade(obj.getValidade());
+		entity.setName(obj.getName());
+		entity.setCategory(obj.getCategory());
+		entity.setObservation(obj.getObservation());
+		entity.setImage(obj.getImage());
+		entity.setValidity(obj.getValidity());
 	}
 }

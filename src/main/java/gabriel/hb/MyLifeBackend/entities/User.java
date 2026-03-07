@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Objects;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,24 +22,28 @@ public class User implements Serializable{
 	private Long id;
 	// Caso quisesse mudar o nome da coluna -> @Column(name="nomecompleto")
 	private String username;
-	private String senha;
-	private String genero;
-	private String localizacao;
-	private LocalDate dataNascimento;
+	@Column(name = "senha")
+	private String password;
+	@Column(name = "genero")
+	private String gender;
+	@Column(name = "localizacao")
+	private String location;
+	@Column(name = "data_nascimento") 
+	private LocalDate birthDate;
 	
 	// Construtores
 	public User() {
 		
 	}
 		
-	public User(Long id, String username, String senha, String genero, String localizacao, LocalDate dataNascimento) {
+	public User(Long id, String username, String password, String gender, String location, LocalDate birthDate) {
 		super();
 		this.id = id;
 		this.username = username;
-		this.senha = senha;
-		this.genero = genero;
-		this.localizacao = localizacao;
-		this.dataNascimento = dataNascimento;
+		this.password = password;
+		this.gender = gender;
+		this.location = location;
+		this.birthDate = birthDate;
 	}
 	
 	// Métodos Acessores
@@ -58,35 +63,35 @@ public class User implements Serializable{
 		this.username = username;
 	}
 
-	public String getSenha() {
-		return senha;
+	public String getPassword() {
+		return password;
 	}
 
-	public void setSenha(String senha) {
-		this.senha = senha;
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
-	public String getGenero() {
-		return genero;
+	public String getGender() {
+		return gender;
 	}
 
-	public void setGenero(String genero) {
-		this.genero = genero;
+	public void setGender(String gender) {
+		this.gender = gender;
 	}
 
-	public String getLocalizacao() {
-		return localizacao;
+	public String getLocation() {
+		return location;
 	}
 
-	public void setLocalizacao(String localizacao) {
-		this.localizacao = localizacao;
+	public void setLocation(String location) {
+		this.location = location;
 	}
 	
-	public LocalDate getDataNascimento() {
-		return dataNascimento;
+	public LocalDate getBirthDate() {
+		return birthDate;
 	}
-	public void setData(LocalDate dataNascimento) {
-		this.dataNascimento = dataNascimento;
+	public void setData(LocalDate birthDate) {
+		this.birthDate = birthDate;
 	}
 	
 	// Métodos Acessores

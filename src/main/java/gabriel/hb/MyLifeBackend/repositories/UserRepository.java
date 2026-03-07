@@ -12,7 +12,7 @@ import gabriel.hb.MyLifeBackend.entities.User;
 			//(não é obrigatório, pois essa interface já herda isso do JpaRepository)
 public interface UserRepository extends JpaRepository<User, Long>{
 	
-	Optional<User> findByUsernameAndSenha(String username, String password);
+	Optional<User> findByUsernameAndPassword(String username, String password);
 	
 	List<User> findByUsername(String username);
 

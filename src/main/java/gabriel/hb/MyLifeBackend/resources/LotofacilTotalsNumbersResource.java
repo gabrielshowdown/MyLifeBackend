@@ -14,33 +14,33 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import gabriel.hb.MyLifeBackend.entities.TotaisNumerosLotofacil;
-import gabriel.hb.MyLifeBackend.services.TotaisNumerosLotofacilService;
+import gabriel.hb.MyLifeBackend.entities.LotofacilTotalsNumbers;
+import gabriel.hb.MyLifeBackend.services.LotofacilTotalsNumbersService;
 
 @RestController
-@RequestMapping(value = "/totaisNumerosLotofacil")
-public class TotaisNumerosLotofacilResource {
+@RequestMapping(value = "/lotofacilTotalsNumbers")
+public class LotofacilTotalsNumbersResource {
 	
 	@Autowired /* O Spring resolve essa injeção de dependencia e associar uma instancia de TotaisNumerosLotofacilService */
-	private TotaisNumerosLotofacilService service;
+	private LotofacilTotalsNumbersService service;
 	
 	/* Método para retorno de todos totais dos números */
 	@GetMapping
-	public ResponseEntity<List<TotaisNumerosLotofacil>> findAll(){
-		List<TotaisNumerosLotofacil> list = service.findAll();
+	public ResponseEntity<List<LotofacilTotalsNumbers>> findAll(){
+		List<LotofacilTotalsNumbers> list = service.findAll();
 		return ResponseEntity.ok().body(list);
 	}
 	
 	/* Método para retorno por ID */
 	@GetMapping(value = "/{id}")
-	public ResponseEntity<TotaisNumerosLotofacil> findById(@PathVariable Long id){ // Pega o valor passado de parâmetro da URL
-		TotaisNumerosLotofacil obj = service.findById(id);
+	public ResponseEntity<LotofacilTotalsNumbers> findById(@PathVariable Long id){ // Pega o valor passado de parâmetro da URL
+		LotofacilTotalsNumbers obj = service.findById(id);
 		return ResponseEntity.ok().body(obj);
 	}
 
 	/* Método para a inserção */
 	@PostMapping
-	public ResponseEntity<TotaisNumerosLotofacil> insert(@RequestBody TotaisNumerosLotofacil obj){ // Objeto chega como JSON e é deserializado para um obj TotaisNumerosLotofacil
+	public ResponseEntity<LotofacilTotalsNumbers> insert(@RequestBody LotofacilTotalsNumbers obj){ // Objeto chega como JSON e é deserializado para um obj TotaisNumerosLotofacil
 		obj = service.insert(obj);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(obj.getId()).toUri();
 		return ResponseEntity.created(uri).body(obj); // Trecho para retornar o código 201 e não o 200, e mostrar o id do user criado

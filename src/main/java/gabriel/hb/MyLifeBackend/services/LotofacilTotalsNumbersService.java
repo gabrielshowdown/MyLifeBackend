@@ -7,27 +7,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import gabriel.hb.MyLifeBackend.entities.TotaisNumerosLotofacil;
-import gabriel.hb.MyLifeBackend.repositories.TotaisNumerosLotofacilRepository;
+import gabriel.hb.MyLifeBackend.entities.LotofacilTotalsNumbers;
+import gabriel.hb.MyLifeBackend.repositories.LotofacilTotalsNumbersRepository;
 import gabriel.hb.MyLifeBackend.services.exceptions.DatabaseException;
 import gabriel.hb.MyLifeBackend.services.exceptions.ResourceNotFoundException;
 
 @Service // Registra a classe como um componente/service do spring e vai poder ser injetado no TotaisNumerosLotofacilResource
-public class TotaisNumerosLotofacilService {
+public class LotofacilTotalsNumbersService {
 	
 	@Autowired //O Spring resolve essa injeção de dependencia e associar uma instancia de TotaisNumerosLotofacilRepository
-	private TotaisNumerosLotofacilRepository repository;
+	private LotofacilTotalsNumbersRepository repository;
 	
-	public List<TotaisNumerosLotofacil> findAll(){
+	public List<LotofacilTotalsNumbers> findAll(){
 		return repository.findAll();
 	}
 	
-	public TotaisNumerosLotofacil findById(Long id) {
-		Optional<TotaisNumerosLotofacil> obj = repository.findById(id); // o findById retona um Optional
+	public LotofacilTotalsNumbers findById(Long id) {
+		Optional<LotofacilTotalsNumbers> obj = repository.findById(id); // o findById retona um Optional
         return obj.orElseThrow(() -> new ResourceNotFoundException(id)); // Poderia ser um return obj.get(); para pegar o 'TotaisNumerosLotofacil' do obj;
 	}
 	
-	public TotaisNumerosLotofacil insert(TotaisNumerosLotofacil obj) {
+	public LotofacilTotalsNumbers insert(LotofacilTotalsNumbers obj) {
 		return repository.save(obj);
 	}
 	
@@ -43,30 +43,28 @@ public class TotaisNumerosLotofacilService {
 	    }	
 	}
 
-	public void atualizaTotais(List<Integer> dezenasAtuais, Long ultimoConcid) {
+	public void updateTotals(List<Integer> currentDozens, Long lastDrawId) {
 		
-		for(long n : dezenasAtuais) {
-			TotaisNumerosLotofacil total = repository.findById(n).orElseThrow(() -> new RuntimeException("Registro de número " + n + " não encontrado."));
-			total.setQtd(total.getQtd() + 1);
+		for(long n : currentDozens) {
+			LotofacilTotalsNumbers total = repository.findById(n).orElseThrow(() -> new RuntimeException("Registro de número " + n + " não encontrado."));
+			total.setQuantity(total.getQuantity() + 1);
 	        repository.save(total);
 		}
 		
-		// recalcularPorcentagens(ultimoConcid);
-		
 	}
 
-	public void recalcularPorcentagens(Long ultimoConcid) {
+	public void recalculatePercentages(Long lastDrawId) {
 		
-		List<TotaisNumerosLotofacil> totais = repository.findAll();
+		List<LotofacilTotalsNumbers> totalsNumbersList = repository.findAll();
 
-        if (ultimoConcid == 0) return;
+        if (lastDrawId == 0) return;
 
-        for (TotaisNumerosLotofacil total : totais) {
-            double porcentagem = (total.getQtd() * 100.0) / ultimoConcid;
-            total.setPorcentagem(porcentagem);
+        for (LotofacilTotalsNumbers total : totalsNumbersList) {
+            double porcentagem = (total.getQuantity() * 100.0) / lastDrawId;
+            total.setPercentage(porcentagem);
         }
 
-        repository.saveAll(totais);
+        repository.saveAll(totalsNumbersList);
 		
 	} 
 	

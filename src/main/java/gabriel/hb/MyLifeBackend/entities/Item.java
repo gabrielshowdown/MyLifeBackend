@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Objects;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,34 +21,34 @@ public class Item implements Serializable{
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Long id;
 	// Caso quisesse mudar o nome da coluna -> @Column(name="nomecompleto")
-	private String nome;
-	private String obervacao;
-	private String local;
-	private String categoria;
-	private String imagem;
-	private LocalDate validade;
+	@Column(name = "nome")
+	private String name;
+	@Column(name = "observacao")
+	private String observation;
+	@Column(name = "categoria")
+	private String category;
+	@Column(name = "imagem")
+	private String image;
+	@Column(name = "validade")
+	private LocalDate validity;
 	
 	// Construtores
 	public Item() {
 		
 	}
 		
-	public Item(Long id, String nome, String obervacao, String local, String categoria, String imagem, LocalDate validade) {
+	
+
+	public Item(Long id, String name, String observation, String category, String image, LocalDate validity) {
 		super();
 		this.id = id;
-		this.nome = nome;
-		this.obervacao = obervacao;
-		this.local = local;
-		this.categoria = categoria;
-		this.imagem = imagem;
-		this.validade = validade;
+		this.name = name;
+		this.observation = observation;
+		this.category = category;
+		this.image = image;
+		this.validity = validity;
 	}
 
-	// Métodos Acessores
-	@Override
-	public int hashCode() {
-		return Objects.hash(id);
-	}
 
 	public Long getId() {
 		return id;
@@ -57,53 +58,73 @@ public class Item implements Serializable{
 		this.id = id;
 	}
 
-	public String getNome() {
-		return nome;
-	}
-
-	public void setNome(String nome) {
-		this.nome = nome;
-	}
-
-	public String getObervacao() {
-		return obervacao;
-	}
-
-	public void setObervacao(String obervacao) {
-		this.obervacao = obervacao;
-	}
 	
-	public String getLocal() {
-		return local;
+	public String getName() {
+		return name;
 	}
 
-	public void setLocal(String local) {
-		this.local = local;
+
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
-	public String getCategoria() {
-		return categoria;
+
+
+	public String getObservation() {
+		return observation;
 	}
 
-	public void setCategoria(String categoria) {
-		this.categoria = categoria;
-	}
-	
-	public String getImagem() {
-		return imagem;
+
+
+	public void setObservation(String observation) {
+		this.observation = observation;
 	}
 
-	public void setImagem(String imagem) {
-		this.imagem = imagem;
+
+
+	public String getCategory() {
+		return category;
 	}
 
-	public LocalDate getValidade() {
-		return validade;
+
+
+	public void setCategory(String category) {
+		this.category = category;
 	}
 
-	public void setValidade(LocalDate validade) {
-		this.validade = validade;
+
+
+	public String getImage() {
+		return image;
 	}
+
+
+
+	public void setImage(String image) {
+		this.image = image;
+	}
+
+
+
+	public LocalDate getValidity() {
+		return validity;
+	}
+
+
+
+	public void setValidity(LocalDate validity) {
+		this.validity = validity;
+	}
+
+
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id);
+	}
+
+
 
 	@Override
 	public boolean equals(Object obj) {
@@ -116,5 +137,4 @@ public class Item implements Serializable{
 		Item other = (Item) obj;
 		return Objects.equals(id, other.id);
 	}
-
 }

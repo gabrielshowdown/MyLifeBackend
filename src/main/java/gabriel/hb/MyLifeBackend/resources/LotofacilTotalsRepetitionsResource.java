@@ -14,33 +14,33 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import gabriel.hb.MyLifeBackend.entities.TotaisParidadeLotofacil;
-import gabriel.hb.MyLifeBackend.services.TotaisParidadeLotofacilService;
+import gabriel.hb.MyLifeBackend.entities.LotofacilTotalsRepetitions;
+import gabriel.hb.MyLifeBackend.services.LotofacilTotalsRepetitionsService;
 
 @RestController
-@RequestMapping(value = "/totaisParidadesLotofacil")
-public class TotaisParidadeLotofacilResource {
+@RequestMapping(value = "/lotofacilTotalsRepetitions")
+public class LotofacilTotalsRepetitionsResource {
 	
-	@Autowired /* O Spring resolve essa injeção de dependencia e associar uma instancia de TotaisParidadeLotofacilService */
-	private TotaisParidadeLotofacilService service;
+	@Autowired /* O Spring resolve essa injeção de dependencia e associar uma instancia de TotaisRepeticoesLotofacilService */
+	private LotofacilTotalsRepetitionsService service;
 	
-	/* Método para retorno de todos totais de paridade */
+	/* Método para retorno de todos totais de repeticoes */
 	@GetMapping
-	public ResponseEntity<List<TotaisParidadeLotofacil>> findAll(){
-		List<TotaisParidadeLotofacil> list = service.findAll();
+	public ResponseEntity<List<LotofacilTotalsRepetitions>> findAll(){
+		List<LotofacilTotalsRepetitions> list = service.findAll();
 		return ResponseEntity.ok().body(list);
 	}
 	
 	/* Método para retorno por ID */
 	@GetMapping(value = "/{id}")
-	public ResponseEntity<TotaisParidadeLotofacil> findById(@PathVariable Long id){ // Pega o valor passado de parâmetro da URL
-		TotaisParidadeLotofacil obj = service.findById(id);
+	public ResponseEntity<LotofacilTotalsRepetitions> findById(@PathVariable Long id){ // Pega o valor passado de parâmetro da URL
+		LotofacilTotalsRepetitions obj = service.findById(id);
 		return ResponseEntity.ok().body(obj);
 	}
 
 	/* Método para a inserção */
 	@PostMapping
-	public ResponseEntity<TotaisParidadeLotofacil> insert(@RequestBody TotaisParidadeLotofacil obj){ // Objeto chega como JSON e é deserializado para um obj TotaisParidadeLotofacil
+	public ResponseEntity<LotofacilTotalsRepetitions> insert(@RequestBody LotofacilTotalsRepetitions obj){ // Objeto chega como JSON e é deserializado para um obj TotaisRepeticoesLotofacil
 		obj = service.insert(obj);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(obj.getId()).toUri();
 		return ResponseEntity.created(uri).body(obj); // Trecho para retornar o código 201 e não o 200, e mostrar o id do user criado

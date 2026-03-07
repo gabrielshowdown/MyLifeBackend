@@ -18,40 +18,40 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import gabriel.hb.MyLifeBackend.entities.ConcursoLotofacil;
-import gabriel.hb.MyLifeBackend.resources.dto.AddContestRequest;
-import gabriel.hb.MyLifeBackend.resources.dto.GenerateContestRequest;
-import gabriel.hb.MyLifeBackend.resources.dto.SyncronizeContestResponse;
-import gabriel.hb.MyLifeBackend.services.ConcursoLotofacilService;
+import gabriel.hb.MyLifeBackend.entities.LotofacilDraw;
+import gabriel.hb.MyLifeBackend.resources.dto.AddDrawRequest;
+import gabriel.hb.MyLifeBackend.resources.dto.GenerateDrawRequest;
+import gabriel.hb.MyLifeBackend.resources.dto.SynchronizeDrawResponse;
+import gabriel.hb.MyLifeBackend.services.LotofacilDrawService;
 
 @RestController
-@RequestMapping(value = "/concursoLotofacil")
-public class ConcursoLotofacilResource {
+@RequestMapping(value = "/lotofacilDraw")
+public class LotofaciDrawlResource {
 
 	/* O Spring resolve essa injeção de dependencia e associar uma instancia de ConcursoLotofacilService */
 	@Autowired
-	private ConcursoLotofacilService service;
+	private LotofacilDrawService service;
 
 	/* Método para retorno de todos os concursos */
 	@GetMapping
-	public ResponseEntity<List<ConcursoLotofacil>> findAll() {
-		List<ConcursoLotofacil> list = service.findAll();
+	public ResponseEntity<List<LotofacilDraw>> findAll() {
+		List<LotofacilDraw> list = service.findAll();
 		return ResponseEntity.ok().body(list);
 	}
 
 	/* Método para retorno por ID */
 	@GetMapping(value = "/{id}")
-	public ResponseEntity<ConcursoLotofacil> findById(@PathVariable Long id) { // Pega o valor passado de parâmetro da URL
-		ConcursoLotofacil obj = service.findById(id);
+	public ResponseEntity<LotofacilDraw> findById(@PathVariable Long id) { // Pega o valor passado de parâmetro da URL
+		LotofacilDraw obj = service.findById(id);
 		return ResponseEntity.ok().body(obj);
 	}
 
 	/* Método para geração de concurso */
 	@PostMapping("/generate")
-	public ResponseEntity<ConcursoLotofacil> generateContest(@RequestBody GenerateContestRequest obj) { // Objeto chega como JSON e é deserializado para um obj ConcursoLotofacil
-		ConcursoLotofacil conc = service.generateContest(obj.getConcursoAnteriorId(), obj.getQtdRepetidos(),
-				obj.getQtdImpares(), obj.getQtdPares());
-		return ResponseEntity.ok().body(conc);
+	public ResponseEntity<LotofacilDraw> generateDraw(@RequestBody GenerateDrawRequest obj) { // Objeto chega como JSON e é deserializado para um obj ConcursoLotofacil
+		LotofacilDraw draw = service.generateDraw(obj.getLastDrawId(), obj.getRepeatedCount(),
+				obj.getOddCount(), obj.getEvenCount());
+		return ResponseEntity.ok().body(draw);
 	}
 
 	/* Método para delete */
@@ -63,17 +63,17 @@ public class ConcursoLotofacilResource {
 
 	/* Método para sincronização */
 	@PostMapping("/synchronize")
-	public ResponseEntity<SyncronizeContestResponse> synchronizeContests() {
-		SyncronizeContestResponse resultado = service.synchronizeWithCaixaApi();
-		return ResponseEntity.ok().body(resultado);
+	public ResponseEntity<SynchronizeDrawResponse> synchronizeDraws() {
+		SynchronizeDrawResponse result = service.synchronizeWithCaixaApi();
+		return ResponseEntity.ok().body(result);
 	}
 
 	/* Método para a inserção */
 	@PostMapping("/insert") 
-	public ResponseEntity<ConcursoLotofacil> insertManually(@RequestBody AddContestRequest dto) {
-		ConcursoLotofacil novoConcurso = service.insertManually(dto);
-		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(novoConcurso.getId()).toUri();
-		return ResponseEntity.created(uri).body(novoConcurso); // Retorna 201 Created (igual ao 'insert' padrão)
+	public ResponseEntity<LotofacilDraw> insertManually(@RequestBody AddDrawRequest dto) {
+		LotofacilDraw newDraw = service.insertManually(dto);
+		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(newDraw.getId()).toUri();
+		return ResponseEntity.created(uri).body(newDraw); // Retorna 201 Created (igual ao 'insert' padrão)
 	}
 
 	/* Método para a paginação */
@@ -81,9 +81,9 @@ public class ConcursoLotofacilResource {
 	 * 'Pageable pageable': o Spring injeta automaticamente um objeto Pageable com base nos parâmetros da requisição (page, size, sort).
 	 * Exemplo: /paginated?page=2&size=10&sort=nome,asc */
 	@GetMapping(value = "/paginated")
-	public ResponseEntity<Page<ConcursoLotofacil>> findAllPaginated(
+	public ResponseEntity<Page<LotofacilDraw>> findAllPaginated(
 			@PageableDefault(sort = "id", direction = Sort.Direction.DESC, page = 0, size = 4) Pageable pageable) {
-		Page<ConcursoLotofacil> list = service.findAllPaginated(pageable);
+		Page<LotofacilDraw> list = service.findAllPaginated(pageable);
 		return ResponseEntity.ok().body(list); // Objeto do tipo 'Page' retorna também informações de paginação (número da página, total de páginas, total de elementos, etc.)
 	}
 

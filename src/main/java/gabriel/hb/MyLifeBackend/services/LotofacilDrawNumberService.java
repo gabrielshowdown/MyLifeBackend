@@ -7,27 +7,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import gabriel.hb.MyLifeBackend.entities.NumeroConcursoLotofacil;
-import gabriel.hb.MyLifeBackend.repositories.NumeroConcursoLotofacilRepository;
+import gabriel.hb.MyLifeBackend.entities.LotofacilDrawNumber;
+import gabriel.hb.MyLifeBackend.repositories.LotofacilDrawNumberRepository;
 import gabriel.hb.MyLifeBackend.services.exceptions.DatabaseException;
 import gabriel.hb.MyLifeBackend.services.exceptions.ResourceNotFoundException;
 
 @Service // Registra a classe como um componente/service do spring e vai poder ser injetado no NumeroConcursoLotofacilResource
-public class NumeroConcursoLotofacilService {
+public class LotofacilDrawNumberService {
 	
 	@Autowired //O Spring resolve essa injeção de dependencia e associar uma instancia de NumeroConcursoLotofacilRepository
-	private NumeroConcursoLotofacilRepository repository;
+	private LotofacilDrawNumberRepository repository;
 	
-	public List<NumeroConcursoLotofacil> findAll(){
+	public List<LotofacilDrawNumber> findAll(){
 		return repository.findAll();
 	}
 	
-	public NumeroConcursoLotofacil findById(Long id) {
-		Optional<NumeroConcursoLotofacil> obj = repository.findById(id); // o findById retona um Optional
+	public LotofacilDrawNumber findById(Long id) {
+		Optional<LotofacilDrawNumber> obj = repository.findById(id); // o findById retona um Optional
         return obj.orElseThrow(() -> new ResourceNotFoundException(id)); // Poderia ser um return obj.get(); para pegar o 'NumeroConcursoLotofacil' do obj;
 	}
 	
-	public NumeroConcursoLotofacil insert(NumeroConcursoLotofacil obj) {
+	public LotofacilDrawNumber insert(LotofacilDrawNumber obj) {
 		return repository.save(obj);
 	}
 	
@@ -44,8 +44,8 @@ public class NumeroConcursoLotofacilService {
 	}
 	
 	/*
-	public List<NumeroConcursoLotofacil> findByConcursoId(Long concursoId) {
-		return repository.findByConcursoId(concursoId);
+	public List<LotofacilDrawNumber> findByConcursoId(Long drawId) {
+		return repository.findByConcursoId(drawId);
 	}
 	*/
 }

@@ -14,33 +14,33 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import gabriel.hb.MyLifeBackend.entities.NumeroConcursoLotofacil;
-import gabriel.hb.MyLifeBackend.services.NumeroConcursoLotofacilService;
+import gabriel.hb.MyLifeBackend.entities.LotofacilDrawNumber;
+import gabriel.hb.MyLifeBackend.services.LotofacilDrawNumberService;
 
 @RestController
-@RequestMapping(value = "/numeroConcursoLotofacil")
-public class NumeroConcursoLotofacilResource {
+@RequestMapping(value = "/lotofacilDrawNumber")
+public class LotofacilDrawNumberResource {
 	
 	@Autowired /* O Spring resolve essa injeção de dependencia e associar uma instancia de NumeroConcursoLotofacilService */
-	private NumeroConcursoLotofacilService service;
+	private LotofacilDrawNumberService service;
 	
 	/* Método para retorno de todos os numeros de concurso */
 	@GetMapping
-	public ResponseEntity<List<NumeroConcursoLotofacil>> findAll(){
-		List<NumeroConcursoLotofacil> list = service.findAll();
+	public ResponseEntity<List<LotofacilDrawNumber>> findAll(){
+		List<LotofacilDrawNumber> list = service.findAll();
 		return ResponseEntity.ok().body(list);
 	}
 	
 	/* Método para retorno por ID */
 	@GetMapping(value = "/{id}")
-	public ResponseEntity<NumeroConcursoLotofacil> findById(@PathVariable Long id){ // Pega o valor passado de parâmetro da URL
-		NumeroConcursoLotofacil obj = service.findById(id);
+	public ResponseEntity<LotofacilDrawNumber> findById(@PathVariable Long id){ // Pega o valor passado de parâmetro da URL
+		LotofacilDrawNumber obj = service.findById(id);
 		return ResponseEntity.ok().body(obj);
 	}
 
 	/* Método para a inserção */
 	@PostMapping 
-	public ResponseEntity<NumeroConcursoLotofacil> insert(@RequestBody NumeroConcursoLotofacil obj){ // Objeto chega como JSON e é deserializado para um obj NumeroConcursoLotofacil
+	public ResponseEntity<LotofacilDrawNumber> insert(@RequestBody LotofacilDrawNumber obj){ // Objeto chega como JSON e é deserializado para um obj NumeroConcursoLotofacil
 		obj = service.insert(obj);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").
 				  buildAndExpand(obj.getId()).toUri();
@@ -56,8 +56,8 @@ public class NumeroConcursoLotofacilResource {
 	
 	/** Novo endpoint para buscar números por ID do concurso
 	@GetMapping(value = "/concurso/{concursoId}")
-	public ResponseEntity<List<NumeroConcursoLotofacil>> findByConcursoId(@PathVariable Long concursoId){
-		List<NumeroConcursoLotofacil> list = service.findByConcursoId(concursoId);
+	public ResponseEntity<List<NumeroConcursoLotofacil>> findByConcursoId(@PathVariable Long drawId){
+		List<LotofacilDrawNumber> list = service.findByConcursoId(drawId);
 		return ResponseEntity.ok().body(list);
 	}	
 	*/

@@ -8,30 +8,30 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import gabriel.hb.MyLifeBackend.entities.TotaisParidadeLotofacil;
-import gabriel.hb.MyLifeBackend.repositories.TotaisParidadeLotofacilRepository;
+import gabriel.hb.MyLifeBackend.entities.LotofacilTotalsParities;
+import gabriel.hb.MyLifeBackend.repositories.LotofacilTotalsParitiesRepository;
 import gabriel.hb.MyLifeBackend.services.exceptions.DatabaseException;
 import gabriel.hb.MyLifeBackend.services.exceptions.ResourceNotFoundException;
 
 @Service // Registra a classe como um componente/service do spring e vai poder ser
 			// injetado no TotaisParidadeLotofacilResource
-public class TotaisParidadeLotofacilService {
+public class LotofacilTotalsParitiesService {
 
 	@Autowired // O Spring resolve essa injeção de dependencia e associar uma instancia de
 				// TotaisParidadeLotofacilRepository
-	private TotaisParidadeLotofacilRepository repository;
+	private LotofacilTotalsParitiesRepository repository;
 
-	public List<TotaisParidadeLotofacil> findAll() {
+	public List<LotofacilTotalsParities> findAll() {
 		return repository.findAll();
 	}
 
-	public TotaisParidadeLotofacil findById(Long id) {
-		Optional<TotaisParidadeLotofacil> obj = repository.findById(id); // o findById retona um Optional
+	public LotofacilTotalsParities findById(Long id) {
+		Optional<LotofacilTotalsParities> obj = repository.findById(id); // o findById retona um Optional
 		return obj.orElseThrow(() -> new ResourceNotFoundException(id)); // Poderia ser um return obj.get(); para pegar
 																			// o 'TotaisParidadeLotofacil' do obj;
 	}
 
-	public TotaisParidadeLotofacil insert(TotaisParidadeLotofacil obj) {
+	public LotofacilTotalsParities insert(LotofacilTotalsParities obj) {
 		return repository.save(obj);
 	}
 
@@ -49,35 +49,35 @@ public class TotaisParidadeLotofacilService {
 	}
 
 	@Transactional
-	public void atualizaTotais(int pares, int impares, Long idConcurso) {
+	public void updateTotals(int even, int odd, Long drawId) {
 
-		String chaveParidade = String.format("%02dI/%02dP", impares, pares);
+		String parityKey = String.format("%02dI/%02dP", odd, even);
 
 		// 2. Buscar o registro correspondente
-		TotaisParidadeLotofacil total = repository.findByParidade(chaveParidade)
-				.orElseThrow(() -> new RuntimeException("Registro de paridade " + chaveParidade + " não encontrado."));
+		LotofacilTotalsParities total = repository.findByParity(parityKey)
+				.orElseThrow(() -> new RuntimeException("Registro de paridade " + parityKey + " não encontrado."));
 
 		// 3. Incrementar a quantidade
-		total.setQtd(total.getQtd() + 1);
+		total.setQuantity(total.getQuantity() + 1);
 		repository.save(total);
 
 		// 4. Recalcular porcentagens
 		// recalcularPorcentagens();
 	}
 
-	public void recalcularPorcentagens() {
-		List<TotaisParidadeLotofacil> totais = repository.findAll();
+	public void recalculatePercentages() {
+		List<LotofacilTotalsParities> totalsParitiesList = repository.findAll();
 
-		int somaTotal = totais.stream().mapToInt(TotaisParidadeLotofacil::getQtd).sum();
+		int totalSum = totalsParitiesList.stream().mapToInt(LotofacilTotalsParities::getQuantity).sum();
 
-		if (somaTotal == 0) return;
+		if (totalSum == 0) return;
 
-		for (TotaisParidadeLotofacil total : totais) {
-			double porcentagem = (total.getQtd() * 100.0) / somaTotal;
-			total.setPorcentagem(porcentagem);
+		for (LotofacilTotalsParities total : totalsParitiesList) {
+			double percentage = (total.getQuantity() * 100.0) / totalSum;
+			total.setPercentage(percentage);
 		}
 
-		repository.saveAll(totais);
+		repository.saveAll(totalsParitiesList);
 	}
 
 }
