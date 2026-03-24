@@ -13,7 +13,7 @@ import gabriel.hb.MyLifeBackend.repositories.UserRepository;
 
 @Configuration
 @Profile("test2") // Colocar o ambiente do Application.properties que deseja mockar os dados
-public class Test2Config implements CommandLineRunner{ // Interface que tem um método que executa quando a aplicação for iniciada
+public class TestConfig2 implements CommandLineRunner{ // Interface que tem um método que executa quando a aplicação for iniciada
 	
 	@Autowired //o Spring resolve essa injeção de dependencia e associar uma instancia de UserRepository
 	private UserRepository userRepository;

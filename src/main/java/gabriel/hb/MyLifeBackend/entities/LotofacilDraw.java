@@ -26,7 +26,7 @@ public class LotofacilDraw implements Serializable{
     // @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 	@Column(name = "qtd_pares")
-    private int evenCount; // É gerado como 'qtd_pares' no banco, seria como colocar um @Column(name="qtd_pares")
+    private int evenCount; // É gerado como 'even_Count' no banco, seria como colocar um @Column(name="even_Count")
 	@Column(name = "qtd_impares")
 	private int oddCount;
 	@Column(name = "qtd_repetidos")

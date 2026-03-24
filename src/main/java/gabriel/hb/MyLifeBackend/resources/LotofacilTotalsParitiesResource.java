@@ -21,7 +21,7 @@ import gabriel.hb.MyLifeBackend.services.LotofacilTotalsParitiesService;
 @RequestMapping(value = "/lotofacilTotalsParities")
 public class LotofacilTotalsParitiesResource {
 	
-	@Autowired /* O Spring resolve essa injeção de dependencia e associar uma instancia de TotaisParidadeLotofacilService */
+	@Autowired /* O Spring resolve essa injeção de dependencia e associar uma instancia de LotofacilTotalsParitiesService */
 	private LotofacilTotalsParitiesService service;
 	
 	/* Método para retorno de todos totais de paridade */
@@ -40,7 +40,7 @@ public class LotofacilTotalsParitiesResource {
 
 	/* Método para a inserção */
 	@PostMapping
-	public ResponseEntity<LotofacilTotalsParities> insert(@RequestBody LotofacilTotalsParities obj){ // Objeto chega como JSON e é deserializado para um obj TotaisParidadeLotofacil
+	public ResponseEntity<LotofacilTotalsParities> insert(@RequestBody LotofacilTotalsParities obj){ // Objeto chega como JSON e é deserializado para um obj LotofacilTotalsParitiesService
 		obj = service.insert(obj);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(obj.getId()).toUri();
 		return ResponseEntity.created(uri).body(obj); // Trecho para retornar o código 201 e não o 200, e mostrar o id do user criado

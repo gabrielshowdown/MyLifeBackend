@@ -29,7 +29,7 @@ public class LotofacilDrawNumber implements Serializable{
     private boolean isRepeated;
 
     @ManyToOne
-    @JoinColumn(name = "concurso_id") // iria criar a coluna como draw_id automaticamente
+    @JoinColumn(name = "concurso_id") // Iria criar a coluna como draw_id automaticamente
     private LotofacilDraw draw;
 	
 	// Construtores

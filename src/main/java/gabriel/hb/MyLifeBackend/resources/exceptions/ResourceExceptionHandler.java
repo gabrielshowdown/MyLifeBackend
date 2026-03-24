@@ -67,7 +67,7 @@ public class ResourceExceptionHandler {
 	@ExceptionHandler(InvalidLParametersDrawException.class) 
 	public ResponseEntity<StandardError> parametersDrawInvalid(InvalidLParametersDrawException e, HttpServletRequest request){
 		String error = "Draw Parameters Invalid";
-		HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
+		HttpStatus status = HttpStatus.UNPROCESSABLE_CONTENT;
 		StandardError err = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
 		return ResponseEntity.status(status).body(err);
 	}

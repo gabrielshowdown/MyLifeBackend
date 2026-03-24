@@ -28,7 +28,7 @@ import gabriel.hb.MyLifeBackend.services.LotofacilDrawService;
 @RequestMapping(value = "/lotofacilDraw")
 public class LotofaciDrawlResource {
 
-	/* O Spring resolve essa injeção de dependencia e associar uma instancia de ConcursoLotofacilService */
+	/* O Spring resolve essa injeção de dependencia e associar uma instancia de LotofacilDrawService */
 	@Autowired
 	private LotofacilDrawService service;
 
@@ -48,7 +48,7 @@ public class LotofaciDrawlResource {
 
 	/* Método para geração de concurso */
 	@PostMapping("/generate")
-	public ResponseEntity<LotofacilDraw> generateDraw(@RequestBody GenerateDrawRequest obj) { // Objeto chega como JSON e é deserializado para um obj ConcursoLotofacil
+	public ResponseEntity<LotofacilDraw> generateDraw(@RequestBody GenerateDrawRequest obj) { // Objeto chega como JSON e é deserializado para um obj LotofacilDraw
 		LotofacilDraw draw = service.generateDraw(obj.getLastDrawId(), obj.getRepeatedCount(),
 				obj.getOddCount(), obj.getEvenCount());
 		return ResponseEntity.ok().body(draw);

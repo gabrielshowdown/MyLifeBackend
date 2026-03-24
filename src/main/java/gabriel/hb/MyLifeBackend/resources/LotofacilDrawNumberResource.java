@@ -21,7 +21,7 @@ import gabriel.hb.MyLifeBackend.services.LotofacilDrawNumberService;
 @RequestMapping(value = "/lotofacilDrawNumber")
 public class LotofacilDrawNumberResource {
 	
-	@Autowired /* O Spring resolve essa injeção de dependencia e associar uma instancia de NumeroConcursoLotofacilService */
+	@Autowired /* O Spring resolve essa injeção de dependencia e associar uma instancia de LotofacilDrawNumberService */
 	private LotofacilDrawNumberService service;
 	
 	/* Método para retorno de todos os numeros de concurso */
@@ -40,7 +40,7 @@ public class LotofacilDrawNumberResource {
 
 	/* Método para a inserção */
 	@PostMapping 
-	public ResponseEntity<LotofacilDrawNumber> insert(@RequestBody LotofacilDrawNumber obj){ // Objeto chega como JSON e é deserializado para um obj NumeroConcursoLotofacil
+	public ResponseEntity<LotofacilDrawNumber> insert(@RequestBody LotofacilDrawNumber obj){ // Objeto chega como JSON e é deserializado para um obj LotofacilDrawNumberService
 		obj = service.insert(obj);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").
 				  buildAndExpand(obj.getId()).toUri();
@@ -55,9 +55,9 @@ public class LotofacilDrawNumberResource {
 	}
 	
 	/** Novo endpoint para buscar números por ID do concurso
-	@GetMapping(value = "/concurso/{concursoId}")
-	public ResponseEntity<List<NumeroConcursoLotofacil>> findByConcursoId(@PathVariable Long drawId){
-		List<LotofacilDrawNumber> list = service.findByConcursoId(drawId);
+	@GetMapping(value = "/draw/{drawId}")
+	public ResponseEntity<List<LotofacilDrawNumber>> findByDrawId(@PathVariable Long drawId){
+		List<LotofacilDrawNumber> list = service.findByDrawId(drawId);
 		return ResponseEntity.ok().body(list);
 	}	
 	*/

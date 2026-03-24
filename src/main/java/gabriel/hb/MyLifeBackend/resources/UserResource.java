@@ -47,7 +47,7 @@ public class UserResource {
 	@PostMapping("/validate")
     public ResponseEntity<User> validateLogin(@RequestBody Map<String, String> credentials) {
         String username = credentials.get("username");
-        String password = credentials.get("senha");
+        String password = credentials.get("password");
 
         User obj = service.validateUser(username, password);
         // Se o usuário/senha estiver incorreto, já vai estourar exceção no service
