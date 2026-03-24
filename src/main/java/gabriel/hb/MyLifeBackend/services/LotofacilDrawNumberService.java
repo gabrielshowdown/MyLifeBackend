@@ -12,10 +12,10 @@ import gabriel.hb.MyLifeBackend.repositories.LotofacilDrawNumberRepository;
 import gabriel.hb.MyLifeBackend.services.exceptions.DatabaseException;
 import gabriel.hb.MyLifeBackend.services.exceptions.ResourceNotFoundException;
 
-@Service // Registra a classe como um componente/service do spring e vai poder ser injetado no NumeroConcursoLotofacilResource
+@Service // Registra a classe como um componente/service do spring e vai poder ser injetado no LotofacilDrawNumberResource
 public class LotofacilDrawNumberService {
 	
-	@Autowired //O Spring resolve essa injeção de dependencia e associar uma instancia de NumeroConcursoLotofacilRepository
+	@Autowired // O Spring resolve essa injeção de dependencia e associar uma instancia de LotofacilDrawNumberRepository
 	private LotofacilDrawNumberRepository repository;
 	
 	public List<LotofacilDrawNumber> findAll(){
@@ -24,7 +24,7 @@ public class LotofacilDrawNumberService {
 	
 	public LotofacilDrawNumber findById(Long id) {
 		Optional<LotofacilDrawNumber> obj = repository.findById(id); // o findById retona um Optional
-        return obj.orElseThrow(() -> new ResourceNotFoundException(id)); // Poderia ser um return obj.get(); para pegar o 'NumeroConcursoLotofacil' do obj;
+        return obj.orElseThrow(() -> new ResourceNotFoundException(id)); // Poderia ser um return obj.get(); para pegar o 'LotofacilDrawNumber' do obj;
 	}
 	
 	public LotofacilDrawNumber insert(LotofacilDrawNumber obj) {

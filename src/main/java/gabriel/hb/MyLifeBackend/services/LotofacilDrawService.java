@@ -27,10 +27,10 @@ import gabriel.hb.MyLifeBackend.services.exceptions.DatabaseException;
 import gabriel.hb.MyLifeBackend.services.exceptions.InvalidLParametersDrawException;
 import gabriel.hb.MyLifeBackend.services.exceptions.ResourceNotFoundException;
 
-@Service /* Registra a classe como um componente/service do spring e vai poder ser injetado no ConcursoLotofacilResource */
+@Service /* Registra a classe como um componente/service do spring e vai poder ser injetado no LotofacilDrawResource */
 public class LotofacilDrawService {
 	
-	/* O Spring resolve essa injeção de dependencia e associar uma instancia de ConcursoLotofacilRepository */
+	/* O Spring resolve essa injeção de dependencia e associar uma instancia de LotofacilDrawRepository */
 	@Autowired private LotofacilDrawRepository repository;
 	@Autowired private LotofacilTotalsRepetitionsService lotofacilTotalsRepetitionsService;
 	@Autowired private LotofacilTotalsParitiesService lotofacilTotalsParitiesService;
@@ -71,10 +71,10 @@ public class LotofacilDrawService {
 	/* Geração de concurso */
 	public LotofacilDraw generateDraw(Long lastDrawId, int repeatedCount, int oddCount, int evenCount) {
 		
-		System.out.println("lastDrawId " + lastDrawId);
-		System.out.println("repeatedCount " + repeatedCount);
-		System.out.println("oddCount " + oddCount);
-		System.out.println("evenCount " + evenCount);
+		IO.println("ID do último concurso " + lastDrawId);
+		IO.println("Quantidade de repetidos " + repeatedCount);
+		IO.println("Quantidade de impares " + oddCount);
+		IO.println("Quantidade de pares " + evenCount);
 		
 		/* Variáveis que serão usadas no método */
 		int lastDrawOddCount = 0; // Quantidade de ímpares do último concurso
@@ -102,8 +102,8 @@ public class LotofacilDrawService {
 		ignoreParity = (oddCount == 0);
 		// ignoreRepeats = (repeatedCount == 0) ?  true : false;
 		// ignoreParity = (oddCount == 0) ? true : false;
-    	System.out.println("ignoreRepeats " + ignoreRepeats);
-    	System.out.println("ignoreParity " + ignoreParity);
+    	IO.println("Ignora repeticoes: " + ignoreRepeats);
+    	IO.println("Ignora paridade: " + ignoreParity);
     	
 		/* Obtem as informações do concurso anterior que será usado como comparativo na geração */
     	LotofacilDraw lastDraw = findById(lastDrawId);
@@ -113,22 +113,23 @@ public class LotofacilDrawService {
 		lastDrawOddCount = lastDraw.getOddCount();
 		lastDrawEvenCount = lastDraw.getEvenCount();
 		
-		System.out.println("lastDrawNumbersList " + lastDrawNumbersList);
-		System.out.println("lastDrawOddCount " + lastDrawOddCount);
-		System.out.println("lastDrawEvenCount " + lastDrawEvenCount);
+		IO.println("Lista de números do último concurso: " + lastDrawNumbersList);
+		IO.println("Quantidade de impares último concurso: " + lastDrawOddCount);
+		IO.println("Quantidade de pares último concurso:  " + lastDrawEvenCount);
 		
 		/* Verifica o mínimo de pares e impares que podem ser usados no concurso a ser gerado */
 		/* (Por exemplo, o mínimo de impares é: Qtd de Repetidos a ser gerado menos o oposto (par) do último concurso */
 		minOddCount = repeatedCount - lastDrawEvenCount;
 		minEvenCount = repeatedCount - lastDrawOddCount;
 		
-		System.out.println("minimoPar: " + minEvenCount + " minimoImpar: " + minOddCount);
+		IO.println("Minimo de pares possível para geração: " + minEvenCount);
+		IO.println("Minimo de ímpares possível para geração: " + minOddCount);
 		
 		/* Verifica se com os parametros passados, se é possível gerar o concurso ou não */
 		/* Se possui (repetição e paridade) e se as quantidades forem menor que o mínimo estabelecido , cai na exceção */
 		if ((ignoreParity == false && (oddCount < minOddCount || evenCount < minEvenCount)) && ignoreRepeats == false) {
 			
-			System.out.println("Impossível gerar jogo");
+			IO.println("Impossível gerar jogo");
 			if (oddCount < minOddCount) {
 				throw new InvalidLParametersDrawException ("Não é possível gerar o jogo! Jogo mínino para o concurso é : " + minOddCount + "I/" + (15 - minOddCount) + "P");
 			}
@@ -138,7 +139,7 @@ public class LotofacilDrawService {
 		}
 		else {
 			
-			System.out.println("É possível gerar");
+			IO.println("É possível gerar");
 			boolean isValidGame = false;
 			
 			do {
@@ -149,7 +150,9 @@ public class LotofacilDrawService {
 				}
 				
 				/* Indica que já preencheu tudo*/
-				if (generatedNumbers.size() == 15) { 
+				if (generatedNumbers.size() == 15) {
+					
+					// IO.println("Preencheu tudo na tentativa");
 					
 					generatedOddCount = 0;
 					
@@ -173,6 +176,8 @@ public class LotofacilDrawService {
 					/* Se a relação de paridade bate com o solicitado, verifica a repetição */
 					if (isValidGame == true) {
 						
+						// IO.println("Paridade bateu, testando a repetições");
+						
 						generatedRepeatedCount = 0;
 						
 						/* Armazena quantos repetidos foram gerados em relação com o concurso anterior */
@@ -185,12 +190,12 @@ public class LotofacilDrawService {
 						/* Verifica se o número de repetições gerado está de acordo com o solicitado */
 						if (repeatedCount == generatedRepeatedCount || ignoreRepeats == true) {
 							isValidGame = true;
-							// System.out.println("Os números repetidos do jogo anterior " + repetidosConcGener + ", batem com o selecionado pelo usuário " + qtdRepetidos);
+							// IO.println("Os números repetidos do jogo anterior " + generatedRepeatedCount + ", batem com o selecionado pelo usuário " + repeatedCount);
 						}
 						else { // Se não não estiver de acordo, limpa a lista de concursos
 							isValidGame = false;
 							generatedNumbers.clear();
-							// System.out.println("Os números repetidos do jogo anterior " + repetidosConcGener + ", não batem com o selecionado pelo usuário " + qtdRepetidos);
+							// IO.println("Os números repetidos do jogo anterior " + generatedRepeatedCount + ", não batem com o selecionado pelo usuário " + repeatedCount);
 							generatedRepeatedCount = 0;
 						}
 						
@@ -202,16 +207,17 @@ public class LotofacilDrawService {
 			} while(generatedNumbers.size() < 15 && isValidGame == false);
 			
 			/* Se caiu aqui, conseguiu gerar o concurso */
-			System.out.println("generatedNumbers: " + generatedNumbers);
-			System.out.println("generatedOddCount: " + generatedOddCount);
-			System.out.println("generatedEvenCount: " + (15 - generatedOddCount));
-			System.out.println("generatedRepeatedCount: " + generatedRepeatedCount);
+			IO.println("Dezenas Geradas: " + generatedNumbers);
+			IO.println("Quantidade de ímpares gerados: " + generatedOddCount);
+			IO.println("Quantidade de pares gerados: " + (15 - generatedOddCount));
+			IO.println("Quantidade de repetidos gerados: " + generatedRepeatedCount);
 			
 			/* Lista dos números gerados */
 			List<LotofacilDrawNumber> generatedDrawNumberList = new ArrayList<>();	 	
 			
 			LotofacilDraw generateDraw = new LotofacilDraw();
 			
+			/* Atribui a um LotofacilDraw a o concurso gerado */
 			generateDraw.setOddCount(generatedOddCount);
 			generateDraw.setEvenCount(15 - generatedOddCount);
 			generateDraw.setRepeatedCount(generatedRepeatedCount);
@@ -248,18 +254,18 @@ public class LotofacilDrawService {
         LocalDate nextDrawDate = LocalDate.parse(latestCaixaDraw.getDataProximoConcurso(), fmt1);
         String syncMessage = "";
         
-        System.out.println("latestRemoteDrawId: " + latestRemoteDrawId);
-        System.out.println("data: " + latestCaixaDraw.getDataProximoConcurso());
+        IO.println("Id do último concurso na caixa: " + latestRemoteDrawId);
+        IO.println("Data do próximo concurso na caixa: " + latestCaixaDraw.getDataProximoConcurso());
         
         /* Descobrir o último concurso no DB local */
         Optional<LotofacilDraw> latestLocalDrawOpt = repository.findTopByOrderByIdDesc();
         long latestLocalDrawId = latestLocalDrawOpt.isPresent() ? latestLocalDrawOpt.get().getId() : 0; 
-        System.out.println("latestLocalDrawId: " + latestLocalDrawId);
+        IO.println("ID do último concurso no banco local: " + latestLocalDrawId);
              
         /* Com base no último local, coloca como teto + 100 concurso se tiver tudo isso 
          * Ex: se o último na caixa for 3000 e o último local for 2700, o teto é 2800 */
         maxDrawIdToSync = (latestRemoteDrawId - latestLocalDrawId >= 100) ? latestLocalDrawId + 100 : latestRemoteDrawId;
-        System.out.println("maxDrawIdToSync: " + maxDrawIdToSync);
+        IO.println("Máximo concurso a ser sincronizado: " + maxDrawIdToSync);
         
         /* Armazena os valores do último concurso cadastrado no banco local*/
         List<Integer> previousDrawNumbers = 
@@ -305,8 +311,6 @@ public class LotofacilDrawService {
             newDraw.setEvenCount(evenCount);
             newDraw.setOddCount(oddCount);
             newDraw.setRepeatedCount(repeatedCount);
-            
-            System.out.println("aki");
 
             /* Criar os números filhos */
             for (int num : currentDrawNumbers) {
@@ -315,7 +319,6 @@ public class LotofacilDrawService {
                 newDraw.addDrawNumber(new LotofacilDrawNumber(num, isRepeated, newDraw));
             }
             
-            System.out.println("aki2");
             
             /* Salvar no banco e atualiza os totais */
             repository.save(newDraw);
@@ -323,7 +326,6 @@ public class LotofacilDrawService {
             lotofacilTotalsParitiesService.updateTotals(evenCount, oddCount, newDraw.getId());
             lotofacilTotalsNumbersService.updateTotals(currentDrawNumbers, newDraw.getId());
             
-            System.out.println("aki3");
             lastSavedDrawId = newDraw.getId();
             
             /* Atualizar 'previousDrawNumbers' para o próximo loop */
@@ -333,11 +335,11 @@ public class LotofacilDrawService {
         
         /* Recalcula as porcentagens após todas as sincronizações */
         if (addedDrawsCount > 0) {
-            System.out.println("Recalculando todas as porcentagens...");
+            IO.println("Recalculando todas as porcentagens...");
             lotofacilTotalsRepetitionsService.recalculatePercentages(); 
             lotofacilTotalsParitiesService.recalculatePercentages();
             lotofacilTotalsNumbersService.recalculatePercentages(lastSavedDrawId);
-            System.out.println("Recálculo concluído.");
+            IO.println("Recálculo concluído.");
         }
         
         /* Coloca mensagem de sincronização */
@@ -364,7 +366,7 @@ public class LotofacilDrawService {
                                     .collect(Collectors.toList());
             } catch (ResourceNotFoundException e) {
                 /* Se o anterior não existir (ex: cadastrando o 2 sem ter o 1), apenas não calcula repetidos */
-                System.out.println("Warning: Previous draw " + (newDrawId - 1) + " not found. Repeated count will be 0.");
+                IO.println("Aviso: Concurso anterior " + (newDrawId - 1) + " não encontrado. Quantidade de repetidos será 0.");
             }
         }
 
@@ -372,7 +374,7 @@ public class LotofacilDrawService {
         LotofacilDraw newDraw = new LotofacilDraw();
         newDraw.setId(newDrawId); // Define o ID manualmente
         
-        System.out.println("dto.getDrawDate() " + dto.getDrawDate());
+        IO.println("Data do concurso a ser inserido: " + dto.getDrawDate());
         
         /* Verifica o formato da Data */
         if (dto.getDrawDate() != null && !dto.getDrawDate().isEmpty()) {
@@ -390,6 +392,7 @@ public class LotofacilDrawService {
                                           .collect(Collectors.toList());
 
         /* Calcular estatísticas e criar número do concurso */
+        IO.println("Calculando as estatisticas");
         for (int number : currentDrawNumbers) {
             /* Calcula paridade */
             if (number % 2 == 0) evenCount++;
@@ -410,6 +413,7 @@ public class LotofacilDrawService {
         newDraw.setRepeatedCount(repeatedCount);
 
         /* Salvar no banco */
+        IO.println("Salvando no banco");
         LotofacilDraw savedDraw;
         try {
              savedDraw = repository.save(newDraw);
@@ -424,12 +428,12 @@ public class LotofacilDrawService {
         lotofacilTotalsParitiesService.updateTotals(evenCount, oddCount, savedDraw.getId());
         lotofacilTotalsNumbersService.updateTotals(currentDrawNumbers, savedDraw.getId());
         
-        /* Recalcular as porcentagens */
-        System.out.println("Recalculating all percentages after manual insertion...");
+        /* Recalcular as porclating all percentages after manual insertionentagens */
+        IO.println("Recalculando as porcentagens após a inserção");
         lotofacilTotalsRepetitionsService.recalculatePercentages();
         lotofacilTotalsParitiesService.recalculatePercentages();
         lotofacilTotalsNumbersService.recalculatePercentages(savedDraw.getId());
-        System.out.println("Recalculation finished.");
+        IO.println("Recalculo finalizado");
 
         /* Retornar o concurso salvo */
         return savedDraw;

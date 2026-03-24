@@ -26,6 +26,7 @@ public class TestConfig implements CommandLineRunner{ // Interface que tem um m√
 		
 		/* Trechos para inciar as tabelas de totais caso estejam vazias */
 		if (lotofacilTotalsRepetitionsRepository.count() == 0) {
+			/* Caso for vazia, cria o registri na tabela de repeti√ß√µes de 5 a 15 */
 			int i = 5;
 			do {
 				lotofacilTotalsRepetitionsRepository.save(new LotofacilTotalsRepetitions(i, 0, 0.0));
@@ -34,6 +35,7 @@ public class TestConfig implements CommandLineRunner{ // Interface que tem um m√
 
 		}
 		if (lotofacilTotalsParitiesRepository.count() == 0) {
+			/* Cria a tabela e colunas de paridade caso ela nao exista*/
 			lotofacilTotalsParitiesRepository.save(new LotofacilTotalsParities("13I/02P", 0, 0.0));
 			lotofacilTotalsParitiesRepository.save(new LotofacilTotalsParities("12I/03P", 0, 0.0));
 			lotofacilTotalsParitiesRepository.save(new LotofacilTotalsParities("11I/04P", 0, 0.0));
@@ -47,6 +49,7 @@ public class TestConfig implements CommandLineRunner{ // Interface que tem um m√
 			lotofacilTotalsParitiesRepository.save(new LotofacilTotalsParities("03I/12P", 0, 0.0));
 		}
 		if (lotofacilTotalsNumbersRepository.count() == 0) {
+			// Cria 25 registros controlados por ID na tabela de totais n√∫meros
 			int i = 0;
 			while (i < 25) {
 				lotofacilTotalsNumbersRepository.save(new LotofacilTotalsNumbers(0, 0.0));
