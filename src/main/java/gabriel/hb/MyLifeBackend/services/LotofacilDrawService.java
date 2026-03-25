@@ -286,60 +286,30 @@ public class LotofacilDrawService {
                 newDraw.setDrawDate(formattedDrawDate);
             }
             
-            int evenCount = 0;
-            int oddCount = 0;
-            int repeatedCount = 0;
-            
-            /* Lista para armazenar a dezena do concurso sincronizado na caixa*/
             List<Integer> currentDrawNumbers = new ArrayList<>();
-            
             for (String numberStr : caixaDraw.getListaDezenas()) {
-                int number = Integer.parseInt(numberStr);
-                currentDrawNumbers.add(number);
-
-                /* Calcula paridade */
-                if (number % 2 == 0) evenCount++;
-                else oddCount++;
-
-                /* Calcula repetidos (comparando com 'previousDrawNumbers', que é buscado do último concurso local ou no final do for) */
-                if (previousDrawNumbers.contains(number)) {
-                    repeatedCount++;
-                }
+                currentDrawNumbers.add(Integer.parseInt(numberStr));
             }
             
-            /* Popula o objeto newDraw com as informações do concurso sincronizado */
-            newDraw.setEvenCount(evenCount);
-            newDraw.setOddCount(oddCount);
-            newDraw.setRepeatedCount(repeatedCount);
-
-            /* Criar os números filhos */
-            for (int num : currentDrawNumbers) {
-                boolean isRepeated = previousDrawNumbers.contains(num);
-                /* Nota: Se você renomeou o método na entidade, mude para addDrawnNumber */
-                newDraw.addDrawNumber(new LotofacilDrawNumber(num, isRepeated, newDraw));
-            }
+            /* Chama a rotina de recalcular estatisticas */
+            processDrawStatisticsAndNumbers(newDraw, currentDrawNumbers, previousDrawNumbers);
             
-            
-            /* Salvar no banco e atualiza os totais */
+            // Salvar no banco
             repository.save(newDraw);
-            if(newDraw.getId() != 1) lotofacilTotalsRepetitionsService.updateTotals(repeatedCount, newDraw.getId());
-            lotofacilTotalsParitiesService.updateTotals(evenCount, oddCount, newDraw.getId());
-            lotofacilTotalsNumbersService.updateTotals(currentDrawNumbers, newDraw.getId());
+            
+            /* Chama a rotina de atualizar os totais */
+            updateDrawTotals(newDraw, currentDrawNumbers);
             
             lastSavedDrawId = newDraw.getId();
-            
-            /* Atualizar 'previousDrawNumbers' para o próximo loop */
             previousDrawNumbers = currentDrawNumbers;
             addedDrawsCount++;
+            
+            
         }
         
         /* Recalcula as porcentagens após todas as sincronizações */
         if (addedDrawsCount > 0) {
-            IO.println("Recalculando todas as porcentagens...");
-            lotofacilTotalsRepetitionsService.recalculatePercentages(); 
-            lotofacilTotalsParitiesService.recalculatePercentages();
-            lotofacilTotalsNumbersService.recalculatePercentages(lastSavedDrawId);
-            IO.println("Recálculo concluído.");
+            recalculateAllPercentages(lastSavedDrawId);
         }
         
         /* Coloca mensagem de sincronização */
@@ -382,19 +352,37 @@ public class LotofacilDrawService {
             newDraw.setDrawDate(formattedDrawDate);
         }
 
-        int evenCount = 0;
-        int oddCount = 0;
-        int repeatedCount = 0;
-        
         /* Converte a List<String> do DTO passado na requisiçao para List<Integer> */
         List<Integer> currentDrawNumbers = dto.getDozens().stream()
                                           .map(Integer::parseInt)
                                           .collect(Collectors.toList());
 
-        /* Calcular estatísticas e criar número do concurso */
-        IO.println("Calculando as estatisticas");
+        /* Chama a rotina de recalcular estatisticas */
+        processDrawStatisticsAndNumbers(newDraw, currentDrawNumbers, previousDrawNumbers);
+
+        LotofacilDraw savedDraw;
+        try {
+             savedDraw = repository.save(newDraw);
+        } catch (DataIntegrityViolationException e) {
+             throw new DatabaseException("Failed to save draw: " + e.getMessage());
+        }
+
+        /* Chama a rotina de atualizar os totais */
+        updateDrawTotals(savedDraw, currentDrawNumbers);
+        recalculateAllPercentages(savedDraw.getId());
+
+        return savedDraw;
+        
+    }
+
+    /* Calcula as estatísticas (pares, ímpares, repetidos) e popula as entidades filhas (LotofacilDrawNumber) */
+    private void processDrawStatisticsAndNumbers(LotofacilDraw draw, List<Integer> currentDrawNumbers, List<Integer> previousDrawNumbers) {
+        int evenCount = 0;
+        int oddCount = 0;
+        int repeatedCount = 0;
+
         for (int number : currentDrawNumbers) {
-            /* Calcula paridade */
+            // Calcula paridade
             if (number % 2 == 0) evenCount++;
             else oddCount++;
 
@@ -405,38 +393,31 @@ public class LotofacilDrawService {
             }
             
             /* Cria a entidade filha e associa ao "pai" */
-            newDraw.addDrawNumber(new LotofacilDrawNumber(number, isRepeated, newDraw));
-        }
-        
-        newDraw.setEvenCount(evenCount);
-        newDraw.setOddCount(oddCount);
-        newDraw.setRepeatedCount(repeatedCount);
-
-        /* Salvar no banco */
-        IO.println("Salvando no banco");
-        LotofacilDraw savedDraw;
-        try {
-             savedDraw = repository.save(newDraw);
-        } catch (DataIntegrityViolationException e) {
-             throw new DatabaseException("Failed to save draw: " + e.getMessage());
+            draw.addDrawNumber(new LotofacilDrawNumber(number, isRepeated, draw));
         }
 
-        /* Atualizar os totais */
-        if(savedDraw.getId() != 1) {
-        	lotofacilTotalsRepetitionsService.updateTotals(repeatedCount, savedDraw.getId());
+        /* Popula o objeto draw com as estatísticas calculadas */
+        draw.setEvenCount(evenCount);
+        draw.setOddCount(oddCount);
+        draw.setRepeatedCount(repeatedCount);
+    }
+
+    /* Atualiza as tabelas de totais após salvar o concurso */
+    private void updateDrawTotals(LotofacilDraw savedDraw, List<Integer> currentDrawNumbers) {
+        if (savedDraw.getId() != 1) {
+            lotofacilTotalsRepetitionsService.updateTotals(savedDraw.getRepeatedCount(), savedDraw.getId());
         }
-        lotofacilTotalsParitiesService.updateTotals(evenCount, oddCount, savedDraw.getId());
+        lotofacilTotalsParitiesService.updateTotals(savedDraw.getEvenCount(), savedDraw.getOddCount(), savedDraw.getId());
         lotofacilTotalsNumbersService.updateTotals(currentDrawNumbers, savedDraw.getId());
-        
-        /* Recalcular as porclating all percentages after manual insertionentagens */
-        IO.println("Recalculando as porcentagens após a inserção");
+    }
+
+    /* Recalcula todas as porcentagens */
+    private void recalculateAllPercentages(Long lastSavedDrawId) {
+        IO.println("Recalculando todas as porcentagens...");
         lotofacilTotalsRepetitionsService.recalculatePercentages();
         lotofacilTotalsParitiesService.recalculatePercentages();
-        lotofacilTotalsNumbersService.recalculatePercentages(savedDraw.getId());
-        IO.println("Recalculo finalizado");
-
-        /* Retornar o concurso salvo */
-        return savedDraw;
+        lotofacilTotalsNumbersService.recalculatePercentages(lastSavedDrawId);
+        IO.println("Recálculo concluído.");
     }
 	
 	/* Buscar por paginação */
