@@ -42,6 +42,18 @@ public class LotofacilBetService {
         return obj.orElseThrow(() -> new ResourceNotFoundException(id)); // Poderia ser um return obj.get(); para pegar o 'ConcursoLotofacil' do obj;
 	}
 	
+	/* Consultar concurso por Id */
+	public List<LotofacilBet> findByTargetDrawId(Long targetDrawId) {
+		List<LotofacilBet> list = repository.findByTargetDrawId(targetDrawId);
+	    
+	    // Se a lista estiver vazia, lança a exceção passando o ID
+	    if (list.isEmpty()) {
+	        throw new ResourceNotFoundException(targetDrawId);
+	    }
+	    
+	    return list;
+	}
+	
 	/* Inserir novo concurso */
 	@Transactional
 	public LotofacilBet insert(PlaceBetRequest dto) {

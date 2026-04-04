@@ -15,6 +15,8 @@ public interface LotofacilBetRepository extends JpaRepository<LotofacilBet, Long
 	// Novo método: Busca o concurso com o ID mais alto (o último)
     Optional<LotofacilBet> findTopByOrderByIdDesc();
     
+    List<LotofacilBet> findByTargetDrawId(Long targetDrawId);
+    
     List<LotofacilBet> findByTargetDrawIdAndIsCheckedFalse(Long targetDrawId);
 	
 }

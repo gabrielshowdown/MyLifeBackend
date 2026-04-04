@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import gabriel.hb.MyLifeBackend.entities.LotofacilBet;
-import gabriel.hb.MyLifeBackend.entities.LotofacilDraw;
 import gabriel.hb.MyLifeBackend.resources.dto.PlaceBetRequest;
 import gabriel.hb.MyLifeBackend.services.LotofacilBetService;
 
@@ -40,6 +39,14 @@ public class LotofaciBetlResource {
 		LotofacilBet obj = service.findById(id);
 		return ResponseEntity.ok().body(obj);
 	}
+	
+	/* Buscar apostas por concurso*/
+	@GetMapping(value = "/draw/{id}")
+	public ResponseEntity<List<LotofacilBet>>findByTargetDrawId(@PathVariable Long id) { // Pega o valor passado de parâmetro da URL
+		List<LotofacilBet> list = service.findByTargetDrawId(id);
+		return ResponseEntity.ok().body(list);
+	}
+
 
 	/* Método para delete */
 	@DeleteMapping(value = "/{id}") // 
