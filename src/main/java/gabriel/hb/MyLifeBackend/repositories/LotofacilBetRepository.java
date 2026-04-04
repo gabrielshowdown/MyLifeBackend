@@ -1,5 +1,6 @@
 package gabriel.hb.MyLifeBackend.repositories;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,5 +14,7 @@ public interface LotofacilBetRepository extends JpaRepository<LotofacilBet, Long
 	
 	// Novo método: Busca o concurso com o ID mais alto (o último)
     Optional<LotofacilBet> findTopByOrderByIdDesc();
+    
+    List<LotofacilBet> findByTargetDrawIdAndIsCheckedFalse(Long targetDrawId);
 	
 }

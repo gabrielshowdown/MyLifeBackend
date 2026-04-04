@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import gabriel.hb.MyLifeBackend.entities.LotofacilBet;
 import gabriel.hb.MyLifeBackend.entities.LotofacilBetNumber;
@@ -17,6 +18,7 @@ import gabriel.hb.MyLifeBackend.entities.LotofacilDrawNumber;
 import gabriel.hb.MyLifeBackend.repositories.LotofacilBetRepository;
 import gabriel.hb.MyLifeBackend.repositories.LotofacilDrawRepository;
 import gabriel.hb.MyLifeBackend.resources.dto.PlaceBetRequest;
+import gabriel.hb.MyLifeBackend.services.dto.CaixaDraw;
 import gabriel.hb.MyLifeBackend.services.exceptions.DatabaseException;
 import gabriel.hb.MyLifeBackend.services.exceptions.ResourceNotFoundException;
 
@@ -26,6 +28,8 @@ public class LotofacilBetService {
 	/* O Spring resolve essa injeção de dependencia e associar uma instancia de LotofacilBetRepository */
 	@Autowired private LotofacilBetRepository repository;
 	@Autowired private LotofacilDrawRepository drawRepository;
+	
+	private final String CAIXA_API_URL = "https://servicebus2.caixa.gov.br/portaldeloterias/api/lotofacil/";
 	
 	/* Listar de todos os concursos */
 	public List<LotofacilBet> findAll(){
@@ -73,17 +77,31 @@ public class LotofacilBetService {
         }
 
         int hitCount = 0;
+        int calculatedRepeatedCount = 0;
+        int calculatedOddCount = 0;
+        int calculatedEvenCount = 0;
 
-        // 4. Transformar a lista de inteiros do DTO em entidades LotofacilBetNumber
+        // 4. Processar os números da aposta...
         for (Integer num : dto.getBetNumbers()) {
             LotofacilBetNumber betNumber = new LotofacilBetNumber();
             betNumber.setNumber(num);
-            betNumber.setBet(bet); // Vincula o número à aposta (necessário para o CascadeType.ALL funcionar)
+            betNumber.setBet(bet); 
+            
+            // Calcula Paridade
+            if (num % 2 == 0) {
+                calculatedEvenCount++;
+            } else {
+                calculatedOddCount++;
+            }
             
             // Verifica se o número repetiu do concurso anterior
-            betNumber.setIsRepeated(previousNumbers.contains(num));
+            boolean isRepeated = previousNumbers.contains(num);
+            betNumber.setIsRepeated(isRepeated);
+            if (isRepeated) {
+                calculatedRepeatedCount++;
+            }
 
-            // Verifica se acertou o número (caso o concurso oficial já exista)
+            // Verifica se acertou o número
             if (bet.isChecked() && targetNumbers.contains(num)) {
                 betNumber.setWasCorrectly(true);
                 hitCount++;
@@ -91,17 +109,90 @@ public class LotofacilBetService {
                 betNumber.setWasCorrectly(false);
             }
 
-            // Adiciona o número à lista da aposta
             bet.getBetNumbers().add(betNumber);
         }
 
+        // 5. ATRIBUI OS VALORES REAIS CALCULADOS À ENTIDADE PRINCIPAL
+        bet.setOddCount(calculatedOddCount);
+        bet.setEvenCount(calculatedEvenCount);
+        bet.setRepeatedCount(calculatedRepeatedCount);
+
         // 5. Salva a quantidade de acertos finais
+        // Se o concurso já existir e foi conferido
         if (bet.isChecked()) {
             bet.setHits(hitCount);
+            
+            // NOVO: Se teve 11 acertos ou mais, busca o prêmio na API da Caixa
+            if (hitCount >= 11) {
+                try {
+                    RestTemplate restTemplate = new RestTemplate();
+                    CaixaDraw caixaDrawData = restTemplate.getForObject(CAIXA_API_URL + dto.getTargetDrawId(), CaixaDraw.class);
+                    
+                    if (caixaDrawData != null && caixaDrawData.getListaRateioPremio() != null) {
+                        String targetDescription = hitCount + " acertos";
+                        for (CaixaDraw.RateioPremio rateio : caixaDrawData.getListaRateioPremio()) {
+                            if (rateio.getDescricaoFaixa().toLowerCase().contains(targetDescription)) {
+                                bet.setPrize(rateio.getValorPremio());
+                                break;
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    // Se a API falhar, logamos o erro e mantemos o prêmio zerado para não travar a inserção
+                    System.out.println("Erro ao buscar prêmio na API da Caixa para o concurso " + dto.getTargetDrawId() + ": " + e.getMessage());
+                }
+            }
         }
 
         // 6. Salvar no banco. O CascadeType.ALL do LotofacilBet salvará a lista de LotofacilBetNumber automaticamente
 		return repository.save(bet);
+	}
+	
+	@Transactional
+	public void checkPendingBetsForDraw(LotofacilDraw savedDraw, CaixaDraw caixaDrawData) {
+	    // 1. Busca todas as apostas pendentes para este concurso
+	    List<LotofacilBet> pendingBets = repository.findByTargetDrawIdAndIsCheckedFalse(savedDraw.getId());
+	    
+	    if (pendingBets.isEmpty()) return; // Se não tem aposta, não faz nada
+	    
+	    // 2. Extrai os números oficiais sorteados
+	    List<Integer> officialNumbers = savedDraw.getDrawNumbers().stream()
+	            .map(LotofacilDrawNumber::getNumber)
+	            .collect(Collectors.toList());
+
+	    // 3. Verifica cada aposta
+	    for (LotofacilBet bet : pendingBets) {
+	        int hits = 0;
+	        
+	        for (LotofacilBetNumber betNumber : bet.getBetNumbers()) {
+	            if (officialNumbers.contains(betNumber.getNumber())) {
+	                betNumber.setWasCorrectly(true);
+	                hits++;
+	            } else {
+	                betNumber.setWasCorrectly(false);
+	            }
+	        }
+	        
+	        bet.setHits(hits);
+	        bet.setChecked(true);
+	        bet.setRealDraw(savedDraw);
+	        
+	        // 4. Define o prêmio baseando-se no payload da Caixa
+	        double prizeValue = 0.0;
+	        if (hits >= 11 && caixaDrawData.getListaRateioPremio() != null) {
+	            String targetDescription = hits + " acertos";
+	            for (CaixaDraw.RateioPremio rateio : caixaDrawData.getListaRateioPremio()) {
+	                if (rateio.getDescricaoFaixa().toLowerCase().contains(targetDescription)) {
+	                    prizeValue = rateio.getValorPremio();
+	                    break;
+	                }
+	            }
+	        }
+	        bet.setPrize(prizeValue);
+	    }
+	    
+	    // 5. Salva as apostas atualizadas no banco
+	    repository.saveAll(pendingBets);
 	}
 	
 	/* Apagar concurso */

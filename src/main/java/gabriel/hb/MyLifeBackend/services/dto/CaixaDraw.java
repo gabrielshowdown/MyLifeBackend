@@ -12,6 +12,7 @@ public class CaixaDraw {
 	private String dataProximoConcurso;
 	private Long numeroConcursoProximo;
 	private String dataApuracao;
+	private List<RateioPremio> listaRateioPremio;
 
 	/* Getters e Setters */
 	public long getNumero() {
@@ -53,4 +54,25 @@ public class CaixaDraw {
 	public void setDataApuracao(String dataApuracao) {
 		this.dataApuracao = dataApuracao;
 	}
+	
+	public List<RateioPremio> getListaRateioPremio() {
+        return listaRateioPremio;
+    }
+
+    public void setListaRateioPremio(List<RateioPremio> listaRateioPremio) {
+        this.listaRateioPremio = listaRateioPremio;
+    }
+    
+    public static class RateioPremio {
+        private String descricaoFaixa; // Ex: "15 acertos", "14 acertos"
+        private int numeroDeGanhadores;
+        private double valorPremio;
+
+        public String getDescricaoFaixa() { return descricaoFaixa; }
+        public void setDescricaoFaixa(String descricaoFaixa) { this.descricaoFaixa = descricaoFaixa; }
+        public int getNumeroDeGanhadores() { return numeroDeGanhadores; }
+        public void setNumeroDeGanhadores(int numeroDeGanhadores) { this.numeroDeGanhadores = numeroDeGanhadores; }
+        public double getValorPremio() { return valorPremio; }
+        public void setValorPremio(double valorPremio) { this.valorPremio = valorPremio; }
+    }
 }

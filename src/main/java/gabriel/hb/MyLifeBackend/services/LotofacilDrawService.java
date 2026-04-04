@@ -36,6 +36,8 @@ public class LotofacilDrawService {
 	@Autowired private LotofacilTotalsParitiesService lotofacilTotalsParitiesService;
 	@Autowired private LotofacilTotalsNumbersService lotofacilTotalsNumbersService;
 	
+	@Autowired private LotofacilBetService lotofacilBetService;
+	
 	private final String CAIXA_API_URL = "https://servicebus2.caixa.gov.br/portaldeloterias/api/lotofacil/";
 	DateTimeFormatter fmt1 = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 	
@@ -296,6 +298,8 @@ public class LotofacilDrawService {
             
             // Salvar no banco
             repository.save(newDraw);
+            
+            lotofacilBetService.checkPendingBetsForDraw(newDraw, caixaDraw);
             
             /* Chama a rotina de atualizar os totais */
             updateDrawTotals(newDraw, currentDrawNumbers);

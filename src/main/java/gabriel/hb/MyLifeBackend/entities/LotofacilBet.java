@@ -35,6 +35,7 @@ public class LotofacilBet implements Serializable{
     private double cost;
     private int hits;
     private boolean isChecked;
+    private Double prize;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     private LocalDate betDate;
     @OneToMany(mappedBy = "bet", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
@@ -49,8 +50,9 @@ public class LotofacilBet implements Serializable{
     public LotofacilBet() {
     }
 
+
 	public LotofacilBet(Long id, Long targetDrawId, int evenCount, int oddCount, int repeatedCount, double cost,
-			int hits, boolean isChecked, LocalDate betDate, List<LotofacilBetNumber> betNumbers,
+			int hits, boolean isChecked, Double prize, LocalDate betDate, List<LotofacilBetNumber> betNumbers,
 			LotofacilDraw realDraw) {
 		super();
 		this.id = id;
@@ -61,10 +63,12 @@ public class LotofacilBet implements Serializable{
 		this.cost = cost;
 		this.hits = hits;
 		this.isChecked = isChecked;
+		this.prize = prize;
 		this.betDate = betDate;
 		this.betNumbers = betNumbers;
 		this.realDraw = realDraw;
 	}
+
 
 
 
@@ -187,6 +191,14 @@ public class LotofacilBet implements Serializable{
 		this.realDraw = realDraw;
 	}
 
+	public Double getPrize() {
+		return prize;
+	}
+
+
+	public void setPrize(Double prize) {
+		this.prize = prize;
+	}
 
 
 	public static long getSerialversionuid() {
