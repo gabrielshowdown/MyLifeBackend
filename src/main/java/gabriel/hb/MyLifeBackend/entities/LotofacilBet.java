@@ -9,6 +9,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -28,16 +29,26 @@ public class LotofacilBet implements Serializable{
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long targetDrawId;
+	@Column(name = "concurso_apostado")
+	private Long targetDrawId;
+    @Column(name = "qtd_pares")
     private int evenCount;
-	private int oddCount;
+    @Column(name = "qtd_impares")
+    private int oddCount;
+    @Column(name = "qtd_repetidos")
     private int repeatedCount;
+    @Column(name = "custo")
     private double cost;
+    @Column(name = "qtd_acertos")
     private int hits;
+    @Column(name = "checado")
     private boolean isChecked;
+    @Column(name = "premio")
     private Double prize;
+    @Column(name = "data_aposta")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     private LocalDate betDate;
+    
     @OneToMany(mappedBy = "bet", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<LotofacilBetNumber> betNumbers = new ArrayList<>();
     

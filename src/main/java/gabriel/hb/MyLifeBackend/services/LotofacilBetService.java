@@ -160,6 +160,44 @@ public class LotofacilBetService {
 		return repository.save(bet);
 	}
 	
+	/**
+	 * Recalcula a repetição de apostas futuras que foram inseridas antes
+	 * do concurso anterior estar disponível no sistema.
+	 */
+	@Transactional
+	public void updateRepeatedCountForFutureBets(LotofacilDraw savedDraw) {
+	    // 1. Busca todas as apostas feitas para o PRÓXIMO concurso (ID + 1)
+	    Long nextDrawId = savedDraw.getId() + 1;
+	    List<LotofacilBet> futureBets = repository.findByTargetDrawId(nextDrawId);
+
+	    if (futureBets.isEmpty()) return;
+
+	    // 2. Extrai os números do concurso que acabou de ser salvo
+	    List<Integer> officialNumbers = savedDraw.getDrawNumbers().stream()
+	            .map(LotofacilDrawNumber::getNumber)
+	            .collect(Collectors.toList());
+
+	    for (LotofacilBet bet : futureBets) {
+	        int repeatedCount = 0;
+
+	        // 3. Itera pelos números da aposta e atualiza a flag isRepeated
+	        for (LotofacilBetNumber betNumber : bet.getBetNumbers()) {
+	            boolean isRepeated = officialNumbers.contains(betNumber.getNumber());
+	            betNumber.setIsRepeated(isRepeated);
+	            
+	            if (isRepeated) {
+	                repeatedCount++;
+	            }
+	        }
+
+	        // 4. Atualiza o total na entidade principal da aposta
+	        bet.setRepeatedCount(repeatedCount);
+	    }
+
+	    // 5. Salva as atualizações
+	    repository.saveAll(futureBets);
+	}
+	
 	@Transactional
 	public void checkPendingBetsForDraw(LotofacilDraw savedDraw, CaixaDraw caixaDrawData) {
 	    // 1. Busca todas as apostas pendentes para este concurso

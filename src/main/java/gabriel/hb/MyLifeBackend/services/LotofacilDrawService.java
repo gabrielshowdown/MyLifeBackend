@@ -301,6 +301,8 @@ public class LotofacilDrawService {
             
             lotofacilBetService.checkPendingBetsForDraw(newDraw, caixaDraw);
             
+            lotofacilBetService.updateRepeatedCountForFutureBets(newDraw);
+            
             /* Chama a rotina de atualizar os totais */
             updateDrawTotals(newDraw, currentDrawNumbers);
             
@@ -367,6 +369,7 @@ public class LotofacilDrawService {
         LotofacilDraw savedDraw;
         try {
              savedDraw = repository.save(newDraw);
+             lotofacilBetService.updateRepeatedCountForFutureBets(savedDraw);
         } catch (DataIntegrityViolationException e) {
              throw new DatabaseException("Failed to save draw: " + e.getMessage());
         }
