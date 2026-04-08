@@ -369,6 +369,7 @@ public class LotofacilDrawService {
         LotofacilDraw savedDraw;
         try {
              savedDraw = repository.save(newDraw);
+             lotofacilBetService.checkPendingBetsForDraw(savedDraw);
              lotofacilBetService.updateRepeatedCountForFutureBets(savedDraw);
         } catch (DataIntegrityViolationException e) {
              throw new DatabaseException("Failed to save draw: " + e.getMessage());

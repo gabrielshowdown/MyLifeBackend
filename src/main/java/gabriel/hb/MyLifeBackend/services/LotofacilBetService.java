@@ -245,6 +245,40 @@ public class LotofacilBetService {
 	    repository.saveAll(pendingBets);
 	}
 	
+	@Transactional
+	public void checkPendingBetsForDraw(LotofacilDraw savedDraw) {
+	    // Busca todas as apostas pendentes para este concurso
+	    List<LotofacilBet> pendingBets = repository.findByTargetDrawIdAndIsCheckedFalse(savedDraw.getId());
+	    
+	    if (pendingBets.isEmpty()) return; 
+	    
+	    // Extrai os números oficiais sorteados
+	    List<Integer> officialNumbers = savedDraw.getDrawNumbers().stream()
+	            .map(LotofacilDrawNumber::getNumber)
+	            .collect(Collectors.toList());
+
+	    for (LotofacilBet bet : pendingBets) {
+	        int hits = 0;
+	        for (LotofacilBetNumber betNumber : bet.getBetNumbers()) {
+	            if (officialNumbers.contains(betNumber.getNumber())) {
+	                betNumber.setWasCorrectly(true);
+	                hits++;
+	            } else {
+	                betNumber.setWasCorrectly(false);
+	            }
+	        }
+	        
+	        bet.setHits(hits);
+	        bet.setChecked(true);
+	        bet.setRealDraw(savedDraw); // VINCULA O CONCURSO NA APOSTA (Resolve a coluna NULL)
+	        
+	        // Como é inserção manual, não temos o rateio da Caixa no momento.
+	        bet.setPrize(0.0); 
+	    }
+	    
+	    repository.saveAll(pendingBets);
+	}
+	
 	/* Apagar concurso */
 	public void delete(Long id) {
 	    try {
