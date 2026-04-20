@@ -2,6 +2,7 @@ package gabriel.hb.MyLifeBackend.services;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -45,11 +46,9 @@ public class LotofacilTotalsNumbersService {
 
 	public void updateTotals(List<Integer> currentDozens, Long lastDrawId) {
 		
-		for(long n : currentDozens) {
-			LotofacilTotalsNumbers total = repository.findById(n).orElseThrow(() -> new RuntimeException("Registro de número " + n + " não encontrado."));
-			total.setQuantity(total.getQuantity() + 1);
-	        repository.save(total);
-		}
+		List<LotofacilTotalsNumbers> totais = repository.findAllById(currentDozens.stream().map(Long::valueOf).collect(Collectors.toList()));
+		totais.forEach(t -> t.setQuantity(t.getQuantity() + 1));
+		repository.saveAll(totais);
 		
 	}
 

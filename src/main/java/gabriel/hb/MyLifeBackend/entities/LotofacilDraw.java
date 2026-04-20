@@ -34,6 +34,9 @@ public class LotofacilDraw implements Serializable{
 	@Column(name = "data_apuracao")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     private LocalDate drawDate;
+	
+	@Column(name = "oficial")
+    private boolean isOfficial;
     
     @OneToMany(mappedBy = "draw", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<LotofacilDrawNumber> drawNumbers = new ArrayList<>();
@@ -104,6 +107,14 @@ public class LotofacilDraw implements Serializable{
     public void setDrawDate(LocalDate drawDate) {
         this.drawDate = drawDate;
     }
+
+	public boolean isOfficial() {
+		return isOfficial;
+	}
+
+	public void setOfficial(boolean isOfficial) {
+		this.isOfficial = isOfficial;
+	}
 
 	@Override
 	public boolean equals(Object obj) {

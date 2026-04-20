@@ -35,7 +35,6 @@ public class LotofacilDrawService {
 	@Autowired private LotofacilTotalsRepetitionsService lotofacilTotalsRepetitionsService;
 	@Autowired private LotofacilTotalsParitiesService lotofacilTotalsParitiesService;
 	@Autowired private LotofacilTotalsNumbersService lotofacilTotalsNumbersService;
-	
 	@Autowired private LotofacilBetService lotofacilBetService;
 	
 	private final String CAIXA_API_URL = "https://servicebus2.caixa.gov.br/portaldeloterias/api/lotofacil/";
@@ -259,6 +258,26 @@ public class LotofacilDrawService {
         IO.println("Id do último concurso na caixa: " + latestRemoteDrawId);
         IO.println("Data do próximo concurso na caixa: " + latestCaixaDraw.getDataProximoConcurso());
         
+        // Verifica se existem concursos 'não oficiais' cadastrado
+        List<LotofacilDraw> pendingOfficialDraws = repository.findByIsOfficialFalse();
+        for (LotofacilDraw nonOfficial : pendingOfficialDraws) {
+            try {
+                CaixaDraw apiDraw = restTemplate.getForObject(CAIXA_API_URL + nonOfficial.getId(), CaixaDraw.class);
+                if (apiDraw != null && apiDraw.getDataApuracao() != null) {
+                    nonOfficial.setOfficial(true);
+                    nonOfficial.setDrawDate(LocalDate.parse(apiDraw.getDataApuracao(), fmt1));
+                    // futuramente, atualizar os impares e pares do nonOficial
+                    repository.save(nonOfficial);
+                    
+                    // Como virou oficial, reavalia as apostas caso elas precisem do valor de rateio do prêmio (isOfficial=true)
+                    lotofacilBetService.processBetsForDraw(nonOfficial, apiDraw);
+                    IO.println("Concurso " + nonOfficial.getId() + " validado como oficial pela Caixa.");
+                }
+            } catch (Exception e) {
+                IO.println("Não foi possível validar o concurso não oficial: " + nonOfficial.getId());
+            }
+        }
+        
         /* Descobrir o último concurso no DB local */
         Optional<LotofacilDraw> latestLocalDrawOpt = repository.findTopByOrderByIdDesc();
         long latestLocalDrawId = latestLocalDrawOpt.isPresent() ? latestLocalDrawOpt.get().getId() : 0; 
@@ -276,16 +295,13 @@ public class LotofacilDrawService {
         /* Loop: Do nosso último + 1 até o último da Caixa */
         for (long id = latestLocalDrawId + 1; id <= maxDrawIdToSync; id++) {
             
-            /* Buscar concurso 'id' da Caixa */
         	CaixaDraw caixaDraw = restTemplate.getForObject(CAIXA_API_URL + id, CaixaDraw.class);
             
-            /* Transformar DTO da Caixa -> LotofacilDraw */
         	LotofacilDraw newDraw = new LotofacilDraw();
             newDraw.setId(caixaDraw.getNumero()); 
             
             if (caixaDraw.getDataApuracao() != null) {
-                LocalDate formattedDrawDate = LocalDate.parse(caixaDraw.getDataApuracao(), fmt1);
-                newDraw.setDrawDate(formattedDrawDate);
+                newDraw.setDrawDate(LocalDate.parse(caixaDraw.getDataApuracao(), fmt1));
             }
             
             List<Integer> currentDrawNumbers = new ArrayList<>();
@@ -293,34 +309,30 @@ public class LotofacilDrawService {
                 currentDrawNumbers.add(Integer.parseInt(numberStr));
             }
             
-            /* Chama a rotina de recalcular estatisticas */
+            newDraw.setOfficial(true);
+            
             processDrawStatisticsAndNumbers(newDraw, currentDrawNumbers, previousDrawNumbers);
             
             // Salvar no banco
             repository.save(newDraw);
             
-            lotofacilBetService.checkPendingBetsForDraw(newDraw, caixaDraw);
+            // NOVO: Chama a rotina UNIFICADA de aposta. Substitui os dois métodos antigos!
+            lotofacilBetService.processBetsForDraw(newDraw, caixaDraw);
             
-            lotofacilBetService.updateRepeatedCountForFutureBets(newDraw);
-            
-            /* Chama a rotina de atualizar os totais */
             updateDrawTotals(newDraw, currentDrawNumbers);
             
             lastSavedDrawId = newDraw.getId();
             previousDrawNumbers = currentDrawNumbers;
             addedDrawsCount++;
-            
-            
         }
         
         /* Recalcula as porcentagens após todas as sincronizações */
-        if (addedDrawsCount > 0) {
-            recalculateAllPercentages(lastSavedDrawId);
-        }
+        if (addedDrawsCount > 0) recalculateAllPercentages(lastSavedDrawId);
         
         /* Coloca mensagem de sincronização */
         syncMessage = "Sincronização concluída. " + addedDrawsCount + " novos concursos adicionados.";
         return new SynchronizeDrawResponse(lastSavedDrawId, addedDrawsCount, nextDrawDate, syncMessage, nextDrawId);
+        
     }
 
 	/* Inserir concurso manualmente */
@@ -349,6 +361,7 @@ public class LotofacilDrawService {
         /* Criar a nova entidade LotofacilDraw */
         LotofacilDraw newDraw = new LotofacilDraw();
         newDraw.setId(newDrawId); // Define o ID manualmente
+        newDraw.setOfficial(false);
         
         IO.println("Data do concurso a ser inserido: " + dto.getDrawDate());
         
@@ -369,8 +382,10 @@ public class LotofacilDrawService {
         LotofacilDraw savedDraw;
         try {
              savedDraw = repository.save(newDraw);
-             lotofacilBetService.checkPendingBetsForDraw(savedDraw);
-             lotofacilBetService.updateRepeatedCountForFutureBets(savedDraw);
+             
+             // NOVO: Chama o motor central de apostas (Repara que mandamos caixaDraw nulo pois é manual)
+             lotofacilBetService.processBetsForDraw(savedDraw, null);
+             
         } catch (DataIntegrityViolationException e) {
              throw new DatabaseException("Failed to save draw: " + e.getMessage());
         }
