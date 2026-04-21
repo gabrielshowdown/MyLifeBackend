@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -17,6 +19,8 @@ import gabriel.hb.MyLifeBackend.entities.LotofacilDraw;
 import gabriel.hb.MyLifeBackend.entities.LotofacilDrawNumber;
 import gabriel.hb.MyLifeBackend.repositories.LotofacilBetRepository;
 import gabriel.hb.MyLifeBackend.repositories.LotofacilDrawRepository;
+import gabriel.hb.MyLifeBackend.repositories.projection.BetSummaryProjection;
+import gabriel.hb.MyLifeBackend.resources.dto.BetSummaryResponse;
 import gabriel.hb.MyLifeBackend.resources.dto.PlaceBetRequest;
 import gabriel.hb.MyLifeBackend.services.dto.CaixaDraw;
 import gabriel.hb.MyLifeBackend.services.exceptions.DatabaseException;
@@ -203,5 +207,21 @@ public class LotofacilBetService {
 	    } catch (DataIntegrityViolationException e) {			
 	        throw new DatabaseException(e.getMessage());		
 	    }	
+	}
+	
+	public BetSummaryResponse getSummary() {
+	    BetSummaryProjection projection = repository.getBetSummaryData();
+	    Double balance = projection.getTotalReturn() - projection.getTotalInvested();
+	    
+	    return new BetSummaryResponse(
+	        projection.getTotalBets(),
+	        projection.getTotalInvested(),
+	        projection.getTotalReturn(),
+	        balance
+	    );
+	}
+
+	public Page<LotofacilBet> findAllPaginated(Pageable pageable) {
+	    return repository.findAll(pageable);
 	}
 }

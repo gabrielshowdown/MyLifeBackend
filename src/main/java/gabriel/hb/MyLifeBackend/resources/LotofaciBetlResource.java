@@ -4,6 +4,10 @@ import java.net.URI;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import gabriel.hb.MyLifeBackend.entities.LotofacilBet;
+import gabriel.hb.MyLifeBackend.resources.dto.BetSummaryResponse;
 import gabriel.hb.MyLifeBackend.resources.dto.PlaceBetRequest;
 import gabriel.hb.MyLifeBackend.services.LotofacilBetService;
 
@@ -63,4 +68,16 @@ public class LotofaciBetlResource {
 		return ResponseEntity.created(uri).body(newBet); // Retorna 201 Created (igual ao 'insert' padrão)
 	}
 
+	@GetMapping(value = "/summary")
+	public ResponseEntity<BetSummaryResponse> getSummary() {
+	    BetSummaryResponse summary = service.getSummary();
+	    return ResponseEntity.ok().body(summary);
+	}
+
+	@GetMapping(value = "/paginated")
+	public ResponseEntity<Page<LotofacilBet>> findAllPaginated(
+	        @PageableDefault(sort = "id", direction = Sort.Direction.DESC, page = 0, size = 10) Pageable pageable) {
+	    Page<LotofacilBet> list = service.findAllPaginated(pageable);
+	    return ResponseEntity.ok().body(list);
+	}
 }
