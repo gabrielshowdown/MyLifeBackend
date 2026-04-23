@@ -73,6 +73,12 @@ public class LotofaciBetlResource {
 	    BetSummaryResponse summary = service.getSummary();
 	    return ResponseEntity.ok().body(summary);
 	}
+	
+	@GetMapping(value = "/graphics")
+	public ResponseEntity<gabriel.hb.MyLifeBackend.resources.dto.BetGraphicsResponse> getGraphicsData() {
+	    var graphics = service.getGraphicsData();
+	    return ResponseEntity.ok().body(graphics);
+	}
 
 	@GetMapping(value = "/paginated")
 	public ResponseEntity<Page<LotofacilBet>> findAllPaginated(
