@@ -9,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -85,5 +87,19 @@ public class LotofaciBetlResource {
 	        @PageableDefault(sort = "id", direction = Sort.Direction.DESC, page = 0, size = 10) Pageable pageable) {
 	    Page<LotofacilBet> list = service.findAllPaginated(pageable);
 	    return ResponseEntity.ok().body(list);
+	}
+	
+	@GetMapping(value = "/export")
+	public ResponseEntity<byte[]> exportToExcel() {
+	    byte[] excelContent = service.exportBetsToExcel();
+
+	    HttpHeaders headers = new HttpHeaders();
+	    headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+	    // O cabeçalho abaixo é o que força o navegador a baixar o arquivo e dar um nome padrão
+	    headers.setContentDispositionFormData("attachment", "relatorio_apostas.xlsx");
+
+	    return ResponseEntity.ok()
+	            .headers(headers)
+	            .body(excelContent);
 	}
 }
