@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -270,15 +272,16 @@ public class LotofacilBetService {
 	public Page<LotofacilBet> findAllPaginated(Pageable pageable) {
 	    return repository.findAll(pageable);
 	}
-
+	
 	public byte[] exportBetsToExcel() {
 	    List<LotofacilBet> bets = repository.findAll();
 	    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
 	    try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-	        Sheet sheet = workbook.createSheet("Relatório de Apostas");
-
-	        // --- ESTILOS ---
+	        
+	        // ==========================================
+	        // ESTILOS COMUNS
+	        // ==========================================
 	        CellStyle headerStyle = createStyle(workbook, IndexedColors.GREY_25_PERCENT, true);
 	        CellStyle borderStyle = createStyle(workbook, null, false);
 	        CellStyle repeatedStyle = createStyle(workbook, IndexedColors.LEMON_CHIFFON, false);
@@ -287,6 +290,15 @@ public class LotofacilBetService {
 	        CellStyle mergedStyle = createStyle(workbook, null, false);
 	        mergedStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
+	        CellStyle boldLabelStyle = workbook.createCellStyle();
+	        Font boldFont = workbook.createFont();
+	        boldFont.setBold(true);
+	        boldLabelStyle.setFont(boldFont);
+
+	        // ==========================================
+	        // ABA 1: RELATÓRIO DE APOSTAS
+	        // ==========================================
+	        Sheet sheetApostas = workbook.createSheet("Relatório de Apostas");
 	        int rowIdx = 2;
 
 	        for (LotofacilBet bet : bets) {
@@ -294,20 +306,19 @@ public class LotofacilBetService {
 	            int apostadosRowIdx = rowIdx + 1;
 	            int sorteadosRowIdx = rowIdx + 2;
 
-	            // 1. CABEÇALHO DO BLOCO
-	            Row headerRow = sheet.createRow(rowIdx++);
+	            // CABEÇALHO DO BLOCO
+	            Row headerRow = sheetApostas.createRow(rowIdx++);
 	            String[] cols = {"", "Data Aposta", "Concurso", "", "Dezenas", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Qtd Impar", "Qtd Par", "Qtd Rep", "Qtd Acert", "Prêmio"};
 	            
-	            // Alteração 1: Começamos a pintar do índice 1 até o 23 (ignorando o 0 que é a margem)
 	            for (int i = 1; i < cols.length; i++) {
 	                Cell cell = headerRow.createCell(i);
 	                cell.setCellValue(cols[i]);
-	                cell.setCellStyle(headerStyle); // Agora TODAS as células do cabeçalho recebem a cor
+	                cell.setCellStyle(headerStyle); 
 	            }
-	            sheet.addMergedRegion(new CellRangeAddress(startRow, startRow, 4, 18));
+	            sheetApostas.addMergedRegion(new CellRangeAddress(startRow, startRow, 4, 18));
 
-	            // 2. LINHA: APOSTADOS
-	            Row rowApostados = sheet.createRow(rowIdx++);
+	            // LINHA: APOSTADOS
+	            Row rowApostados = sheetApostas.createRow(rowIdx++);
 	            List<LotofacilBetNumber> betNumbers = new ArrayList<>(bet.getBetNumbers());
 	            betNumbers.sort(Comparator.comparingInt(LotofacilBetNumber::getNumber));
 
@@ -329,8 +340,8 @@ public class LotofacilBetService {
 	            fillNumericCell(rowApostados, 20, bet.getEvenCount(), borderStyle);
 	            fillNumericCell(rowApostados, 21, bet.getRepeatedCount(), borderStyle);
 
-	            // 3. LINHA: SORTEADOS
-	            Row rowSorteados = sheet.createRow(rowIdx++);
+	            // LINHA: SORTEADOS
+	            Row rowSorteados = sheetApostas.createRow(rowIdx++);
 	            rowSorteados.createCell(1).setCellStyle(mergedStyle);
 	            rowSorteados.createCell(2).setCellStyle(mergedStyle);
 	            rowSorteados.createCell(22).setCellStyle(mergedStyle);
@@ -356,35 +367,140 @@ public class LotofacilBetService {
 	                cellPendente.setCellValue("Pendente");
 	                cellPendente.setCellStyle(borderStyle);
 	                for(int i=5; i<=21; i++) rowSorteados.createCell(i).setCellStyle(borderStyle);
-	                sheet.addMergedRegion(new CellRangeAddress(rowIdx - 1, rowIdx - 1, 4, 18));
+	                sheetApostas.addMergedRegion(new CellRangeAddress(rowIdx - 1, rowIdx - 1, 4, 18));
 	            }
 
-	            // --- APLICAÇÃO DOS MERGES VERTICAIS ---
-	            sheet.addMergedRegion(new CellRangeAddress(apostadosRowIdx, sorteadosRowIdx, 1, 1));
-	            sheet.addMergedRegion(new CellRangeAddress(apostadosRowIdx, sorteadosRowIdx, 2, 2));
-	            sheet.addMergedRegion(new CellRangeAddress(apostadosRowIdx, sorteadosRowIdx, 22, 22));
-	            sheet.addMergedRegion(new CellRangeAddress(apostadosRowIdx, sorteadosRowIdx, 23, 23));
+	            // MERGES VERTICAIS E BORDAS
+	            sheetApostas.addMergedRegion(new CellRangeAddress(apostadosRowIdx, sorteadosRowIdx, 1, 1));
+	            sheetApostas.addMergedRegion(new CellRangeAddress(apostadosRowIdx, sorteadosRowIdx, 2, 2));
+	            sheetApostas.addMergedRegion(new CellRangeAddress(apostadosRowIdx, sorteadosRowIdx, 22, 22));
+	            sheetApostas.addMergedRegion(new CellRangeAddress(apostadosRowIdx, sorteadosRowIdx, 23, 23));
 
-	            // --- Alteração 2: BORDA EXTERNA GROSSA NO BLOCO ---
-	            // Definimos a área inteira do bloco (Linha Inicial até Linha Sorteados, Coluna 1 até 23)
 	            CellRangeAddress blockRegion = new CellRangeAddress(startRow, sorteadosRowIdx, 1, 23);
-	            
-	            // Aplicamos a borda média (MEDIUM) nos 4 lados do bloco
-	            RegionUtil.setBorderTop(BorderStyle.MEDIUM, blockRegion, sheet);
-	            RegionUtil.setBorderBottom(BorderStyle.MEDIUM, blockRegion, sheet);
-	            RegionUtil.setBorderLeft(BorderStyle.MEDIUM, blockRegion, sheet);
-	            RegionUtil.setBorderRight(BorderStyle.MEDIUM, blockRegion, sheet);
+	            RegionUtil.setBorderTop(BorderStyle.MEDIUM, blockRegion, sheetApostas);
+	            RegionUtil.setBorderBottom(BorderStyle.MEDIUM, blockRegion, sheetApostas);
+	            RegionUtil.setBorderLeft(BorderStyle.MEDIUM, blockRegion, sheetApostas);
+	            RegionUtil.setBorderRight(BorderStyle.MEDIUM, blockRegion, sheetApostas);
 
-	            rowIdx += 2; // Espaço entre blocos
+	            rowIdx += 2; 
 	        }
 
-	        // --- AJUSTE DE LARGURA ---
-	        for (int i = 1; i <= 3; i++) sheet.autoSizeColumn(i);
-	        for (int i = 19; i <= 23; i++) sheet.autoSizeColumn(i);
+	        for (int i = 1; i <= 3; i++) sheetApostas.autoSizeColumn(i);
+	        for (int i = 19; i <= 23; i++) sheetApostas.autoSizeColumn(i);
+	        for (int i = 4; i <= 18; i++) sheetApostas.setColumnWidth(i, (int)(3.5 * 256));
+
+	     // ==========================================
+	        // ABA 2: RESUMO GERAL (DASHBOARD)
+	        // ==========================================
+	        Sheet sheetResumo = workbook.createSheet("Resumo Geral");
 	        
-	        for (int i = 4; i <= 18; i++) {
-	            sheet.setColumnWidth(i, (int)(4.5 * 256));
+	        // --- 1. Calcular os dados na memória ---
+	        double totalInvested = 0.0;
+	        double totalReturn = 0.0;
+	        long winningBets = 0;
+	        long checkedBets = 0;
+	        long totalHits = 0;
+	        long autoGenCount = 0;
+	        long manualCount = 0;
+	        
+	        Map<String, Integer> paritiesDist = new HashMap<>();
+	        Map<Integer, Integer> repDist = new HashMap<>();
+
+	        for (LotofacilBet bet : bets) {
+	            totalInvested += bet.getCost();
+	            if (bet.getPrize() != null && bet.getPrize() > 0) {
+	                totalReturn += bet.getPrize();
+	                winningBets++;
+	            }
+	            if (bet.isChecked()) {
+	                checkedBets++;
+	                totalHits += bet.getHits();
+	            }
+	            if (bet.getAutoGenerated()) autoGenCount++; else manualCount++;
+
+	            String parityKey = bet.getOddCount() + "Í / " + bet.getEvenCount() + "P";
+	            paritiesDist.put(parityKey, paritiesDist.getOrDefault(parityKey, 0) + 1);
+	            repDist.put(bet.getRepeatedCount(), repDist.getOrDefault(bet.getRepeatedCount(), 0) + 1);
 	        }
+
+	        double balance = totalReturn - totalInvested;
+	        double avgHits = checkedBets > 0 ? (double) totalHits / checkedBets : 0.0;
+	        double winRate = checkedBets > 0 ? ((double) winningBets / checkedBets) * 100 : 0.0;
+
+	        // --- Novos Estilos para o Dashboard ---
+	        CellStyle boldLabelStyle2 = createStyle(workbook, null, true); // Com bordas
+	        CellStyle styleRed = createStyle(workbook, IndexedColors.ROSE, true); // Vermelho/Rosa para saída
+	        CellStyle styleGreen = createStyle(workbook, IndexedColors.LIGHT_GREEN, true); // Verde para entrada
+
+	        // --- 2. Imprimir Lado a Lado (Geral e Financeiro) ---
+	        int rIdx = 1;
+	        
+	        // Cabeçalhos das duas tabelas
+	        createDashboardHeader(sheetResumo, rIdx, "ESTATÍSTICAS GERAIS", headerStyle);
+	        createDashboardHeaderRight(sheetResumo, rIdx, "BALANÇO FINANCEIRO", headerStyle);
+	        rIdx++;
+
+	        // Linha 2
+	        createDashboardRow(sheetResumo, rIdx, "Total de Apostas:", String.valueOf(bets.size()), borderStyle, boldLabelStyle2);
+	        createDashboardRowRight(sheetResumo, rIdx, "Total Investido (R$):", String.format("%.2f", totalInvested), styleRed, boldLabelStyle2);
+	        rIdx++;
+
+	        // Linha 3
+	        createDashboardRow(sheetResumo, rIdx, "Apostas Conferidas:", String.valueOf(checkedBets), borderStyle, boldLabelStyle2);
+	        createDashboardRowRight(sheetResumo, rIdx, "Retorno Total (R$):", String.format("%.2f", totalReturn), styleGreen, boldLabelStyle2);
+	        rIdx++;
+
+	        // Linha 4
+	        createDashboardRow(sheetResumo, rIdx, "Média de Acertos:", String.format("%.2f", avgHits), borderStyle, boldLabelStyle2);
+	        CellStyle balanceStyle = balance >= 0 ? styleGreen : styleRed;
+	        createDashboardRowRight(sheetResumo, rIdx, "Saldo Final (R$):", String.format("%.2f", balance), balanceStyle, boldLabelStyle2);
+	        rIdx++;
+
+	        // Linha 5 em diante (Apenas Estatísticas na Esquerda)
+	        createDashboardRow(sheetResumo, rIdx++, "Apostas Premiadas:", String.valueOf(winningBets), borderStyle, boldLabelStyle2);
+	        createDashboardRow(sheetResumo, rIdx++, "Taxa de Sucesso:", String.format("%.1f%%", winRate), borderStyle, boldLabelStyle2);
+	        createDashboardRow(sheetResumo, rIdx++, "Origem - Algoritmo:", String.valueOf(autoGenCount), borderStyle, boldLabelStyle2);
+	        createDashboardRow(sheetResumo, rIdx++, "Origem - Manual:", String.valueOf(manualCount), borderStyle, boldLabelStyle2);
+
+	        rIdx += 2; // Espaço antes das distribuições
+
+	        // --- 3. Imprimir Tabelas de Distribuição para Gráficos ---
+	        int tableStartRow = rIdx;
+
+	        // Tabela de Paridade (Esquerda)
+	        createDashboardHeader(sheetResumo, rIdx++, "DISTRIBUIÇÃO DE PARIDADE", headerStyle);
+	        Row subH1 = sheetResumo.createRow(rIdx++);
+	        fillCell(subH1, 1, "Padrão", headerStyle);
+	        fillCell(subH1, 2, "Qtd de Apostas", headerStyle);
+	        
+	        for (Map.Entry<String, Integer> entry : paritiesDist.entrySet()) {
+	            Row row = sheetResumo.createRow(rIdx++);
+	            fillCell(row, 1, entry.getKey(), borderStyle);
+	            fillNumericCell(row, 2, entry.getValue(), borderStyle);
+	        }
+
+	        // Tabela de Repetição (Direita)
+	        int rightIdx = tableStartRow;
+	        createDashboardHeaderRight(sheetResumo, rightIdx++, "DISTRIBUIÇÃO DE REPETIÇÕES", headerStyle);
+	        Row subH2 = sheetResumo.getRow(rightIdx);
+	        if (subH2 == null) subH2 = sheetResumo.createRow(rightIdx);
+	        rightIdx++;
+	        fillCell(subH2, 4, "Repetidas", headerStyle);
+	        fillCell(subH2, 5, "Qtd de Apostas", headerStyle);
+
+	        for (Map.Entry<Integer, Integer> entry : repDist.entrySet()) {
+	            Row row = sheetResumo.getRow(rightIdx);
+	            if (row == null) row = sheetResumo.createRow(rightIdx);
+	            rightIdx++;
+	            fillNumericCell(row, 4, entry.getKey(), borderStyle);
+	            fillNumericCell(row, 5, entry.getValue(), borderStyle);
+	        }
+
+	        // --- 4. Definir Larguras Fixas (Resolve o problema da tabela estreita) ---
+	        sheetResumo.setColumnWidth(1, 22 * 256); // Coluna dos Rótulos Esquerdos
+	        sheetResumo.setColumnWidth(2, 16 * 256); // Coluna dos Valores Esquerdos
+	        sheetResumo.setColumnWidth(4, 24 * 256); // Coluna dos Rótulos Direitos
+	        sheetResumo.setColumnWidth(5, 16 * 256); // Coluna dos Valores Direitos
 
 	        workbook.write(out);
 	        return out.toByteArray();
@@ -393,14 +509,44 @@ public class LotofacilBetService {
 	    }
 	}
 
-	// Helper para preenchimento rápido
+	// ==========================================
+	// NOVOS MÉTODOS AUXILIARES
+	// ==========================================
+
+	private void createDashboardHeader(Sheet sheet, int rowIdx, String title, CellStyle style) {
+	    Row row = sheet.createRow(rowIdx);
+	    fillCell(row, 1, title, style);
+	    fillCell(row, 2, "", style);
+	    sheet.addMergedRegion(new CellRangeAddress(rowIdx, rowIdx, 1, 2));
+	}
+
+	private void createDashboardHeaderRight(Sheet sheet, int rowIdx, String title, CellStyle style) {
+	    Row row = sheet.getRow(rowIdx);
+	    if(row == null) row = sheet.createRow(rowIdx);
+	    fillCell(row, 4, title, style);
+	    fillCell(row, 5, "", style);
+	    sheet.addMergedRegion(new CellRangeAddress(rowIdx, rowIdx, 4, 5));
+	}
+
+	private void createDashboardRow(Sheet sheet, int rowIdx, String label, String value, CellStyle valStyle, CellStyle labelStyle) {
+	    Row row = sheet.createRow(rowIdx);
+	    fillCell(row, 1, label, labelStyle);
+	    fillCell(row, 2, value, valStyle);
+	}
+
+	private void createDashboardRowRight(Sheet sheet, int rowIdx, String label, String value, CellStyle valStyle, CellStyle labelStyle) {
+	    Row row = sheet.getRow(rowIdx);
+	    if (row == null) row = sheet.createRow(rowIdx);
+	    fillCell(row, 4, label, labelStyle);
+	    fillCell(row, 5, value, valStyle);
+	}
+
 	private void fillCell(Row row, int col, String val, CellStyle style) {
 	    Cell cell = row.createCell(col);
 	    cell.setCellValue(val);
 	    cell.setCellStyle(style);
 	}
 
-	// Métodos Auxiliares para Estilos e Limpeza de Código
 	private CellStyle createStyle(Workbook wb, IndexedColors color, boolean bold) {
 	    CellStyle style = wb.createCellStyle();
 	    if (color != null) {
@@ -413,25 +559,16 @@ public class LotofacilBetService {
 	        style.setFont(font);
 	    }
 	    style.setAlignment(HorizontalAlignment.CENTER);
-	    applyBorders(style);
-	    return style;
-	}
-
-	private void applyBorders(CellStyle style) {
 	    style.setBorderTop(BorderStyle.THIN);
 	    style.setBorderBottom(BorderStyle.THIN);
 	    style.setBorderLeft(BorderStyle.THIN);
 	    style.setBorderRight(BorderStyle.THIN);
+	    return style;
 	}
 
 	private void fillNumericCell(Row row, int col, double val, CellStyle style) {
 	    Cell cell = row.createCell(col);
 	    cell.setCellValue(val);
 	    cell.setCellStyle(style);
-	}
-
-	private void autoSizeColumns(Sheet sheet) {
-	    for (int i = 1; i <= 3; i++) sheet.autoSizeColumn(i);
-	    for (int i = 19; i <= 23; i++) sheet.autoSizeColumn(i);
 	}
 }
