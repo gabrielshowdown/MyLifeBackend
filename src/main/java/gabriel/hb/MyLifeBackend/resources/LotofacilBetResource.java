@@ -27,7 +27,7 @@ import gabriel.hb.MyLifeBackend.services.LotofacilBetService;
 
 @RestController
 @RequestMapping(value = "/lotofacilBet")
-public class LotofaciBetlResource {
+public class LotofacilBetResource {
 
 	/* O Spring resolve essa injeção de dependencia e associar uma instancia de LotofacilDrawService */
 	@Autowired
