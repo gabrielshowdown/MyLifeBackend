@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import gabriel.hb.MyLifeBackend.services.exceptions.BookBibleAlreadyRegisteredException;
 import gabriel.hb.MyLifeBackend.services.exceptions.DatabaseException;
 import gabriel.hb.MyLifeBackend.services.exceptions.InvalidLParametersDrawException;
 import gabriel.hb.MyLifeBackend.services.exceptions.InvalidLParametersException;
@@ -49,6 +50,15 @@ public class ResourceExceptionHandler {
 	@ExceptionHandler(UserAlreadyRegisteredException.class) 
 	public ResponseEntity<StandardError> userAlreadyRegistered(UserAlreadyRegisteredException e, HttpServletRequest request){
 		String error = "Username already registered";
+		HttpStatus status = HttpStatus.CONFLICT;
+		StandardError err = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
+		return ResponseEntity.status(status).body(err);
+	}
+	
+	/* Esse método 'BookBibleAlreadyRegistered' vai interceptar qq exceção desse tipo 'BookBibleAlreadyRegisteredException' */
+	@ExceptionHandler(BookBibleAlreadyRegisteredException.class) 
+	public ResponseEntity<StandardError> bookBibleAlreadyRegistered(BookBibleAlreadyRegisteredException e, HttpServletRequest request){
+		String error = "Book already registered";
 		HttpStatus status = HttpStatus.CONFLICT;
 		StandardError err = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
 		return ResponseEntity.status(status).body(err);
