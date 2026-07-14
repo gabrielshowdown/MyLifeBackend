@@ -16,6 +16,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import gabriel.hb.MyLifeBackend.entities.BookBible;
 import gabriel.hb.MyLifeBackend.entities.enums.ReadingCategory;
+import gabriel.hb.MyLifeBackend.resources.dto.CategorizedReadingsResponse;
+import gabriel.hb.MyLifeBackend.resources.dto.ProcessReadingsRequest;
 import gabriel.hb.MyLifeBackend.services.BookBibleService;
 
 @RestController
@@ -52,4 +54,10 @@ public class BookBibleResource {
 				  buildAndExpand(obj.getId()).toUri();
 		return ResponseEntity.created(uri).body(obj); 
 	}
+    
+    @PostMapping(value = "/process-text")
+    public ResponseEntity<CategorizedReadingsResponse> processText(@RequestBody ProcessReadingsRequest request) {
+        CategorizedReadingsResponse response = service.processReadingsText(request);
+        return ResponseEntity.ok().body(response);
+    }
 }
