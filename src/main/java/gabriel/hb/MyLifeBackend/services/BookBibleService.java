@@ -1,8 +1,10 @@
 package gabriel.hb.MyLifeBackend.services;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -99,37 +101,33 @@ public class BookBibleService {
         translationMap.put("Col", "Cl");
         translationMap.put("Tit", "Tt");
         translationMap.put("Jon", "Jn");
-        // Adicione outras se encontrar exceções. As que não estiverem aqui, ficam como estão (Ex: Mt, Mc).
-
-        // 2. Busca todos os livros cadastrados uma única vez para performar melhor
+        
+     // 2. Busca todos os livros
         List<BookBible> allBooks = repository.findAll();
 
-        // 3. Quebra o texto recebido em linhas
+        // 3. Mapa Rápido para buscar o ID do livro pela Sigla (para usarmos na ordenação)
+        Map<String, Long> bookIdMap = allBooks.stream()
+            .collect(Collectors.toMap(
+                b -> b.getAbbreviation().toLowerCase(), 
+                BookBible::getId, 
+                (v1, v2) -> v1 // Evita erros se houver siglas duplicadas no banco
+            ));
+
         String[] lines = request.getRawText().split("\\r?\\n");
 
         for (String line : lines) {
             line = line.trim();
-
-            // Ignorar linhas em branco
-            if (line.isEmpty()) continue;
-
-            // Ignorar Títulos (ex: "Evangelios", "Cartas").
-            // Sabemos que uma leitura real tem um espaço separando o livro do capítulo/versículo (ex: "Mt 23,23")
-            if (!line.contains(" ")) {
+            if (line.isEmpty() || !line.contains(" ")) {
                 continue; 
             }
 
-            // Separa a sigla do resto (capitulos/versículos)
-            // Exemplo: "2Pe 3,13" -> parts[0] = "2Pe", parts[1] = "3,13"
             String[] parts = line.split(" ", 2);
             String originalAbbrev = parts[0];
             String verses = parts[1];
 
-            // 4. Traduz a sigla se ela existir no dicionário
             String translatedAbbrev = translationMap.getOrDefault(originalAbbrev, originalAbbrev);
             String translatedReading = translatedAbbrev + " " + verses;
 
-            // 5. Categorização (Encontra a sigla traduzida no banco de dados)
             BookBible matchedBook = allBooks.stream()
                     .filter(b -> b.getAbbreviation().equalsIgnoreCase(translatedAbbrev))
                     .findFirst()
@@ -137,27 +135,78 @@ public class BookBibleService {
 
             ReadingCategory category = (matchedBook != null) ? matchedBook.getCategory() : ReadingCategory.DESCARTADO;
 
-            // 6. Adiciona na lista correta do Response
             switch (category) {
-                case PRIMEIRA_LEITURA:
-                    response.getPrimeiraLeitura().add(translatedReading);
-                    break;
-                case SEGUNDA_LEITURA:
-                    response.getSegundaLeitura().add(translatedReading);
-                    break;
-                case TERCEIRA_LEITURA:
-                    response.getTerceiraLeitura().add(translatedReading);
-                    break;
-                case EVANGELHO:
-                    response.getEvangelhos().add(translatedReading);
-                    break;
-                case DESCARTADO:
-                default:
-                    response.getDescartados().add(translatedReading);
-                    break;
+                case PRIMEIRA_LEITURA: response.getPrimeiraLeitura().add(translatedReading); break;
+                case SEGUNDA_LEITURA: response.getSegundaLeitura().add(translatedReading); break;
+                case TERCEIRA_LEITURA: response.getTerceiraLeitura().add(translatedReading); break;
+                case EVANGELHO: response.getEvangelhos().add(translatedReading); break;
+                default: response.getDescartados().add(translatedReading); break;
             }
         }
 
+        // 4. LÓGICA DE ORDENAÇÃO CUSTOMIZADA (ID do Banco + Capítulo/Versículo)
+        Comparator<String> readingComparator = (r1, r2) -> {
+            String[] p1 = r1.split(" ", 2);
+            String[] p2 = r2.split(" ", 2);
+            
+            String sigla1 = p1[0].toLowerCase();
+            String sigla2 = p2[0].toLowerCase();
+            
+            // Pega o ID do banco. Se não achar, joga pro final (Long.MAX_VALUE)
+            Long id1 = bookIdMap.getOrDefault(sigla1, Long.MAX_VALUE);
+            Long id2 = bookIdMap.getOrDefault(sigla2, Long.MAX_VALUE);
+            
+            // Compara primeiro pelos IDs (Ordem canônica da Bíblia)
+            int idComparison = id1.compareTo(id2);
+            if (idComparison != 0) {
+                return idComparison;
+            }
+            
+            // Se for o MESMO livro (IDs iguais), vamos ordenar por capítulo e versículo
+            String versePart1 = p1.length > 1 ? p1[1] : "";
+            String versePart2 = p2.length > 1 ? p2[1] : "";
+            
+            int[] cv1 = extractChapterAndVerse(versePart1);
+            int[] cv2 = extractChapterAndVerse(versePart2);
+            
+            // Compara os capítulos
+            if (cv1[0] != cv2[0]) {
+                return Integer.compare(cv1[0], cv2[0]);
+            }
+            // Se o capítulo for igual, compara os versículos
+            return Integer.compare(cv1[1], cv2[1]);
+        };
+
+        // 5. Aplica a ordenação nas listas antes de devolver pro Angular
+        response.getPrimeiraLeitura().sort(readingComparator);
+        response.getSegundaLeitura().sort(readingComparator);
+        response.getTerceiraLeitura().sort(readingComparator);
+        response.getEvangelhos().sort(readingComparator);
+        response.getDescartados().sort(readingComparator);
+
         return response;
+    }
+    
+    // Método Auxiliar para extrair números inteiros de referências complexas (Ex: "1,26s", "3.5", "10,7s.18")
+    private int[] extractChapterAndVerse(String reference) {
+        int chapter = 0;
+        int verse = 0;
+        try {
+            // Remove letras como 's', 'ss' e espaços, deixando apenas números e os separadores (, ou .)
+            String cleanRef = reference.replaceAll("[^0-9,.]", "");
+            
+            // Divide entre capítulo e versículo usando vírgula ou ponto
+            String[] parts = cleanRef.split("[,.]");
+            
+            if (parts.length > 0 && !parts[0].isEmpty()) {
+                chapter = Integer.parseInt(parts[0]);
+            }
+            if (parts.length > 1 && !parts[1].isEmpty()) {
+                verse = Integer.parseInt(parts[1]);
+            }
+        } catch (Exception e) {
+            // Se falhar no parser, apenas engole a exceção e retorna 0,0 para evitar quebrar a requisição
+        }
+        return new int[]{chapter, verse};
     }
 }
