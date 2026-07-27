@@ -2,12 +2,14 @@ package gabriel.hb.MyLifeBackend.services;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import gabriel.hb.MyLifeBackend.entities.ThemeHistory;
 import gabriel.hb.MyLifeBackend.repositories.ThemeHistoryRepository;
+import gabriel.hb.MyLifeBackend.services.exceptions.ResourceNotFoundException;
 
 @Service
 public class ThemeHistoryService {
@@ -24,4 +26,13 @@ public class ThemeHistoryService {
     public List<ThemeHistory> findAll() {
         return repository.findAll();
     }
+    
+    public List<ThemeHistory> findByThemename(String ThemeName) {
+    	return repository.findByThemeName(ThemeName);
+    }
+    
+    public ThemeHistory findById(Long id) {
+		Optional<ThemeHistory> obj = repository.findById(id); // o findById retona um Optional
+        return obj.orElseThrow(() -> new ResourceNotFoundException(id)); // Poderia ser um return obj.get(); para pegar o 'ThemeHistory' do obj;
+	}
 }
