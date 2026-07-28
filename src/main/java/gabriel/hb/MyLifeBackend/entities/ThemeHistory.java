@@ -22,6 +22,9 @@ public class ThemeHistory implements Serializable {
     
     @Column(name = "data_criacao")
     private LocalDate creationDate;
+    
+    @Column(name = "data_celebracao")
+    private LocalDate celebrationDate;
 
     // O @ElementCollection cria uma tabela separada só para guardar as strings dessa lista amarradas ao ID do tema
     @ElementCollection
@@ -67,6 +70,14 @@ public class ThemeHistory implements Serializable {
 		this.themeName = themeName;
 	}
 
+	public LocalDate getCelebrationDate() {
+		return celebrationDate;
+	}
+
+	public void setCelebrationDate(LocalDate celebrationDate) {
+		this.celebrationDate = celebrationDate;
+	}
+	
 	public LocalDate getCreationDate() {
 		return creationDate;
 	}
