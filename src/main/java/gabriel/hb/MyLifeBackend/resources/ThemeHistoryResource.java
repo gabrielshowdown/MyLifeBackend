@@ -66,4 +66,20 @@ public class ThemeHistoryResource {
                 .headers(headers)
                 .body(pdfBytes);
     }
+
+    // NOVO: Endpoint para exportar um PDF de um tema não salvo (Preview)
+    @PostMapping(value = "/export-pdf-preview", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> exportPdfPreview(@RequestBody ThemeHistory obj) {
+        
+        // Enviamos o objeto que veio da memória do Frontend direto para o gerador de PDF
+        byte[] pdfBytes = pdfService.generateThemePdf(obj); 
+        
+        HttpHeaders headers = new HttpHeaders();
+        // Sugere o nome do arquivo para o download
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=Leituras_" + obj.getThemeName() + ".pdf");
+        
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(pdfBytes);
+    }
 }

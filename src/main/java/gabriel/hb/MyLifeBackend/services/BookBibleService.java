@@ -71,7 +71,7 @@ public class BookBibleService {
         translationMap.put("Neh", "Ne");
         translationMap.put("1Mac", "1Mc");
         translationMap.put("2Mac", "2Mc");
-        translationMap.put("Prov", "Pv");
+        translationMap.put("Prov", "Pr");
         translationMap.put("Sal", "Sl");
         translationMap.put("Job", "Jó");
         translationMap.put("Sab", "Sb");
