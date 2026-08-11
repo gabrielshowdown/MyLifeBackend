@@ -136,12 +136,32 @@ public class BookBibleService {
             ReadingCategory category = (matchedBook != null) ? matchedBook.getCategory() : ReadingCategory.DESCARTADO;
 
             switch (category) {
-                case PRIMEIRA_LEITURA: response.getPrimeiraLeitura().add(translatedReading); break;
-                case SEGUNDA_LEITURA: response.getSegundaLeitura().add(translatedReading); break;
-                case TERCEIRA_LEITURA: response.getTerceiraLeitura().add(translatedReading); break;
-                case EVANGELHO: response.getEvangelhos().add(translatedReading); break;
-                default: response.getDescartados().add(translatedReading); break;
-            }
+	            case PRIMEIRA_LEITURA: 
+	                if (!response.getPrimeiraLeitura().contains(translatedReading)) {
+	                    response.getPrimeiraLeitura().add(translatedReading); 
+	                }
+	                break;
+	            case SEGUNDA_LEITURA: 
+	                if (!response.getSegundaLeitura().contains(translatedReading)) {
+	                    response.getSegundaLeitura().add(translatedReading); 
+	                }
+	                break;
+	            case TERCEIRA_LEITURA: 
+	                if (!response.getTerceiraLeitura().contains(translatedReading)) {
+	                    response.getTerceiraLeitura().add(translatedReading); 
+	                }
+	                break;
+	            case EVANGELHO: 
+	                if (!response.getEvangelhos().contains(translatedReading)) {
+	                    response.getEvangelhos().add(translatedReading); 
+	                }
+	                break;
+	            default: 
+	                if (!response.getDescartados().contains(translatedReading)) {
+	                    response.getDescartados().add(translatedReading); 
+	                }
+	                break;
+	        }
         }
 
         // 4. LÓGICA DE ORDENAÇÃO CUSTOMIZADA (ID do Banco + Capítulo/Versículo)
@@ -173,8 +193,8 @@ public class BookBibleService {
             if (cv1[0] != cv2[0]) {
                 return Integer.compare(cv1[0], cv2[0]);
             }
-            // Se o capítulo for igual, compara os versículos
-            return Integer.compare(cv1[1], cv2[1]);
+            // Se o capítulo for igual, compara os versículos, desempata alfabeticamente para a versão sem letra ficar na frente
+            return versePart1.compareToIgnoreCase(versePart2);
         };
 
         // 5. Aplica a ordenação nas listas antes de devolver pro Angular
@@ -196,7 +216,7 @@ public class BookBibleService {
             String cleanRef = reference.replaceAll("[^0-9,.]", "");
             
             // Divide entre capítulo e versículo usando vírgula ou ponto
-            String[] parts = cleanRef.split("[,.]");
+            String[] parts = cleanRef.split("[,.\\-]");
             
             if (parts.length > 0 && !parts[0].isEmpty()) {
                 chapter = Integer.parseInt(parts[0]);
