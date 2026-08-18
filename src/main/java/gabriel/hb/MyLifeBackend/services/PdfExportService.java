@@ -27,6 +27,9 @@ public class PdfExportService {
             Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16, Color.BLACK);
             Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Color.DARK_GRAY);
             Font textFont = FontFactory.getFont(FontFactory.HELVETICA, 11, Color.BLACK);
+            
+            // NOVA FONTE: Negrito e na cor Roxa (padrão do seu sistema)
+            Font numberFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11, new Color(118, 75, 162));
 
             // 2. Cabeçalho (Tema e Data)
             Paragraph title = new Paragraph("Tema: " + theme.getThemeName(), titleFont);
@@ -49,7 +52,7 @@ public class PdfExportService {
             table.setWidths(new float[]{1f, 1f, 1f, 1f}); // Larguras iguais
 
             // Cabeçalhos da Tabela baseados no seu anexo
-            String[] headers = {"1 Leituras:", "2 Leituras:", "3 Leituras:", "Evangelhos:"};
+            String[] headers = {"1ª Leituras:", "2ª Leituras:", "3ª Leituras:", "Evangelhos:"};
             for (String header : headers) {
                 PdfPCell cell = new PdfPCell(new Phrase(header, headerFont));
                 cell.setBorder(Rectangle.BOTTOM); // Linha apenas embaixo para ficar limpo
@@ -67,10 +70,12 @@ public class PdfExportService {
             int maxSize = Math.max(Math.max(list1.size(), list2.size()), Math.max(list3.size(), list4.size()));
 
             for (int i = 0; i < maxSize; i++) {
-                table.addCell(createCell(i < list1.size() ? list1.get(i) : "", textFont));
-                table.addCell(createCell(i < list2.size() ? list2.get(i) : "", textFont));
-                table.addCell(createCell(i < list3.size() ? list3.get(i) : "", textFont));
-                table.addCell(createCell(i < list4.size() ? list4.get(i) : "", textFont));
+                String num = String.valueOf(i + 1) + ".";
+                
+                table.addCell(createCell(i < list1.size() ? num : "", i < list1.size() ? list1.get(i) : "", numberFont, textFont));
+                table.addCell(createCell(i < list2.size() ? num : "", i < list2.size() ? list2.get(i) : "", numberFont, textFont));
+                table.addCell(createCell(i < list3.size() ? num : "", i < list3.size() ? list3.get(i) : "", numberFont, textFont));
+                table.addCell(createCell(i < list4.size() ? num : "", i < list4.size() ? list4.get(i) : "", numberFont, textFont));
             }
 
             document.add(table);
@@ -84,9 +89,18 @@ public class PdfExportService {
     }
 
     // Método auxiliar para formatar as células sem bordas (visual mais limpo)
-    private PdfPCell createCell(String text, Font font) {
-        PdfPCell cell = new PdfPCell(new Phrase(text, font));
-        cell.setBorder(Rectangle.NO_BORDER); // Remove as bordas tipo "Excel" 
+    private PdfPCell createCell(String number, String text, Font numberFont, Font textFont) {
+        Phrase phrase = new Phrase();
+        
+        if (!number.isEmpty()) {
+            // Adiciona o número com a fonte roxa e negrito, só descomentar a linha abaixo
+            // phrase.add(new Chunk(number + " ", numberFont));
+            // Adiciona o texto da leitura com a fonte normal preta
+            phrase.add(new Chunk(text, textFont));
+        }
+		
+        PdfPCell cell = new PdfPCell(phrase);
+        cell.setBorder(Rectangle.NO_BORDER); 
         cell.setPaddingTop(6f);
         cell.setPaddingBottom(6f);
         return cell;
