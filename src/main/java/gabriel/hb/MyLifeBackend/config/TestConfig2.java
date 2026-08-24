@@ -8,8 +8,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import gabriel.hb.MyLifeBackend.entities.User;
-import gabriel.hb.MyLifeBackend.repositories.UserRepository;
+import gabriel.hb.MyLifeBackend.modules.auth.entities.User;
+import gabriel.hb.MyLifeBackend.modules.auth.repositories.UserRepository;
 
 @Configuration
 @Profile("test2") // Colocar o ambiente do Application.properties que deseja mockar os dados

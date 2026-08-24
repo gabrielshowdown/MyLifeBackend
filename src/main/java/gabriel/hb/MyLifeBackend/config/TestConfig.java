@@ -5,12 +5,12 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import gabriel.hb.MyLifeBackend.entities.LotofacilTotalsNumbers;
-import gabriel.hb.MyLifeBackend.entities.LotofacilTotalsParities;
-import gabriel.hb.MyLifeBackend.entities.LotofacilTotalsRepetitions;
-import gabriel.hb.MyLifeBackend.repositories.LotofacilTotalsNumbersRepository;
-import gabriel.hb.MyLifeBackend.repositories.LotofacilTotalsParitiesRepository;
-import gabriel.hb.MyLifeBackend.repositories.LotofacilTotalsRepetitionsRepository;
+import gabriel.hb.MyLifeBackend.modules.lotteries.entitites.LotofacilTotalsNumbers;
+import gabriel.hb.MyLifeBackend.modules.lotteries.entitites.LotofacilTotalsParities;
+import gabriel.hb.MyLifeBackend.modules.lotteries.entitites.LotofacilTotalsRepetitions;
+import gabriel.hb.MyLifeBackend.modules.lotteries.repositories.LotofacilTotalsNumbersRepository;
+import gabriel.hb.MyLifeBackend.modules.lotteries.repositories.LotofacilTotalsParitiesRepository;
+import gabriel.hb.MyLifeBackend.modules.lotteries.repositories.LotofacilTotalsRepetitionsRepository;
 
 @Configuration
 @Profile("test") // Colocar o ambiente do Application.properties que deseja mockar os dados

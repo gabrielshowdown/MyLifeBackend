@@ -1,0 +1,106 @@
+package gabriel.hb.MyLifeBackend.modules.lotteries.resources;
+
+import java.net.URI;
+import java.util.List;
+
+import gabriel.hb.MyLifeBackend.modules.lotteries.resources.dto.BetGraphicsResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import gabriel.hb.MyLifeBackend.modules.lotteries.resources.dto.BetSummaryResponse;
+import gabriel.hb.MyLifeBackend.modules.lotteries.resources.dto.PlaceBetRequest;
+import gabriel.hb.MyLifeBackend.modules.lotteries.entitites.LotofacilBet;
+import gabriel.hb.MyLifeBackend.modules.lotteries.services.LotofacilBetService;
+
+@RestController
+@RequestMapping(value = "/lotofacilBet")
+public class LotofacilBetResource {
+
+	/* O Spring resolve essa injeção de dependencia e associar uma instancia de LotofacilDrawService */
+	@Autowired
+	private LotofacilBetService service;
+
+	/* Método para retorno de todos os concursos */
+	@GetMapping
+	public ResponseEntity<List<LotofacilBet>> findAll() {
+		List<LotofacilBet> list = service.findAll();
+		return ResponseEntity.ok().body(list);
+	}
+
+	/* Método para retorno por ID */
+	@GetMapping(value = "/{id}")
+	public ResponseEntity<LotofacilBet> findById(@PathVariable Long id) { // Pega o valor passado de parâmetro da URL
+		LotofacilBet obj = service.findById(id);
+		return ResponseEntity.ok().body(obj);
+	}
+	
+	/* Buscar apostas por concurso*/
+	@GetMapping(value = "/draw/{id}")
+	public ResponseEntity<List<LotofacilBet>>findByTargetDrawId(@PathVariable Long id) { // Pega o valor passado de parâmetro da URL
+		List<LotofacilBet> list = service.findByTargetDrawId(id);
+		return ResponseEntity.ok().body(list);
+	}
+
+
+	/* Método para delete */
+	@DeleteMapping(value = "/{id}") // 
+	public ResponseEntity<Void> delete(@PathVariable Long id) { // Parâmetro passado na URL
+		service.delete(id);
+		return ResponseEntity.noContent().build(); // Retorna uma resposta vazia (código 204)
+	}
+
+	/* Método para a inserção */
+	@PostMapping("/insert") 
+	public ResponseEntity<LotofacilBet> insertManually(@RequestBody PlaceBetRequest dto) {
+		LotofacilBet newBet = service.insert(dto);
+		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(newBet.getId()).toUri();
+		return ResponseEntity.created(uri).body(newBet); // Retorna 201 Created (igual ao 'insert' padrão)
+	}
+
+	@GetMapping(value = "/summary")
+	public ResponseEntity<BetSummaryResponse> getSummary() {
+	    BetSummaryResponse summary = service.getSummary();
+	    return ResponseEntity.ok().body(summary);
+	}
+	
+	@GetMapping(value = "/graphics")
+	public ResponseEntity<BetGraphicsResponse> getGraphicsData() {
+	    var graphics = service.getGraphicsData();
+	    return ResponseEntity.ok().body(graphics);
+	}
+
+	@GetMapping(value = "/paginated")
+	public ResponseEntity<Page<LotofacilBet>> findAllPaginated(
+	        @PageableDefault(sort = "id", direction = Sort.Direction.DESC, page = 0, size = 10) Pageable pageable) {
+	    Page<LotofacilBet> list = service.findAllPaginated(pageable);
+	    return ResponseEntity.ok().body(list);
+	}
+	
+	@GetMapping(value = "/export")
+	public ResponseEntity<byte[]> exportToExcel() {
+	    byte[] excelContent = service.exportBetsToExcel();
+
+	    HttpHeaders headers = new HttpHeaders();
+	    headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+	    // O cabeçalho abaixo é o que força o navegador a baixar o arquivo e dar um nome padrão
+	    headers.setContentDispositionFormData("attachment", "relatorio_apostas.xlsx");
+
+	    return ResponseEntity.ok()
+	            .headers(headers)
+	            .body(excelContent);
+	}
+}

@@ -1,0 +1,38 @@
+package gabriel.hb.MyLifeBackend.modules.community.services;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
+import gabriel.hb.MyLifeBackend.modules.community.entities.ThemeHistory;
+import gabriel.hb.MyLifeBackend.modules.community.repositories.ThemeHistoryRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import gabriel.hb.MyLifeBackend.shared.ResourceNotFoundException;
+
+@Service
+public class ThemeHistoryService {
+
+    @Autowired
+    private ThemeHistoryRepository repository;
+
+    public ThemeHistory insert(ThemeHistory obj) {
+        // Define a data atual no momento em que está sendo salvo
+        obj.setCreationDate(LocalDate.now());
+        return repository.save(obj);
+    }
+
+    public List<ThemeHistory> findAll() {
+        return repository.findAll();
+    }
+    
+    public List<ThemeHistory> findByThemename(String ThemeName) {
+    	return repository.findByThemeName(ThemeName);
+    }
+    
+    public ThemeHistory findById(Long id) {
+		Optional<ThemeHistory> obj = repository.findById(id); // o findById retona um Optional
+        return obj.orElseThrow(() -> new ResourceNotFoundException(id)); // Poderia ser um return obj.get(); para pegar o 'ThemeHistory' do obj;
+	}
+}

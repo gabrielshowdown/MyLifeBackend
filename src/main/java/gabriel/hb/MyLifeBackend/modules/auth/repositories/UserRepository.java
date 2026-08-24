@@ -1,0 +1,19 @@
+package gabriel.hb.MyLifeBackend.modules.auth.repositories;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import gabriel.hb.MyLifeBackend.modules.auth.entities.User;
+
+@Repository //Registra a classe como um componente/repository do spring e vai poder ser injetado no UserService 
+			//(não é obrigatório, pois essa interface já herda isso do JpaRepository)
+public interface UserRepository extends JpaRepository<User, Long>{
+	
+	Optional<User> findByUsernameAndPassword(String username, String password);
+	
+	List<User> findByUsername(String username);
+
+}
