@@ -9,7 +9,7 @@ import java.util.Objects;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name="tb_historico_tema")
+@Table(name="tb_cm_historico_tema")
 public class ThemeHistory implements Serializable {
     private static final long serialVersionUID = 1L;
 

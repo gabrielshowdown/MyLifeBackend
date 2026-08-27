@@ -11,7 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name="tb_totais_numeros_lotofacil")
+@Table(name="tb_lt_totais_numeros_lotofacil")
 public class LotofacilTotalsNumbers implements Serializable{
 	private static final long serialVersionUID = 1L;
 	

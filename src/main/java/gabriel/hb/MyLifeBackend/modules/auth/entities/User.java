@@ -12,7 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name="tb_usuario")
+@Table(name="tb_au_usuario")
 public class User implements Serializable{
 	private static final long serialVersionUID = 1L;
 	

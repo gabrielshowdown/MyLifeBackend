@@ -14,7 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name="tb_livro_biblico")
+@Table(name="tb_cm_livro_biblico")
 public class BookBible implements Serializable{
 	private static final long serialVersionUID = 1L;
 	

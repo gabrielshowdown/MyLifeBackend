@@ -21,7 +21,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name="tb_aposta_lotofacil")
+@Table(name="tb_lt_aposta_lotofacil")
 public class LotofacilBet implements Serializable{
 	private static final long serialVersionUID = 1L;
 	
