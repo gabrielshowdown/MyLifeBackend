@@ -30,9 +30,14 @@ public class UserService {
         return obj.orElseThrow(() -> new ResourceNotFoundException(id)); // Poderia ser um return obj.get(); para pegar o 'User' do obj;
 	}
 	
-	public List<User> findByUsername(String name) {
-        return repository.findByUsername(name);
-    }
+	public List<User> findByUsername(String name) { 
+		List<User> obj = repository.findByUsername(name); 
+		if (obj.isEmpty()) {
+			throw new ResourceNotFoundException(name);
+		}
+		return obj;
+		//return repository.findByUsername(name);
+	}
 	
 	public User validateUser(String username, String password) {
 		Optional<User> obj = repository.findByUsernameAndPassword(username, password);
@@ -40,13 +45,12 @@ public class UserService {
 		// Caso quisesse o booleano, poderia colocar repository.findByUsernameAndSenha(username, senha).isPresent();
     }
 	
-	public User insert(User obj) {
-		if(findByUsername(obj.getUsername()).isEmpty()) {
-			return repository.save(obj);
+	public User insert(User obj) { 
+		List<User> users = repository.findByUsername(obj.getUsername()); 
+		if (!users.isEmpty()) { 
+			throw new UserAlreadyRegisteredException( " com o username: " + obj.getUsername() );
 		}
-		else {
-			throw new UserAlreadyRegisteredException(" com o username: " + obj.getUsername());
-		}
+		return repository.save(obj); 
 	}
 	
 	public void delete(Long id) {

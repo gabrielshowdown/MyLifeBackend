@@ -90,9 +90,6 @@ public class User implements Serializable{
 	public LocalDate getBirthDate() {
 		return birthDate;
 	}
-	public void setData(LocalDate birthDate) {
-		this.birthDate = birthDate;
-	}
 	
 	// Métodos Acessores
 	@Override
