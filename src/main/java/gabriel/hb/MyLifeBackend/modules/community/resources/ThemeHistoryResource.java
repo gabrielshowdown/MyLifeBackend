@@ -5,6 +5,8 @@ import java.util.List;
 
 import gabriel.hb.MyLifeBackend.modules.community.services.PdfExportService;
 import gabriel.hb.MyLifeBackend.modules.community.entities.ThemeHistory;
+import gabriel.hb.MyLifeBackend.modules.community.resources.dto.CategorizedReadingsResponse;
+import gabriel.hb.MyLifeBackend.modules.community.resources.dto.ProcessReadingsRequest;
 import gabriel.hb.MyLifeBackend.modules.community.services.ThemeHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -80,5 +82,12 @@ public class ThemeHistoryResource {
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(pdfBytes);
+    }
+    
+    
+    @PostMapping(value = "/process-text")
+    public ResponseEntity<CategorizedReadingsResponse> processText(@RequestBody ProcessReadingsRequest request) {
+        CategorizedReadingsResponse response = service.processReadingsText(request);
+        return ResponseEntity.ok().body(response);
     }
 }

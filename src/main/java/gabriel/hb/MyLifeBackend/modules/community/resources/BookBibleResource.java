@@ -4,8 +4,6 @@ import java.net.URI;
 import java.util.List;
 
 import gabriel.hb.MyLifeBackend.modules.community.services.BookBibleService;
-import gabriel.hb.MyLifeBackend.modules.community.resources.dto.CategorizedReadingsResponse;
-import gabriel.hb.MyLifeBackend.modules.community.resources.dto.ProcessReadingsRequest;
 import gabriel.hb.MyLifeBackend.modules.community.entities.enums.ReadingCategory;
 import gabriel.hb.MyLifeBackend.modules.community.entities.BookBible;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,10 +51,5 @@ public class BookBibleResource {
 				  buildAndExpand(obj.getId()).toUri();
 		return ResponseEntity.created(uri).body(obj); 
 	}
-    
-    @PostMapping(value = "/process-text")
-    public ResponseEntity<CategorizedReadingsResponse> processText(@RequestBody ProcessReadingsRequest request) {
-        CategorizedReadingsResponse response = service.processReadingsText(request);
-        return ResponseEntity.ok().body(response);
-    }
+
 }
