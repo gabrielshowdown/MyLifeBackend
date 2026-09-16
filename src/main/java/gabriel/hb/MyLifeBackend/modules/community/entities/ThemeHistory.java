@@ -28,27 +28,27 @@ public class ThemeHistory implements Serializable {
 
     // O @ElementCollection cria uma tabela separada só para guardar as strings dessa lista amarradas ao ID do tema
     @ElementCollection
-    @CollectionTable(name="tb_tema_primeira_leitura", joinColumns=@JoinColumn(name="tema_id"))
+    @CollectionTable(name="tb_cm_tema_primeira_leitura", joinColumns=@JoinColumn(name="tema_id"))
     @Column(name="leitura")
     private List<String> primeiraLeitura = new ArrayList<>();
 
     @ElementCollection
-    @CollectionTable(name="tb_tema_segunda_leitura", joinColumns=@JoinColumn(name="tema_id"))
+    @CollectionTable(name="tb_cm_tema_segunda_leitura", joinColumns=@JoinColumn(name="tema_id"))
     @Column(name="leitura")
     private List<String> segundaLeitura = new ArrayList<>();
 
     @ElementCollection
-    @CollectionTable(name="tb_tema_terceira_leitura", joinColumns=@JoinColumn(name="tema_id"))
+    @CollectionTable(name="tb_cm_tema_terceira_leitura", joinColumns=@JoinColumn(name="tema_id"))
     @Column(name="leitura")
     private List<String> terceiraLeitura = new ArrayList<>();
 
     @ElementCollection
-    @CollectionTable(name="tb_tema_evangelho", joinColumns=@JoinColumn(name="tema_id"))
+    @CollectionTable(name="tb_cm_tema_evangelho", joinColumns=@JoinColumn(name="tema_id"))
     @Column(name="leitura")
     private List<String> evangelhos = new ArrayList<>();
 
     @ElementCollection
-    @CollectionTable(name="tb_tema_descartado", joinColumns=@JoinColumn(name="tema_id"))
+    @CollectionTable(name="tb_cm_tema_descartado", joinColumns=@JoinColumn(name="tema_id"))
     @Column(name="leitura")
     private List<String> descartados = new ArrayList<>();
 
