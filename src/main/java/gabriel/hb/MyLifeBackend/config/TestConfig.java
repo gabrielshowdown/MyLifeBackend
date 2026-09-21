@@ -13,7 +13,7 @@ import gabriel.hb.MyLifeBackend.modules.lotteries.repositories.LotofacilTotalsPa
 import gabriel.hb.MyLifeBackend.modules.lotteries.repositories.LotofacilTotalsRepetitionsRepository;
 
 @Configuration
-@Profile("test") // Colocar o ambiente do Application.properties que deseja mockar os dados
+@Profile("test") /* Colocar o ambiente do Application.properties que deseja mockar os dados */
 public class TestConfig implements CommandLineRunner{ // Interface que tem um método que executa quando a aplicação for iniciada
 	
 	//o Spring resolve essa injeção de dependencia e associar uma instancia de Repository
@@ -35,7 +35,7 @@ public class TestConfig implements CommandLineRunner{ // Interface que tem um m�
 
 		}
 		if (lotofacilTotalsParitiesRepository.count() == 0) {
-			/* Cria a tabela e colunas de paridade caso ela nao exista*/
+			/* Cria a tabela e colunas de paridade caso ela nao exista */
 			lotofacilTotalsParitiesRepository.save(new LotofacilTotalsParities("13I/02P", 0, 0.0));
 			lotofacilTotalsParitiesRepository.save(new LotofacilTotalsParities("12I/03P", 0, 0.0));
 			lotofacilTotalsParitiesRepository.save(new LotofacilTotalsParities("11I/04P", 0, 0.0));
@@ -49,7 +49,7 @@ public class TestConfig implements CommandLineRunner{ // Interface que tem um m�
 			lotofacilTotalsParitiesRepository.save(new LotofacilTotalsParities("03I/12P", 0, 0.0));
 		}
 		if (lotofacilTotalsNumbersRepository.count() == 0) {
-			// Cria 25 registros controlados por ID na tabela de totais números
+			/* Cria 25 registros controlados por ID na tabela de totais números */
 			int i = 0;
 			while (i < 25) {
 				lotofacilTotalsNumbersRepository.save(new LotofacilTotalsNumbers(0, 0.0));

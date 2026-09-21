@@ -7,8 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import gabriel.hb.MyLifeBackend.modules.lotteries.entitites.LotofacilTotalsRepetitions;
 
-@Repository //Registra a classe como um componente/repository do spring e vai poder ser injetado no TotaisRepeticoesLotofacilService 
-			//(não é obrigatório, pois essa interface já herda isso do JpaRepository)
+@Repository /* Não é obrigatório, pois essa interface já herda isso do JpaRepository */
 public interface LotofacilTotalsRepetitionsRepository extends JpaRepository<LotofacilTotalsRepetitions, Long>{
 	
 	Optional<LotofacilTotalsRepetitions> findByRepeated(Integer repeated);

@@ -21,12 +21,12 @@ import jakarta.persistence.Table;
 public class LotofacilDraw implements Serializable{
 	private static final long serialVersionUID = 1L;
 	
-	// Atributos
+	/* Atributos */
 	@Id
-    // @GeneratedValue(strategy = GenerationType.IDENTITY)
+	// @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 	@Column(name = "qtd_pares")
-    private int evenCount; // É gerado como 'even_Count' no banco, seria como colocar um @Column(name="even_Count")
+    private int evenCount; /* É gerado como 'even_Count' no banco, seria como colocar um @Column(name="even_Count") */
 	@Column(name = "qtd_impares")
 	private int oddCount;
 	@Column(name = "qtd_repetidos")
@@ -41,7 +41,7 @@ public class LotofacilDraw implements Serializable{
     @OneToMany(mappedBy = "draw", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<LotofacilDrawNumber> drawNumbers = new ArrayList<>();
 	
-	// Construtores
+	/* Construtores */
     public LotofacilDraw() {
     }
 
@@ -50,7 +50,7 @@ public class LotofacilDraw implements Serializable{
         this.oddCount = oddCount;
     }
 
-	// Métodos Acessores
+	/* Métodos Acessores */
     public Long getId() {
 		return id;
 	}
@@ -116,6 +116,7 @@ public class LotofacilDraw implements Serializable{
 		this.isOfficial = isOfficial;
 	}
 
+	/* Método Comparativo */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

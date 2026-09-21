@@ -15,7 +15,7 @@ import jakarta.persistence.Table;
 public class LotofacilTotalsNumbers implements Serializable{
 	private static final long serialVersionUID = 1L;
 	
-	// Atributos
+	/* Atributos */
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -24,9 +24,8 @@ public class LotofacilTotalsNumbers implements Serializable{
 	@Column(name = "porcentagem")
 	private Double percentage;
 	
-	// Construtores
+	/* Construtores */
     public LotofacilTotalsNumbers() {
-    	
     }
     
     public LotofacilTotalsNumbers(int quantity, double percentage) {
@@ -34,7 +33,7 @@ public class LotofacilTotalsNumbers implements Serializable{
     	this.percentage = percentage;
     }
 
-	// Métodos Acessores
+	/* Métodos Acessores */
     public Integer getId() {
 		return id;
 	}
@@ -59,6 +58,7 @@ public class LotofacilTotalsNumbers implements Serializable{
 		this.percentage = percentage;
 	}
 
+	/* Método Comparativo */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

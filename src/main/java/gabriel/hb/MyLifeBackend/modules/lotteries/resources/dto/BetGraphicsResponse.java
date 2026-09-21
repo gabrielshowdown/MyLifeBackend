@@ -4,13 +4,16 @@ import java.util.List;
 
 import gabriel.hb.MyLifeBackend.modules.lotteries.repositories.projection.ParityGroupProjection;
 import gabriel.hb.MyLifeBackend.modules.lotteries.repositories.projection.RepetitionGroupProjection;
-
+/* Classe para tratar a resposta da requisiçao que vem do frontend para obter os gráficos */
 public class BetGraphicsResponse {
+
+    /* Atributos */
     private List<ParityGroupProjection> paritiesPieData;
     private List<RepetitionGroupProjection> repetitionsPieData;
     private Long exactParityHits;
     private Long exactRepetitionHits;
 
+    /* Construtor */
     public BetGraphicsResponse(List<ParityGroupProjection> paritiesPieData, 
                                List<RepetitionGroupProjection> repetitionsPieData, 
                                Long exactParityHits, Long exactRepetitionHits) {
@@ -20,7 +23,7 @@ public class BetGraphicsResponse {
         this.exactRepetitionHits = exactRepetitionHits;
     }
 
-    // Gerar Getters e Setters
+    /* Getters e Setters */
     public List<ParityGroupProjection> getParitiesPieData() { return paritiesPieData; }
     public void setParitiesPieData(List<ParityGroupProjection> paritiesPieData) { this.paritiesPieData = paritiesPieData; }
     public List<RepetitionGroupProjection> getRepetitionsPieData() { return repetitionsPieData; }

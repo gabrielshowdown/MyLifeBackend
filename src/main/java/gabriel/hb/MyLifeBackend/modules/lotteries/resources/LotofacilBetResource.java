@@ -30,7 +30,6 @@ import gabriel.hb.MyLifeBackend.modules.lotteries.services.LotofacilBetService;
 @RequestMapping(value = "/lotofacilBet")
 public class LotofacilBetResource {
 
-	/* O Spring resolve essa injeção de dependencia e associar uma instancia de LotofacilDrawService */
 	@Autowired
 	private LotofacilBetService service;
 
@@ -43,24 +42,23 @@ public class LotofacilBetResource {
 
 	/* Método para retorno por ID */
 	@GetMapping(value = "/{id}")
-	public ResponseEntity<LotofacilBet> findById(@PathVariable Long id) { // Pega o valor passado de parâmetro da URL
+	public ResponseEntity<LotofacilBet> findById(@PathVariable Long id) {
 		LotofacilBet obj = service.findById(id);
 		return ResponseEntity.ok().body(obj);
 	}
 	
 	/* Buscar apostas por concurso*/
 	@GetMapping(value = "/draw/{id}")
-	public ResponseEntity<List<LotofacilBet>>findByTargetDrawId(@PathVariable Long id) { // Pega o valor passado de parâmetro da URL
+	public ResponseEntity<List<LotofacilBet>>findByTargetDrawId(@PathVariable Long id) {
 		List<LotofacilBet> list = service.findByTargetDrawId(id);
 		return ResponseEntity.ok().body(list);
 	}
 
-
 	/* Método para delete */
-	@DeleteMapping(value = "/{id}") // 
-	public ResponseEntity<Void> delete(@PathVariable Long id) { // Parâmetro passado na URL
+	@DeleteMapping(value = "/{id}")
+	public ResponseEntity<Void> delete(@PathVariable Long id) {
 		service.delete(id);
-		return ResponseEntity.noContent().build(); // Retorna uma resposta vazia (código 204)
+		return ResponseEntity.noContent().build(); /* Retorna uma resposta vazia (código 204) */
 	}
 
 	/* Método para a inserção */
@@ -68,7 +66,7 @@ public class LotofacilBetResource {
 	public ResponseEntity<LotofacilBet> insertManually(@RequestBody PlaceBetRequest dto) {
 		LotofacilBet newBet = service.insert(dto);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(newBet.getId()).toUri();
-		return ResponseEntity.created(uri).body(newBet); // Retorna 201 Created (igual ao 'insert' padrão)
+		return ResponseEntity.created(uri).body(newBet); /* Retorna 201 Created (igual ao 'insert' padrão) */
 	}
 
 	@GetMapping(value = "/summary")
@@ -96,7 +94,7 @@ public class LotofacilBetResource {
 
 	    HttpHeaders headers = new HttpHeaders();
 	    headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
-	    // O cabeçalho abaixo é o que força o navegador a baixar o arquivo e dar um nome padrão
+	    /* O cabeçalho abaixo é o que força o navegador a baixar o arquivo e dar um nome padrão */
 	    headers.setContentDispositionFormData("attachment", "relatorio_apostas.xlsx");
 
 	    return ResponseEntity.ok()

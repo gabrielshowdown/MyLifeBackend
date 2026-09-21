@@ -1,20 +1,14 @@
 package gabriel.hb.MyLifeBackend.modules.community.services;
 
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
-import gabriel.hb.MyLifeBackend.modules.community.resources.dto.CategorizedReadingsResponse;
-import gabriel.hb.MyLifeBackend.modules.community.resources.dto.ProcessReadingsRequest;
-import gabriel.hb.MyLifeBackend.modules.community.entities.enums.ReadingCategory;
-import gabriel.hb.MyLifeBackend.modules.community.entities.BookBible;
-import gabriel.hb.MyLifeBackend.modules.community.exceptions.BookBibleAlreadyRegisteredException;
-import gabriel.hb.MyLifeBackend.modules.community.repositories.BookBibleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import gabriel.hb.MyLifeBackend.modules.community.entities.BookBible;
+import gabriel.hb.MyLifeBackend.modules.community.entities.enums.ReadingCategory;
+import gabriel.hb.MyLifeBackend.modules.community.exceptions.BookBibleAlreadyRegisteredException;
+import gabriel.hb.MyLifeBackend.modules.community.repositories.BookBibleRepository;
 import gabriel.hb.MyLifeBackend.shared.ResourceNotFoundException;
 
 @Service
@@ -31,7 +25,7 @@ public class BookBibleService {
         return repository.findByCategory(category);
     }
 
-    // Método principal para o Frontend mudar um livro de lista
+    /* Método principal para o Frontend mudar um livro de lista */
     public BookBible updateCategory(Long id, ReadingCategory newCategory) {
     	BookBible entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(id));
@@ -45,7 +39,7 @@ public class BookBibleService {
 			return repository.save(obj);
 		}
 		else {
-			throw new BookBibleAlreadyRegisteredException(" com o nome: " + obj.getName());
+			throw new BookBibleAlreadyRegisteredException("com o nome: " + obj.getName());
 		}
 	}
     

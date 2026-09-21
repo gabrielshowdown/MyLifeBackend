@@ -35,7 +35,7 @@ public class ThemeHistoryResource {
     }
     
     @GetMapping(value = "/{id}")
-	public ResponseEntity<ThemeHistory> findById(@PathVariable Long id){ // Pega o valor passado de parâmetro da URL
+	public ResponseEntity<ThemeHistory> findById(@PathVariable Long id){
     	ThemeHistory obj = service.findById(id);
 		return ResponseEntity.ok().body(obj);
 	}
@@ -49,6 +49,7 @@ public class ThemeHistoryResource {
     @PostMapping
     public ResponseEntity<ThemeHistory> insert(@RequestBody ThemeHistory obj) {
         obj = service.insert(obj);
+        /* Trecho abaixo para retorna o código 201 e não o 200, e mostrar o id do tema criado */
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(obj.getId()).toUri();
         return ResponseEntity.created(uri).body(obj);
@@ -56,34 +57,27 @@ public class ThemeHistoryResource {
     
     @GetMapping(value = "/{id}/export-pdf", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> exportPdf(@PathVariable Long id) {
-        ThemeHistory obj = service.findById(id); // Busca do banco
-        byte[] pdfBytes = pdfService.generateThemePdf(obj); // Gera o PDF
-        
+        ThemeHistory obj = service.findById(id);
+        byte[] pdfBytes = pdfService.generateThemePdf(obj);
         HttpHeaders headers = new HttpHeaders();
-        // O "attachment" força o navegador a fazer o download com o nome sugerido
+        /* O "attachment" força o navegador a fazer o download com o nome sugerido */
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=Tema_" + obj.getId() + ".pdf");
-        
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(pdfBytes);
     }
 
-    // NOVO: Endpoint para exportar um PDF de um tema não salvo (Preview)
+    /* Endpoint para exportar um PDF de um tema não salvo (Preview) */
     @PostMapping(value = "/export-pdf-preview", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> exportPdfPreview(@RequestBody ThemeHistory obj) {
-        
-        // Enviamos o objeto que veio da memória do Frontend direto para o gerador de PDF
-        byte[] pdfBytes = pdfService.generateThemePdf(obj); 
-        
+        byte[] pdfBytes = pdfService.generateThemePdf(obj);
         HttpHeaders headers = new HttpHeaders();
-        // Sugere o nome do arquivo para o download
+        /* O "attachment" força o navegador a fazer o download com o nome sugerido */
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=Leituras_" + obj.getThemeName() + ".pdf");
-        
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(pdfBytes);
     }
-    
     
     @PostMapping(value = "/process-text")
     public ResponseEntity<CategorizedReadingsResponse> processText(@RequestBody ProcessReadingsRequest request) {

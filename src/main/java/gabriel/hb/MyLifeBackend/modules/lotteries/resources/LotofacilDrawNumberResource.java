@@ -21,7 +21,7 @@ import gabriel.hb.MyLifeBackend.modules.lotteries.services.LotofacilDrawNumberSe
 @RequestMapping(value = "/lotofacilDrawNumber")
 public class LotofacilDrawNumberResource {
 	
-	@Autowired /* O Spring resolve essa injeção de dependencia e associar uma instancia de LotofacilDrawNumberService */
+	@Autowired
 	private LotofacilDrawNumberService service;
 	
 	/* Método para retorno de todos os numeros de concurso */
@@ -33,25 +33,26 @@ public class LotofacilDrawNumberResource {
 	
 	/* Método para retorno por ID */
 	@GetMapping(value = "/{id}")
-	public ResponseEntity<LotofacilDrawNumber> findById(@PathVariable Long id){ // Pega o valor passado de parâmetro da URL
+	public ResponseEntity<LotofacilDrawNumber> findById(@PathVariable Long id){
 		LotofacilDrawNumber obj = service.findById(id);
 		return ResponseEntity.ok().body(obj);
 	}
 
 	/* Método para a inserção */
 	@PostMapping 
-	public ResponseEntity<LotofacilDrawNumber> insert(@RequestBody LotofacilDrawNumber obj){ // Objeto chega como JSON e é deserializado para um obj LotofacilDrawNumberService
+	public ResponseEntity<LotofacilDrawNumber> insert(@RequestBody LotofacilDrawNumber obj){
 		obj = service.insert(obj);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").
 				  buildAndExpand(obj.getId()).toUri();
-		return ResponseEntity.created(uri).body(obj); // Trecho para retornar o código 201 e não o 200, e mostrar o id do user criado
+		 /* Trecho para retornar o código 201 e não o 200, e mostrar o id do número criado */
+		return ResponseEntity.created(uri).body(obj);
 	}
 	
 	/* Método para delete */
 	@DeleteMapping(value = "/{id}")
-	public ResponseEntity<Void> delete (@PathVariable Long id){ // Parâmetro passado na URL
+	public ResponseEntity<Void> delete (@PathVariable Long id){
 		service.delete(id);
-		return ResponseEntity.noContent().build(); // Retorna uma resposta vazia (código 204)
+		return ResponseEntity.noContent().build(); /* Retorna uma resposta vazia (código 204) */
 	}
 	
 	/** Novo endpoint para buscar números por ID do concurso

@@ -50,33 +50,33 @@ import gabriel.hb.MyLifeBackend.modules.lotteries.repositories.LotofacilDrawRepo
 import gabriel.hb.MyLifeBackend.shared.DatabaseException;
 import gabriel.hb.MyLifeBackend.shared.ResourceNotFoundException;
 
-@Service /* Registra a classe como um componente/service do spring e vai poder ser injetado no LotofacilBetResource */
+@Service
 public class LotofacilBetService {
 	
-	/* O Spring resolve essa injeção de dependencia e associar uma instancia de LotofacilBetRepository */
 	@Autowired private LotofacilBetRepository repository;
 	@Autowired private LotofacilDrawRepository drawRepository;
 	
 	private final String CAIXA_API_URL = "https://servicebus2.caixa.gov.br/portaldeloterias/api/lotofacil/";
 	
-    /* Listar de todos os concursos */
+    /* Listar de todos as apostas */
 	public List<LotofacilBet> findAll(){
 		return repository.findAll();
 	}
 	
-    /* Consultar concurso por Id */
+    /* Consultar aposta por Id */
 	public LotofacilBet findById(Long id) {
         Optional<LotofacilBet> obj = repository.findById(id); // o findById retona um Optional
         return obj.orElseThrow(() -> new ResourceNotFoundException(id));
 	}
-	
+
+	/* Buscar apostas por Id do concurso */
 	public List<LotofacilBet> findByTargetDrawId(Long targetDrawId) {
 		List<LotofacilBet> list = repository.findByTargetDrawId(targetDrawId);
 	    if (list.isEmpty()) throw new ResourceNotFoundException(targetDrawId);
 	    return list;
 	}
 	
-	/* Inserir nova aposta - Refatorado para usar a avaliação unificada */
+	/* Inserir nova aposta  */
 	@Transactional
 	public LotofacilBet insert(PlaceBetRequest dto) {
 		LotofacilBet bet = new LotofacilBet();
@@ -94,10 +94,10 @@ public class LotofacilBetService {
             bet.getBetNumbers().add(betNumber);
         }
 
-        // Obtém dezenas do concurso anterior (se existir)
+        /* Obtém dezenas do concurso anterior (se existir) */
         List<Integer> previousNumbers = getPreviousDrawNumbers(dto.getTargetDrawId());
         
-        // Tenta obter o concurso alvo (se já existir no banco)
+        /* Tenta obter o concurso alvo (se já existir no banco) */
         Optional<LotofacilDraw> targetDrawOpt = drawRepository.findById(dto.getTargetDrawId());
         LotofacilDraw targetDraw = targetDrawOpt.orElse(null);
         List<Integer> targetNums = null;
@@ -107,7 +107,7 @@ public class LotofacilBetService {
             targetNums = targetDraw.getDrawNumbers().stream()
                     .map(LotofacilDrawNumber::getNumber).collect(Collectors.toList());
             
-            // Se for oficial, busca os prêmios na hora para aposta antiga
+            /* Se for oficial, busca os prêmios na hora para aposta antiga */
             if (targetDraw.isOfficial()) {
                 try {
                     RestTemplate rt = new RestTemplate();
@@ -117,18 +117,18 @@ public class LotofacilBetService {
             }
         }
 
-        // Passa por avaliação de acertos, paridade e repetições
+        /* Passa por avaliação de acertos, paridade e repetições */
         evaluateBet(bet, targetNums, previousNumbers, targetDraw, premios);
 
 		return repository.save(bet);
 	}
 	
-	/* Método ÚNICO que resolve as apostas do concurso salvo e as repetições do concurso seguinte */
+	/* Método único que resolve as apostas do concurso salvo e as repetições do concurso seguinte */
 	@Transactional
 	public void processBetsForDraw(LotofacilDraw savedDraw, CaixaDraw caixaDraw) {
 	    List<CaixaDraw.RateioPremio> premios = (caixaDraw != null) ? caixaDraw.getListaRateioPremio() : null;
 
-	    // 1. Processar apostas do concurso atual (Acertos, Paridade, Prêmios e Repetição baseada no concurso N-1)
+	    /* Processar apostas do concurso atual (Acertos, Paridade, Prêmios e Repetição baseada no concurso N-1) */
 	    List<LotofacilBet> currentBets = repository.findByTargetDrawId(savedDraw.getId());
 	    if (!currentBets.isEmpty()) {
 	        List<Integer> currentDrawNumbers = savedDraw.getDrawNumbers().stream()
@@ -142,7 +142,7 @@ public class LotofacilBetService {
 	        repository.saveAll(currentBets);
 	    }
 
-	    // 2. Processar apostas do PRÓXIMO concurso (apenas atualizar a Repetição baseada no concurso recém salvo)
+	    /* Processar apostas do próximo concurso (apenas atualizar a Repetição baseada no concurso recém salvo) */
 	    List<LotofacilBet> futureBets = repository.findByTargetDrawId(savedDraw.getId() + 1);
 	    if (!futureBets.isEmpty()) {
 	        List<Integer> officialNumbersForFuture = savedDraw.getDrawNumbers().stream()
@@ -155,7 +155,7 @@ public class LotofacilBetService {
 	    }
 	}
 
-    // Retorna a lista de dezenas do concurso anterior
+    /* Retorna a lista de dezenas do concurso anterior */
 	private List<Integer> getPreviousDrawNumbers(Long currentDrawId) {
 	    List<Integer> previousNumbers = new ArrayList<>();
 	    Optional<LotofacilDraw> previousDrawOpt = drawRepository.findById(currentDrawId - 1);
@@ -166,7 +166,7 @@ public class LotofacilBetService {
 	    return previousNumbers;
 	}
 
-	/* Motor de Regras: Centraliza os cálculos dinamicamente se as informações existirem */
+	/* Centraliza os cálculos dinamicamente se as informações existirem */
 	private void evaluateBet(LotofacilBet bet, List<Integer> targetDrawNumbers, List<Integer> previousNumbers, LotofacilDraw targetDraw, List<CaixaDraw.RateioPremio> premios) {
 	    int hits = 0;
 	    int repeatedCount = 0;
@@ -176,18 +176,18 @@ public class LotofacilBetService {
 	    for (LotofacilBetNumber betNumber : bet.getBetNumbers()) {
 	        int num = betNumber.getNumber();
 	        
-	        // Paridade
+	        /* Paridade */
 	        if (num % 2 == 0) evenCount++;
 	        else oddCount++;
 	        
-	        // Repetições (só avalia se a lista do anterior for preenchida)
+	        /* Repetições (só avalia se a lista do anterior for preenchida) */
 	        if (previousNumbers != null && !previousNumbers.isEmpty()) {
 	            boolean isRep = previousNumbers.contains(num);
 	            betNumber.setIsRepeated(isRep);
 	            if (isRep) repeatedCount++;
 	        }
 	        
-	        // Acertos (só avalia se o concurso alvo já tiver ocorrido)
+	        /* Acertos (só avalia se o concurso alvo já tiver ocorrido) */
 	        if (targetDrawNumbers != null) {
 	            if (targetDrawNumbers.contains(num)) {
 	                betNumber.setWasCorrectly(true);
@@ -204,7 +204,7 @@ public class LotofacilBetService {
 	        bet.setRepeatedCount(repeatedCount);
 	    }
 
-	    // Consolida resultados finais de conferência e prêmios
+	    /* Consolida resultados finais de conferência e prêmios */
 	    if (targetDraw != null) {
 	        bet.setHits(hits);
 	        bet.setChecked(true);
@@ -236,14 +236,14 @@ public class LotofacilBetService {
 	public BetSummaryResponse getSummary() {
 	    BetSummaryProjection projection = repository.getBetSummaryData();
 	    
-	    // O Saldo deve considerar o custo de TODAS, mas o prêmio de TODAS (que é 0 para as não conferidas)
+	    /* O Saldo deve considerar o custo de TODAS, mas o prêmio de TODAS (que é 0 para as não conferidas) */
 	    Double balance = projection.getTotalReturn() - projection.getTotalInvested();
 	    
-	    Double averageHits = repository.getAverageHits(); // Agora filtrado por isChecked = true
-	    Long totalWinningBets = repository.countWinningBetsChecked(); // Agora filtrado
+	    Double averageHits = repository.getAverageHits(); /* Agora filtrado por isChecked = true */
+	    Long totalWinningBets = repository.countWinningBetsChecked(); /* Agora filtrado */
 	    Long totalChecked = repository.countAllCheckedBets();
 	    
-	    // Cálculo de taxa de vitória (Ex: 0.15 para 15%)
+	    /* Cálculo de taxa de vitória (Ex: 0.15 para 15%) */
 	    Double winRate = (totalChecked > 0) ? (totalWinningBets.doubleValue() / totalChecked) : 0.0;
 
 	    return new BetSummaryResponse(
@@ -255,11 +255,11 @@ public class LotofacilBetService {
 	        repository.countByAutoGeneratedTrue(),
 	        repository.countByAutoGeneratedFalse(),
 	        totalWinningBets,
-	        winRate // Adicione este campo ao seu DTO no Java e no Angular
+	        winRate
 	    );
 	}
 
-	// Novo método para retornar os dados dos gráficos
+	/* Método para retornar os dados dos gráficos */
 	public BetGraphicsResponse getGraphicsData() {
 	    List<ParityGroupProjection> parities = repository.getBetsGroupedByParity();
 	    List<RepetitionGroupProjection> repetitions = repository.getBetsGroupedByRepetition();
@@ -279,9 +279,7 @@ public class LotofacilBetService {
 
 	    try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
 	        
-	        // ==========================================
-	        // ESTILOS COMUNS
-	        // ==========================================
+	        /* Estilos comuns */
 	        CellStyle headerStyle = createStyle(workbook, IndexedColors.GREY_25_PERCENT, true);
 	        CellStyle borderStyle = createStyle(workbook, null, false);
 	        CellStyle repeatedStyle = createStyle(workbook, IndexedColors.LEMON_CHIFFON, false);
@@ -295,9 +293,6 @@ public class LotofacilBetService {
 	        boldFont.setBold(true);
 	        boldLabelStyle.setFont(boldFont);
 
-	        // ==========================================
-	        // ABA 1: RELATÓRIO DE APOSTAS
-	        // ==========================================
 	        Sheet sheetApostas = workbook.createSheet("Relatório de Apostas");
 	        int rowIdx = 2;
 
@@ -306,7 +301,7 @@ public class LotofacilBetService {
 	            int apostadosRowIdx = rowIdx + 1;
 	            int sorteadosRowIdx = rowIdx + 2;
 
-	            // CABEÇALHO DO BLOCO
+	            /* Cabeçalho do bloco */
 	            Row headerRow = sheetApostas.createRow(rowIdx++);
 	            String[] cols = {"", "Data Aposta", "Concurso", "", "Dezenas", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Qtd Impar", "Qtd Par", "Qtd Rep", "Qtd Acert", "Prêmio"};
 	            
@@ -317,7 +312,7 @@ public class LotofacilBetService {
 	            }
 	            sheetApostas.addMergedRegion(new CellRangeAddress(startRow, startRow, 4, 18));
 
-	            // LINHA: APOSTADOS
+	            /* Linha: Apostados */
 	            Row rowApostados = sheetApostas.createRow(rowIdx++);
 	            List<LotofacilBetNumber> betNumbers = new ArrayList<>(bet.getBetNumbers());
 	            betNumbers.sort(Comparator.comparingInt(LotofacilBetNumber::getNumber));
@@ -340,7 +335,7 @@ public class LotofacilBetService {
 	            fillNumericCell(rowApostados, 20, bet.getEvenCount(), borderStyle);
 	            fillNumericCell(rowApostados, 21, bet.getRepeatedCount(), borderStyle);
 
-	            // LINHA: SORTEADOS
+	            /* Linha: Sorteados */
 	            Row rowSorteados = sheetApostas.createRow(rowIdx++);
 	            rowSorteados.createCell(1).setCellStyle(mergedStyle);
 	            rowSorteados.createCell(2).setCellStyle(mergedStyle);
@@ -370,7 +365,7 @@ public class LotofacilBetService {
 	                sheetApostas.addMergedRegion(new CellRangeAddress(rowIdx - 1, rowIdx - 1, 4, 18));
 	            }
 
-	            // MERGES VERTICAIS E BORDAS
+	            /*  Merges verticais e bordas */
 	            sheetApostas.addMergedRegion(new CellRangeAddress(apostadosRowIdx, sorteadosRowIdx, 1, 1));
 	            sheetApostas.addMergedRegion(new CellRangeAddress(apostadosRowIdx, sorteadosRowIdx, 2, 2));
 	            sheetApostas.addMergedRegion(new CellRangeAddress(apostadosRowIdx, sorteadosRowIdx, 22, 22));
@@ -389,12 +384,9 @@ public class LotofacilBetService {
 	        for (int i = 19; i <= 23; i++) sheetApostas.autoSizeColumn(i);
 	        for (int i = 4; i <= 18; i++) sheetApostas.setColumnWidth(i, (int)(3.5 * 256));
 
-	     // ==========================================
-	        // ABA 2: RESUMO GERAL (DASHBOARD)
-	        // ==========================================
 	        Sheet sheetResumo = workbook.createSheet("Resumo Geral");
 	        
-	        // --- 1. Calcular os dados na memória ---
+	        /* Calcular os dados na memória  */
 	        double totalInvested = 0.0;
 	        double totalReturn = 0.0;
 	        long winningBets = 0;
@@ -427,47 +419,47 @@ public class LotofacilBetService {
 	        double avgHits = checkedBets > 0 ? (double) totalHits / checkedBets : 0.0;
 	        double winRate = checkedBets > 0 ? ((double) winningBets / checkedBets) * 100 : 0.0;
 
-	        // --- Novos Estilos para o Dashboard ---
-	        CellStyle boldLabelStyle2 = createStyle(workbook, null, true); // Com bordas
-	        CellStyle styleRed = createStyle(workbook, IndexedColors.ROSE, true); // Vermelho/Rosa para saída
-	        CellStyle styleGreen = createStyle(workbook, IndexedColors.LIGHT_GREEN, true); // Verde para entrada
+	        /* Novos Estilos para o Dashboard */
+	        CellStyle boldLabelStyle2 = createStyle(workbook, null, true); /* Com bordas */
+	        CellStyle styleRed = createStyle(workbook, IndexedColors.ROSE, true); /* Vermelho/Rosa para saída */
+	        CellStyle styleGreen = createStyle(workbook, IndexedColors.LIGHT_GREEN, true); /* Verde para entrada */
 
-	        // --- 2. Imprimir Lado a Lado (Geral e Financeiro) ---
+	        /* Imprimir Lado a Lado (Geral e Financeiro) */
 	        int rIdx = 1;
 	        
-	        // Cabeçalhos das duas tabelas
+	        /* Cabeçalhos das duas tabelas */
 	        createDashboardHeader(sheetResumo, rIdx, "ESTATÍSTICAS GERAIS", headerStyle);
 	        createDashboardHeaderRight(sheetResumo, rIdx, "BALANÇO FINANCEIRO", headerStyle);
 	        rIdx++;
 
-	        // Linha 2
+	        /* Linha */
 	        createDashboardRow(sheetResumo, rIdx, "Total de Apostas:", String.valueOf(bets.size()), borderStyle, boldLabelStyle2);
 	        createDashboardRowRight(sheetResumo, rIdx, "Total Investido (R$):", String.format("%.2f", totalInvested), styleRed, boldLabelStyle2);
 	        rIdx++;
 
-	        // Linha 3
+	        /* Linha */
 	        createDashboardRow(sheetResumo, rIdx, "Apostas Conferidas:", String.valueOf(checkedBets), borderStyle, boldLabelStyle2);
 	        createDashboardRowRight(sheetResumo, rIdx, "Retorno Total (R$):", String.format("%.2f", totalReturn), styleGreen, boldLabelStyle2);
 	        rIdx++;
 
-	        // Linha 4
+	        /* Linha 4 */
 	        createDashboardRow(sheetResumo, rIdx, "Média de Acertos:", String.format("%.2f", avgHits), borderStyle, boldLabelStyle2);
 	        CellStyle balanceStyle = balance >= 0 ? styleGreen : styleRed;
 	        createDashboardRowRight(sheetResumo, rIdx, "Saldo Final (R$):", String.format("%.2f", balance), balanceStyle, boldLabelStyle2);
 	        rIdx++;
 
-	        // Linha 5 em diante (Apenas Estatísticas na Esquerda)
+	        /* Linha 5 em diante (Apenas Estatísticas na Esquerda) */
 	        createDashboardRow(sheetResumo, rIdx++, "Apostas Premiadas:", String.valueOf(winningBets), borderStyle, boldLabelStyle2);
 	        createDashboardRow(sheetResumo, rIdx++, "Taxa de Sucesso:", String.format("%.1f%%", winRate), borderStyle, boldLabelStyle2);
 	        createDashboardRow(sheetResumo, rIdx++, "Origem - Algoritmo:", String.valueOf(autoGenCount), borderStyle, boldLabelStyle2);
 	        createDashboardRow(sheetResumo, rIdx++, "Origem - Manual:", String.valueOf(manualCount), borderStyle, boldLabelStyle2);
 
-	        rIdx += 2; // Espaço antes das distribuições
+	        rIdx += 2; /* Espaço antes das distribuições */
 
-	        // --- 3. Imprimir Tabelas de Distribuição para Gráficos ---
+	        /* Imprimir Tabelas de Distribuição para Gráficos */
 	        int tableStartRow = rIdx;
 
-	        // Tabela de Paridade (Esquerda)
+	        /* Tabela de Paridade (Esquerda) */
 	        createDashboardHeader(sheetResumo, rIdx++, "DISTRIBUIÇÃO DE PARIDADE", headerStyle);
 	        Row subH1 = sheetResumo.createRow(rIdx++);
 	        fillCell(subH1, 1, "Padrão", headerStyle);
@@ -479,7 +471,7 @@ public class LotofacilBetService {
 	            fillNumericCell(row, 2, entry.getValue(), borderStyle);
 	        }
 
-	        // Tabela de Repetição (Direita)
+	        /* Tabela de Repetição (Direita) */
 	        int rightIdx = tableStartRow;
 	        createDashboardHeaderRight(sheetResumo, rightIdx++, "DISTRIBUIÇÃO DE REPETIÇÕES", headerStyle);
 	        Row subH2 = sheetResumo.getRow(rightIdx);
@@ -496,11 +488,11 @@ public class LotofacilBetService {
 	            fillNumericCell(row, 5, entry.getValue(), borderStyle);
 	        }
 
-	        // --- 4. Definir Larguras Fixas (Resolve o problema da tabela estreita) ---
-	        sheetResumo.setColumnWidth(1, 22 * 256); // Coluna dos Rótulos Esquerdos
-	        sheetResumo.setColumnWidth(2, 16 * 256); // Coluna dos Valores Esquerdos
-	        sheetResumo.setColumnWidth(4, 24 * 256); // Coluna dos Rótulos Direitos
-	        sheetResumo.setColumnWidth(5, 16 * 256); // Coluna dos Valores Direitos
+	        /* Definir Larguras Fixas (Resolve o problema da tabela estreita) */
+	        sheetResumo.setColumnWidth(1, 22 * 256); /* Coluna dos Rótulos Esquerdos */
+	        sheetResumo.setColumnWidth(2, 16 * 256); /* Coluna dos Valores Esquerdos */
+	        sheetResumo.setColumnWidth(4, 24 * 256); /* Coluna dos Rótulos Direitos */
+	        sheetResumo.setColumnWidth(5, 16 * 256); /* Coluna dos Valores Direitos */
 
 	        workbook.write(out);
 	        return out.toByteArray();
@@ -509,10 +501,7 @@ public class LotofacilBetService {
 	    }
 	}
 
-	// ==========================================
-	// NOVOS MÉTODOS AUXILIARES
-	// ==========================================
-
+	/* Métodos Auxiliares */
 	private void createDashboardHeader(Sheet sheet, int rowIdx, String title, CellStyle style) {
 	    Row row = sheet.createRow(rowIdx);
 	    fillCell(row, 1, title, style);

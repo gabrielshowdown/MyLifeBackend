@@ -23,7 +23,7 @@ import gabriel.hb.MyLifeBackend.modules.auth.services.UserService;
 @RequestMapping(value = "/users")
 public class UserResource {
 	
-	@Autowired //O Spring resolve essa injeção de dependencia e associar uma instancia de UserService
+	@Autowired
 	private UserService service;
 	
 	@GetMapping
@@ -33,7 +33,7 @@ public class UserResource {
 	}
 	
 	@GetMapping(value = "/{id}")
-	public ResponseEntity<User> findById(@PathVariable Long id){ // Pega o valor passado de parâmetro da URL
+	public ResponseEntity<User> findById(@PathVariable Long id){ /* Pega o valor passado de parâmetro da URL */
 		User obj = service.findById(id);
 		return ResponseEntity.ok().body(obj);
 	}
@@ -48,29 +48,28 @@ public class UserResource {
     public ResponseEntity<User> validateLogin(@RequestBody Map<String, String> credentials) {
         String username = credentials.get("username");
         String password = credentials.get("password");
-
         User obj = service.validateUser(username, password);
-        // Se o usuário/senha estiver incorreto, já vai estourar exceção no service
+        /* Se o usuário/senha estiverem incorretos, já vai estourar exceção no service */
         return ResponseEntity.ok().body(obj);
     }
 
-	@PostMapping // Método POST para insercao
-	public ResponseEntity<User> insert(@RequestBody User obj){ // Objeto chega como JSON e é deserializado para um obj user
+	@PostMapping
+	public ResponseEntity<User> insert(@RequestBody User obj){
 		obj = service.insert(obj);
-		// Trecho abaixo para retorna o código 201 e não o 200, e mostrar o id do user criado
+		/* Trecho abaixo para retorna o código 201 e não o 200, e mostrar o id do user criado */
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").
 				  buildAndExpand(obj.getId()).toUri();
 		return ResponseEntity.created(uri).body(obj); 
 	}
 	
-	@DeleteMapping(value = "/{id}") // Método DELETE do HTTP
-	public ResponseEntity<Void> delete (@PathVariable Long id){ // Parâmetro passado na URL
+	@DeleteMapping(value = "/{id}")
+	public ResponseEntity<Void> delete (@PathVariable Long id){
 		service.delete(id);
-		return ResponseEntity.noContent().build(); // Retorna uma resposta vazia (código 204)
+		return ResponseEntity.noContent().build(); /* Retorna uma resposta vazia (código 204) */
 	}
 	
-	@PutMapping(value = "/{id}")// Método PUT do HTTP
-	public ResponseEntity<User> update(@PathVariable Long id, @RequestBody User obj){ // O update recebe o id a ser editado e o corpo do user editado
+	@PutMapping(value = "/{id}")
+	public ResponseEntity<User> update(@PathVariable Long id, @RequestBody User obj){ /* O update recebe o id a ser editado e o corpo do user editado */
 		obj = service.update(id, obj);
 		return ResponseEntity.ok().body(obj);
 	}

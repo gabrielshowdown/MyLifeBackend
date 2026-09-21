@@ -16,11 +16,10 @@ import jakarta.persistence.Table;
 public class Item implements Serializable{
 	private static final long serialVersionUID = 1L;
 	
-	// Atributos
+	/* Atributos */
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Long id;
-	// Caso quisesse mudar o nome da coluna -> @Column(name="nomecompleto")
 	@Column(name = "nome")
 	private String name;
 	@Column(name = "observacao")
@@ -32,12 +31,9 @@ public class Item implements Serializable{
 	@Column(name = "validade")
 	private LocalDate validity;
 	
-	// Construtores
+	/* Construtores */
 	public Item() {
-		
 	}
-		
-	
 
 	public Item(Long id, String name, String observation, String category, String image, LocalDate validity) {
 		super();
@@ -49,7 +45,7 @@ public class Item implements Serializable{
 		this.validity = validity;
 	}
 
-
+	/* Métodos Acessores */
 	public Long getId() {
 		return id;
 	}
@@ -57,74 +53,52 @@ public class Item implements Serializable{
 	public void setId(Long id) {
 		this.id = id;
 	}
-
 	
 	public String getName() {
 		return name;
 	}
 
-
-
 	public void setName(String name) {
 		this.name = name;
 	}
-
-
 
 	public String getObservation() {
 		return observation;
 	}
 
-
-
 	public void setObservation(String observation) {
 		this.observation = observation;
 	}
-
-
 
 	public String getCategory() {
 		return category;
 	}
 
-
-
 	public void setCategory(String category) {
 		this.category = category;
 	}
-
-
 
 	public String getImage() {
 		return image;
 	}
 
-
-
 	public void setImage(String image) {
 		this.image = image;
 	}
-
-
 
 	public LocalDate getValidity() {
 		return validity;
 	}
 
-
-
 	public void setValidity(LocalDate validity) {
 		this.validity = validity;
 	}
 
-
-
+	/* Métodos Comparativos */
 	@Override
 	public int hashCode() {
 		return Objects.hash(id);
 	}
-
-
 
 	@Override
 	public boolean equals(Object obj) {

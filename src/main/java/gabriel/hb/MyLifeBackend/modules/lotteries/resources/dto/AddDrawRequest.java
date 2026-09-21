@@ -10,7 +10,7 @@ public class AddDrawRequest {
     private List<String> dozens; // Ex: ["01", "06", "07", ...]
     private String drawDate;
 
-    /* Construtor padrão */
+    /* Construtor */
     public AddDrawRequest() {
     }
 

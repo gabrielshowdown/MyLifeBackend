@@ -21,7 +21,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RequestMapping(value = "/items")
 public class ItemResource {
 	
-	@Autowired //O Spring resolve essa injeção de dependencia e associar uma instancia de UserService
+	@Autowired
 	private ItemService service;
 	
 	@GetMapping
@@ -31,29 +31,29 @@ public class ItemResource {
 	}
 	
 	@GetMapping(value = "/{id}")
-	public ResponseEntity<Item> findById(@PathVariable Long id){ // Pega o valor passado de parâmetro da URL
+	public ResponseEntity<Item> findById(@PathVariable Long id){
 		Item obj = service.findById(id);
 		return ResponseEntity.ok().body(obj);
 	}
 
 	@PostMapping // Método POST para insercao
-	public ResponseEntity<Item> insert(@RequestBody Item obj){ // Objeto chega como JSON e é deserializado para um obj item
+	public ResponseEntity<Item> insert(@RequestBody Item obj){ /* Objeto chega como JSON e é deserializado para um obj item */
 		obj = service.insert(obj);
-		// Trecho abaixo para retorna o código 201 e não o 200, e mostrar o id do user criado
+		/* Trecho abaixo para retorna o código 201 e não o 200, e mostrar o id do user criado */
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").
 				  buildAndExpand(obj.getId()).toUri();
 		return ResponseEntity.created(uri).body(obj); 
 	}
 	
 	@DeleteMapping(value = "/{id}") // Método DELETE do HTTP
-	public ResponseEntity<Void> delete (@PathVariable Long id){ // Parâmetro passado na URL
+	public ResponseEntity<Void> delete (@PathVariable Long id){
 		service.delete(id);
-		return ResponseEntity.noContent().build(); // Retorna uma resposta vazia (código 204)
+		return ResponseEntity.noContent().build(); /* Retorna uma resposta vazia (código 204) */
 	}
 	
 	
 	@PutMapping(value = "/{id}")// Método PUT do HTTP
-	public ResponseEntity<Item> update(@PathVariable Long id, @RequestBody Item obj){ // O update recebe o id a ser editado e o corpo do item editado
+	public ResponseEntity<Item> update(@PathVariable Long id, @RequestBody Item obj){ /* O update recebe o id a ser editado e o corpo do item editado */
 		obj = service.update(id, obj);
 		return ResponseEntity.ok().body(obj);
 	}

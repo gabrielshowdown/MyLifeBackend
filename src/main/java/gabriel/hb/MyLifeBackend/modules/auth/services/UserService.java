@@ -15,10 +15,10 @@ import gabriel.hb.MyLifeBackend.shared.DatabaseException;
 import gabriel.hb.MyLifeBackend.shared.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 
-@Service // Registra a classe como um componente/service do spring e vai poder ser injetado no UserResource
+@Service
 public class UserService {
 	
-	@Autowired //O Spring resolve essa injeção de dependencia e associar uma instancia de UserRepository
+	@Autowired
 	private UserRepository repository;
 	
 	public List<User> findAll(){
@@ -26,8 +26,8 @@ public class UserService {
 	}
 	
 	public User findById(Long id) {
-		Optional<User> obj = repository.findById(id); // o findById retona um Optional
-        return obj.orElseThrow(() -> new ResourceNotFoundException(id)); // Poderia ser um return obj.get(); para pegar o 'User' do obj;
+		Optional<User> obj = repository.findById(id);
+        return obj.orElseThrow(() -> new ResourceNotFoundException(id)); /* Poderia ser um return obj.get(); para pegar o 'User' do obj */
 	}
 	
 	public List<User> findByUsername(String name) { 
@@ -35,20 +35,19 @@ public class UserService {
 		if (obj.isEmpty()) {
 			throw new ResourceNotFoundException(name);
 		}
-		return obj;
-		//return repository.findByUsername(name);
+		return obj; /* return repository.findByUsername(name); */
 	}
 	
 	public User validateUser(String username, String password) {
 		Optional<User> obj = repository.findByUsernameAndPassword(username, password);
 		return obj.orElseThrow(() -> new InvalidLoginException(""));
-		// Caso quisesse o booleano, poderia colocar repository.findByUsernameAndSenha(username, senha).isPresent();
+		/* Caso quisesse o booleano, poderia colocar repository.findByUsernameAndSenha(username, senha).isPresent(); */
     }
 	
 	public User insert(User obj) { 
 		List<User> users = repository.findByUsername(obj.getUsername()); 
 		if (!users.isEmpty()) { 
-			throw new UserAlreadyRegisteredException( " com o username: " + obj.getUsername() );
+			throw new UserAlreadyRegisteredException( "com o username: " + obj.getUsername() );
 		}
 		return repository.save(obj); 
 	}
@@ -58,7 +57,7 @@ public class UserService {
 	        if (repository.existsById(id)) {
 	            repository.deleteById(id);			
 	        } else {				
-	            throw new ResourceNotFoundException(id); // Lança uma exceção através do 'ResourceExceptionHandler', que captura as excecões que ocorrem		
+	            throw new ResourceNotFoundException(id); /* Lança uma exceção através do 'ResourceExceptionHandler', que captura as excecões que ocorrem */
 	        }		
 	    } catch (DataIntegrityViolationException e) {			
 	        throw new DatabaseException(e.getMessage());		
@@ -67,7 +66,7 @@ public class UserService {
 	
 	public User update(long id, User obj) {
 		try {
-			User entity = repository.getReferenceById(id); // Deixa um obj monitorado pelo JPA, não realizando operação com o banco igual o findById
+			User entity = repository.getReferenceById(id); /* Deixa um obj monitorado pelo JPA, não realizando operação com o banco igual o findById */
 			updateData(entity, obj);
 			return repository.save(entity);
 		}

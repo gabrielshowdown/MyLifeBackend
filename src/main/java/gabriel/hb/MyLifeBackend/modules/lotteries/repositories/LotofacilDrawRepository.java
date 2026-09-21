@@ -8,14 +8,13 @@ import org.springframework.stereotype.Repository;
 
 import gabriel.hb.MyLifeBackend.modules.lotteries.entitites.LotofacilDraw;
 
-@Repository //Registra a classe como um componente/repository do spring e vai poder ser injetado no LotofacilDrawService 
-			//(não é obrigatório, pois essa interface já herda isso do JpaRepository)
+@Repository /* Não é obrigatório, pois essa interface já herda isso do JpaRepository */
 public interface LotofacilDrawRepository extends JpaRepository<LotofacilDraw, Long>{
 	
-	// Novo método: Busca o concurso com o ID mais alto (o último)
+	/* Busca o concurso com o ID mais alto (o último) */
     Optional<LotofacilDraw> findTopByOrderByIdDesc();
     
-    // Busca concursos inseridos manualmente que não foram confirmados com a API
+    /* Busca concursos inseridos manualmente que não foram confirmados com a API */
     List<LotofacilDraw> findByIsOfficialFalse();
 	
 }

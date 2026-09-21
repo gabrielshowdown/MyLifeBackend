@@ -1,9 +1,9 @@
 package gabriel.hb.MyLifeBackend.shared;
 
-public class InvalidLParametersException extends RuntimeException {
+public class InvalidParametersException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 
-	public InvalidLParametersException(String msg) {
+	public InvalidParametersException(String msg) {
         super("Parâmetros inválidos  " + msg);
 	}
 	

@@ -19,7 +19,7 @@ import jakarta.persistence.Table;
 public class LotofacilBetNumber implements Serializable{
 	private static final long serialVersionUID = 1L;
 	
-	// Atributos
+	/* Atributos */
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -34,7 +34,7 @@ public class LotofacilBetNumber implements Serializable{
     @JoinColumn(name = "aposta_id")
     private LotofacilBet bet;
 	
-	// Construtores
+	/* Construtores */
     public LotofacilBetNumber() {
     }
 
@@ -44,7 +44,7 @@ public class LotofacilBetNumber implements Serializable{
         this.bet = bet;
     }
 
-	// Métodos Acessores
+	/* Métodos Acessores */
     public Long getId() {
         return id;
     }
@@ -69,7 +69,7 @@ public class LotofacilBetNumber implements Serializable{
         this.isRepeated = isRepeated;
     }
 
-    // o Jackson usa os métodos getters para serializar
+    /* o Jackson usa os métodos getters para serializar */
     @JsonIgnore
     public LotofacilBet getBet() {
         return bet;
@@ -78,7 +78,6 @@ public class LotofacilBetNumber implements Serializable{
     public void setBet(LotofacilBet bet) {
         this.bet = bet;
     }
-
     
 	public boolean isWasCorrectly() {
 		return wasCorrectly;
@@ -88,7 +87,7 @@ public class LotofacilBetNumber implements Serializable{
 		this.wasCorrectly = wasCorrectly;
 	}
 
-
+    /* Método Comparativo */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

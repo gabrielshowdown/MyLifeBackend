@@ -29,7 +29,6 @@ public class ThemeHistoryService {
     private BookBibleRepository repositoryBooks;
 
     public ThemeHistory insert(ThemeHistory obj) {
-        // Define a data atual no momento em que está sendo salvo
         obj.setCreationDate(LocalDate.now());
         return repository.save(obj);
     }
@@ -47,14 +46,16 @@ public class ThemeHistoryService {
     }
     
     public ThemeHistory findById(Long id) {
-		Optional<ThemeHistory> obj = repository.findById(id); // o findById retona um Optional
-        return obj.orElseThrow(() -> new ResourceNotFoundException(id)); // Poderia ser um return obj.get(); para pegar o 'ThemeHistory' do obj;
+		Optional<ThemeHistory> obj = repository.findById(id);
+        return obj.orElseThrow(() -> new ResourceNotFoundException(id)); /* Poderia ser um return obj.get(); para pegar o 'ThemeHistory' do obj */
 	}
-    
+
+    /* Método que pega o texto e faz a separação das leituras */
+    /**/
     public CategorizedReadingsResponse processReadingsText(ProcessReadingsRequest request) {
         CategorizedReadingsResponse response = new CategorizedReadingsResponse(request.getThemeName());
         
-        // 1. Dicionário de tradução (Espanhol -> Português)
+        /* Cria um um map com os valores em Espanhol ; Portugues*/
         Map<String, String> translationMap = new HashMap<>();
         translationMap.put("Gen", "Gn");
         translationMap.put("Lev", "Lv");
@@ -99,40 +100,52 @@ public class ThemeHistoryService {
         translationMap.put("Col", "Cl");
         translationMap.put("Tit", "Tt");
         translationMap.put("Jon", "Jn");
-        
-     // 2. Busca todos os livros
+
+        /* Busca todos os livros bíblicos cadastrados, pois cada um já vem com uma categoria de leitura definida */
         List<BookBible> allBooks = repositoryBooks.findAll();
 
-        // 3. Mapa Rápido para buscar o ID do livro pela Sigla (para usarmos na ordenação)
-        Map<String, Long> bookIdMap = allBooks.stream()
+        /* Map para ter os valores: Id do Livro ; Abreviação (para ser usado na ordenação) */
+        @SuppressWarnings("unused") /* Evitar 'mensagem' de não usado no v2 */
+		Map<String, Long> bookIdMap = allBooks.stream()
             .collect(Collectors.toMap(
                 b -> b.getAbbreviation().toLowerCase(), 
-                BookBible::getId, 
-                (v1, v2) -> v1 // Evita erros se houver siglas duplicadas no banco
+                BookBible::getId, // Poderia ser b -> b.getId()
+                (v1, v2) -> v1 /* Evita erros se houver siglas duplicadas no banco */
             ));
 
+        /* Pega o texto filtrando por linha através de uma regex e armazena da linha dentro de um array*/
         String[] lines = request.getRawText().split("\\r?\\n");
 
+        /* Percorre o Array, linha a linha*/
         for (String line : lines) {
             line = line.trim();
             if (line.isEmpty() || !line.contains(" ")) {
                 continue; 
             }
 
+            /* Separa a linha em duas partes: a sigla do livro (ex: "Gen") e o restante (ex: "1,1-5") */
             String[] parts = line.split(" ", 2);
             String originalAbbrev = parts[0];
             String verses = parts[1];
 
+            /* Pega a sigla que veio no getRawText() que está no originalAbbrev e procura no map translationMap que foi criado para ter as siglas nos dois idiomas */
+            /* Utiliza o getOrDefault (primeiro parâmetro, é que ele está procurando como 'chave' para obter o 'valor' do map, e o segundo é o valor caso não encontrar, que é a própria sigla em espanhol */
+            /* Se a sigla que veio do texto (originalAbbrev, em espanhol) estiver no dicionário de tradução → retorna a sigla traduzida em português (ex: "Gen" → "Gn") */
             String translatedAbbrev = translationMap.getOrDefault(originalAbbrev, originalAbbrev);
             String translatedReading = translatedAbbrev + " " + verses;
+            
+            /* Nesse momento temos o 'translatedReading' traduzido para o português , Livro e versículos */
 
+            /* Procura o objeto livro correspondente já cadastrado no banco, pela sigla traduzida */
             BookBible matchedBook = allBooks.stream()
                     .filter(b -> b.getAbbreviation().equalsIgnoreCase(translatedAbbrev))
                     .findFirst()
                     .orElse(null);
 
+            /* Se não encontrar o livro cadastrado, a leitura cai automaticamente em DESCARTADO */
             ReadingCategory category = (matchedBook != null) ? matchedBook.getCategory() : ReadingCategory.DESCARTADO;
 
+            /* Direciona a leitura já traduzida para a lista correspondente da categoria do livro, evitando duplicar a mesma leitura na mesma lista */
             switch (category) {
 	            case PRIMEIRA_LEITURA: 
 	                if (!response.getPrimeiraLeitura().contains(translatedReading)) {
@@ -162,7 +175,8 @@ public class ThemeHistoryService {
 	        }
         }
 
-        // 4. LÓGICA DE ORDENAÇÃO CUSTOMIZADA (ID do Banco + Capítulo/Versículo)
+        /* Lógica de Ordenação (ID do Banco/Ordem Livros da bíblia + Capítulo/Versículo) Poderia ser declarado for, porém precisaria tratar o bookIdMap */
+        /* Recebe dois parâmetros r1 e r1 que retornam um inteiro: negativo → r1 vem antes do r2, zero → são iguais para fins de ordenação, positivo → r2 vem antes do r1 */
         Comparator<String> readingComparator = (r1, r2) -> {
             String[] p1 = r1.split(" ", 2);
             String[] p2 = r2.split(" ", 2);
@@ -170,32 +184,36 @@ public class ThemeHistoryService {
             String sigla1 = p1[0].toLowerCase();
             String sigla2 = p2[0].toLowerCase();
             
-            // Pega o ID do banco. Se não achar, joga pro final (Long.MAX_VALUE)
+            /* Pega o ID do banco. Se não achar, joga pro final (Long.MAX_VALUE) */
             Long id1 = bookIdMap.getOrDefault(sigla1, Long.MAX_VALUE);
             Long id2 = bookIdMap.getOrDefault(sigla2, Long.MAX_VALUE);
             
-            // Compara primeiro pelos IDs (Ordem canônica da Bíblia)
+            /* Compara primeiro pelos IDs (Ordem canônica da Bíblia) */
             int idComparison = id1.compareTo(id2);
             if (idComparison != 0) {
                 return idComparison;
             }
             
-            // Se for o MESMO livro (IDs iguais), vamos ordenar por capítulo e versículo
+            /* Se for o MESMO livro (IDs iguais), vamos ordenar por capítulo e versículo */
+            /* Armazena nesse 'versPart..' os captilos e versículos Ex: "1,26s", "3.5", */
             String versePart1 = p1.length > 1 ? p1[1] : "";
             String versePart2 = p2.length > 1 ? p2[1] : "";
             
+            /* Extrai capítulo e versículo como números, para não ordenar "10" antes de "2" como texto */
+            /* O array 'cv' fica com dois valores, o [0] para capitulo e o [1] para versículo*/
             int[] cv1 = extractChapterAndVerse(versePart1);
             int[] cv2 = extractChapterAndVerse(versePart2);
             
-            // Compara os capítulos
+            /* Compara os capítulos [0]*/
             if (cv1[0] != cv2[0]) {
                 return Integer.compare(cv1[0], cv2[0]);
             }
-            // Se o capítulo for igual, compara os versículos, desempata alfabeticamente para a versão sem letra ficar na frente
+
+            /* Se o capítulo for igual, compara os versículos, desempata alfabeticamente para a versão sem letra ficar na frente */
             return versePart1.compareToIgnoreCase(versePart2);
         };
 
-        // 5. Aplica a ordenação nas listas antes de devolver pro Angular
+        /*Aplica a ordenação nas listas antes de devolver pro Angular */
         response.getPrimeiraLeitura().sort(readingComparator);
         response.getSegundaLeitura().sort(readingComparator);
         response.getTerceiraLeitura().sort(readingComparator);
@@ -205,15 +223,16 @@ public class ThemeHistoryService {
         return response;
     }
     
-    // Método Auxiliar para extrair números inteiros de referências complexas (Ex: "1,26s", "3.5", "10,7s.18")
+    /* Método Auxiliar para extrair números inteiros de referências complexas (Ex: "1,26s", "3.5", "10,7s.18") */
     private int[] extractChapterAndVerse(String reference) {
         int chapter = 0;
         int verse = 0;
         try {
-            // Remove letras como 's', 'ss' e espaços, deixando apenas números e os separadores (, ou .)
+
+            /* Remove letras como 's', 'ss' e espaços, deixando apenas números e os separadores (, ou .) */
             String cleanRef = reference.replaceAll("[^0-9,.]", "");
             
-            // Divide entre capítulo e versículo usando vírgula ou ponto
+            /* Divide entre capítulo e versículo usando vírgula ou ponto */
             String[] parts = cleanRef.split("[,.\\-]");
             
             if (parts.length > 0 && !parts[0].isEmpty()) {
@@ -223,7 +242,7 @@ public class ThemeHistoryService {
                 verse = Integer.parseInt(parts[1]);
             }
         } catch (Exception e) {
-            // Se falhar no parser, apenas engole a exceção e retorna 0,0 para evitar quebrar a requisição
+            /* Se falhar no parser, apenas engole a exceção e retorna 0,0 para evitar quebrar a requisição */
         }
         return new int[]{chapter, verse};
     }

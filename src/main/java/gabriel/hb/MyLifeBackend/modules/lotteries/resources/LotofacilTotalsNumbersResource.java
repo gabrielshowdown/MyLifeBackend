@@ -21,7 +21,7 @@ import gabriel.hb.MyLifeBackend.modules.lotteries.services.LotofacilTotalsNumber
 @RequestMapping(value = "/lotofacilTotalsNumbers")
 public class LotofacilTotalsNumbersResource {
 	
-	@Autowired /* O Spring resolve essa injeção de dependencia e associar uma instancia de LotofacilTotalsNumbersService */
+	@Autowired
 	private LotofacilTotalsNumbersService service;
 	
 	/* Método para retorno de todos totais dos números */
@@ -33,24 +33,24 @@ public class LotofacilTotalsNumbersResource {
 	
 	/* Método para retorno por ID */
 	@GetMapping(value = "/{id}")
-	public ResponseEntity<LotofacilTotalsNumbers> findById(@PathVariable Long id){ // Pega o valor passado de parâmetro da URL
+	public ResponseEntity<LotofacilTotalsNumbers> findById(@PathVariable Long id){
 		LotofacilTotalsNumbers obj = service.findById(id);
 		return ResponseEntity.ok().body(obj);
 	}
 
 	/* Método para a inserção */
 	@PostMapping
-	public ResponseEntity<LotofacilTotalsNumbers> insert(@RequestBody LotofacilTotalsNumbers obj){ // Objeto chega como JSON e é deserializado para um obj LotofacilTotalsNumbersService
+	public ResponseEntity<LotofacilTotalsNumbers> insert(@RequestBody LotofacilTotalsNumbers obj){
 		obj = service.insert(obj);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(obj.getId()).toUri();
-		return ResponseEntity.created(uri).body(obj); // Trecho para retornar o código 201 e não o 200, e mostrar o id do user criado
+		return ResponseEntity.created(uri).body(obj); /* Trecho para retornar o código 201 e não o 200, e mostrar o id do registro criado */
 	}
 	
 	/* Método para delete */
 	@DeleteMapping(value = "/{id}") // Método DELETE do HTTP
-	public ResponseEntity<Void> delete (@PathVariable Long id){ // Parâmetro passado na URL
+	public ResponseEntity<Void> delete (@PathVariable Long id){
 		service.delete(id);
-		return ResponseEntity.noContent().build(); // Retorna uma resposta vazia (código 204)
+		return ResponseEntity.noContent().build(); /* Retorna uma resposta vazia (código 204) */
 	}
 	
 }

@@ -18,11 +18,10 @@ import jakarta.persistence.Table;
 public class BookBible implements Serializable{
 	private static final long serialVersionUID = 1L;
 	
-	// Atributos
+	/* Atributos */
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Long id;
-	// Caso quisesse mudar o nome da coluna -> @Column(name="nomecompleto")
 	@Column(name = "sigla")
 	private String abbreviation;
 	@Column(name = "nome")
@@ -32,7 +31,7 @@ public class BookBible implements Serializable{
     @Column(name = "categoria_leitura")
     private ReadingCategory category;
 	
-	// Construtores
+	/* Construtores */
 	public BookBible() {}
 
     public BookBible(Long id, String abbreviation, String name, ReadingCategory category) {
@@ -42,7 +41,7 @@ public class BookBible implements Serializable{
         this.category = category;
     }
 	
-	// Métodos Acessores
+	/* Métodos Acessores */
 	public Long getId() {
 		return id;
 	}
@@ -75,7 +74,7 @@ public class BookBible implements Serializable{
 		this.category = category;
 	}
 	
-	// Métodos Acessores
+	/* Métodos Comparativos */
 	@Override
 	public int hashCode() {
 		return Objects.hash(id);

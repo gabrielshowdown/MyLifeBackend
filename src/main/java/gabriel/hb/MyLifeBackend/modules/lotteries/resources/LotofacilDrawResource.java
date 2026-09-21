@@ -28,7 +28,6 @@ import gabriel.hb.MyLifeBackend.modules.lotteries.services.LotofacilDrawService;
 @RequestMapping(value = "/lotofacilDraw")
 public class LotofacilDrawResource {
 
-	/* O Spring resolve essa injeção de dependencia e associar uma instancia de LotofacilDrawService */
 	@Autowired
 	private LotofacilDrawService service;
 
@@ -41,24 +40,24 @@ public class LotofacilDrawResource {
 
 	/* Método para retorno por ID */
 	@GetMapping(value = "/{id}")
-	public ResponseEntity<LotofacilDraw> findById(@PathVariable Long id) { // Pega o valor passado de parâmetro da URL
+	public ResponseEntity<LotofacilDraw> findById(@PathVariable Long id) {
 		LotofacilDraw obj = service.findById(id);
 		return ResponseEntity.ok().body(obj);
 	}
 
 	/* Método para geração de concurso */
 	@PostMapping("/generate")
-	public ResponseEntity<LotofacilDraw> generateDraw(@RequestBody GenerateDrawRequest obj) { // Objeto chega como JSON e é deserializado para um obj LotofacilDraw
+	public ResponseEntity<LotofacilDraw> generateDraw(@RequestBody GenerateDrawRequest obj) {
 		LotofacilDraw draw = service.generateDraw(obj.getLastDrawId(), obj.getRepeatedCount(),
 				obj.getOddCount(), obj.getEvenCount());
 		return ResponseEntity.ok().body(draw);
 	}
 
 	/* Método para delete */
-	@DeleteMapping(value = "/{id}") // 
-	public ResponseEntity<Void> delete(@PathVariable Long id) { // Parâmetro passado na URL
+	@DeleteMapping(value = "/{id}")
+	public ResponseEntity<Void> delete(@PathVariable Long id) {
 		service.delete(id);
-		return ResponseEntity.noContent().build(); // Retorna uma resposta vazia (código 204)
+		return ResponseEntity.noContent().build(); /* Retorna uma resposta vazia (código 204) */
 	}
 
 	/* Método para sincronização */
@@ -73,7 +72,7 @@ public class LotofacilDrawResource {
 	public ResponseEntity<LotofacilDraw> insertManually(@RequestBody AddDrawRequest dto) {
 		LotofacilDraw newDraw = service.insertManually(dto);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(newDraw.getId()).toUri();
-		return ResponseEntity.created(uri).body(newDraw); // Retorna 201 Created (igual ao 'insert' padrão)
+		return ResponseEntity.created(uri).body(newDraw); /* Retorna 201 Created (igual ao 'insert' padrão) */
 	}
 
 	/* Método para a paginação */
@@ -84,7 +83,8 @@ public class LotofacilDrawResource {
 	public ResponseEntity<Page<LotofacilDraw>> findAllPaginated(
 			@PageableDefault(sort = "id", direction = Sort.Direction.DESC, page = 0, size = 4) Pageable pageable) {
 		Page<LotofacilDraw> list = service.findAllPaginated(pageable);
-		return ResponseEntity.ok().body(list); // Objeto do tipo 'Page' retorna também informações de paginação (número da página, total de páginas, total de elementos, etc.)
+		/* Objeto do tipo 'Page' retorna também informações de paginação (número da página, total de páginas, total de elementos, etc.)*/
+		return ResponseEntity.ok().body(list);
 	}
 
 }

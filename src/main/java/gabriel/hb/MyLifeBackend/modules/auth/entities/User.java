@@ -16,11 +16,10 @@ import jakarta.persistence.Table;
 public class User implements Serializable{
 	private static final long serialVersionUID = 1L;
 	
-	// Atributos
+	/* Atributos */
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Long id;
-	// Caso quisesse mudar o nome da coluna -> @Column(name="nomecompleto")
 	private String username;
 	@Column(name = "senha")
 	private String password;
@@ -31,7 +30,7 @@ public class User implements Serializable{
 	@Column(name = "data_nascimento") 
 	private LocalDate birthDate;
 	
-	// Construtores
+	/* Construtores */
 	public User() {
 		
 	}
@@ -46,7 +45,7 @@ public class User implements Serializable{
 		this.birthDate = birthDate;
 	}
 	
-	// Métodos Acessores
+	/* Métodos Acessores */
 	public Long getId() {
 		return id;
 	}
@@ -90,8 +89,8 @@ public class User implements Serializable{
 	public LocalDate getBirthDate() {
 		return birthDate;
 	}
-	
-	// Métodos Acessores
+
+	/* Métodos Comparativos */
 	@Override
 	public int hashCode() {
 		return Objects.hash(id);

@@ -24,29 +24,26 @@ public class BookBibleResource {
     @Autowired
     private BookBibleService service;
 
-    // GET Geral
     @GetMapping
     public ResponseEntity<List<BookBible>> findAll() {
         return ResponseEntity.ok().body(service.findAll());
     }
 
-    // GET por Categoria (O Angular pode chamar isso 5 vezes, ou filtrar no frontend)
     @GetMapping(value = "/category/{category}")
     public ResponseEntity<List<BookBible>> findByCategory(@PathVariable ReadingCategory category) {
         return ResponseEntity.ok().body(service.findByCategory(category));
     }
 
-    // PUT para mudar a categoria de um livro
     @PutMapping(value = "/{id}/category")
     public ResponseEntity<BookBible> updateCategoria(@PathVariable Long id, @RequestBody ReadingCategory newCategory) {
     	BookBible updated = service.updateCategory(id, newCategory);
         return ResponseEntity.ok().body(updated);
     }
     
-    @PostMapping // Método POST para insercao
-	public ResponseEntity<BookBible> insert(@RequestBody BookBible obj){ // Objeto chega como JSON e é deserializado para um obj BookBible
+    @PostMapping
+	public ResponseEntity<BookBible> insert(@RequestBody BookBible obj){
 		obj = service.insert(obj);
-		// Trecho abaixo para retorna o código 201 e não o 200, e mostrar o id do user criado
+		/* Trecho abaixo para retorna o código 201 e não o 200, e mostra o id do livro criado */
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").
 				  buildAndExpand(obj.getId()).toUri();
 		return ResponseEntity.created(uri).body(obj); 

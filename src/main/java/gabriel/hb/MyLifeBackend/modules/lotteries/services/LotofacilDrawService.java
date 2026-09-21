@@ -17,20 +17,20 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import gabriel.hb.MyLifeBackend.modules.lotteries.resources.dto.AddDrawRequest;
-import gabriel.hb.MyLifeBackend.modules.lotteries.services.dto.CaixaDraw;
-import gabriel.hb.MyLifeBackend.modules.lotteries.resources.dto.SynchronizeDrawResponse;
 import gabriel.hb.MyLifeBackend.modules.lotteries.entitites.LotofacilDraw;
 import gabriel.hb.MyLifeBackend.modules.lotteries.entitites.LotofacilDrawNumber;
-import gabriel.hb.MyLifeBackend.modules.lotteries.exceptions.InvalidLParametersDrawException;
+import gabriel.hb.MyLifeBackend.modules.lotteries.exceptions.InvalidParametersDrawException;
 import gabriel.hb.MyLifeBackend.modules.lotteries.repositories.LotofacilDrawRepository;
+import gabriel.hb.MyLifeBackend.modules.lotteries.resources.dto.AddDrawRequest;
+import gabriel.hb.MyLifeBackend.modules.lotteries.resources.dto.SynchronizeDrawResponse;
+import gabriel.hb.MyLifeBackend.modules.lotteries.services.dto.CaixaDraw;
 import gabriel.hb.MyLifeBackend.shared.DatabaseException;
 import gabriel.hb.MyLifeBackend.shared.ResourceNotFoundException;
 
-@Service /* Registra a classe como um componente/service do spring e vai poder ser injetado no LotofacilDrawResource */
+@Service 
 public class LotofacilDrawService {
 	
-	/* O Spring resolve essa injeção de dependencia e associar uma instancia de LotofacilDrawRepository */
+	
 	@Autowired private LotofacilDrawRepository repository;
 	@Autowired private LotofacilTotalsRepetitionsService lotofacilTotalsRepetitionsService;
 	@Autowired private LotofacilTotalsParitiesService lotofacilTotalsParitiesService;
@@ -47,8 +47,8 @@ public class LotofacilDrawService {
 	
 	/* Consultar concurso por Id */
 	public LotofacilDraw findById(Long id) {
-		Optional<LotofacilDraw> obj = repository.findById(id); // o findById retona um Optional
-        return obj.orElseThrow(() -> new ResourceNotFoundException(id)); // Poderia ser um return obj.get(); para pegar o 'ConcursoLotofacil' do obj;
+		Optional<LotofacilDraw> obj = repository.findById(id); /* O findById retona um Optional */
+        return obj.orElseThrow(() -> new ResourceNotFoundException(id)); /* Poderia ser um return obj.get(); para pegar o 'ConcursoLotofacil' do obj; */
 	}
 	
 	/* Inserir novo concurso */
@@ -62,7 +62,7 @@ public class LotofacilDrawService {
 	        if (repository.existsById(id)) {
 	            repository.deleteById(id);			
 	        } else {				
-	            throw new ResourceNotFoundException(id); // Lança uma exceção através do 'ResourceExceptionHandler', que captura as excecões que ocorrem		
+	            throw new ResourceNotFoundException(id); /* Lança uma exceção através do 'ResourceExceptionHandler', que captura as excecões que ocorrem */		
 	        }		
 	    } catch (DataIntegrityViolationException e) {			
 	        throw new DatabaseException(e.getMessage());		
@@ -78,37 +78,49 @@ public class LotofacilDrawService {
 		IO.println("Quantidade de pares " + evenCount);
 		
 		/* Variáveis que serão usadas no método */
-		int lastDrawOddCount = 0; // Quantidade de ímpares do último concurso
-    	int lastDrawEvenCount = 0; // Quantidade de pares do último concurso
-    	int generatedRepeatedCount = 0; //Quantidade de repetidos do concurso que o algoritimo irá tentar gerar
-    	int generatedOddCount = 0; // Quantidade de impares do concurso que o algoritimo irá tentar gerar
-		int minOddCount; // Quantidade mínima de impares disponível para o concurso a ser gerado
-		int minEvenCount; // Quantidade mínima de pares disponível para o concurso a ser gerado
-    	boolean ignoreRepeats = false; // Se o que repeticao que veio é nula (pode ser qualquer uma)
-    	boolean ignoreParity = false; // Se o que veio de paridade é nulo (pode ser qualquer uma)
-		Set<Integer> generatedNumbers = new HashSet<>(); // Set do concurso que será gerado
-		List<Integer>lastDrawNumbersList = new ArrayList<>(); // Lista dos números do último concurso
+		
+		/*Quantidade de ímpares e pares último concurso*/
+		int lastDrawOddCount = 0;
+    	int lastDrawEvenCount = 0;
+    	
+    	/* Quantidade de repetidos e ímpares do concurso que o algoritimo irá tentar gerar */
+    	int generatedRepeatedCount = 0; 
+    	int generatedOddCount = 0;
+    	
+    	/* Quantidade mínima de impares e pares disponíveis para o concurso a ser gerado */
+		int minOddCount; 
+		int minEvenCount;
+		
+		/* Controle pata ver o que veio de repeticao e paridade são nulos */
+    	boolean ignoreRepeats = false;
+    	boolean ignoreParity = false;
+    	
+    	 /* Set do concurso que será gerado */
+		Set<Integer> generatedNumbers = new HashSet<>();
+		
+		 /* Lista dos números do último concurso */
+		List<Integer>lastDrawNumbersList = new ArrayList<>();
 		
 		/* Tratamento para ver os valores passados na chamada do método */
 		if (oddCount + evenCount != 15 && oddCount + evenCount != 0) {
-			throw new InvalidLParametersDrawException("Pares:" + evenCount + " Impares:" + oddCount);
+			throw new InvalidParametersDrawException("Pares:" + evenCount + " Impares:" + oddCount);
         }
 		
 		if (repeatedCount > 12 || repeatedCount < 6 && repeatedCount != 0) {
-			throw new InvalidLParametersDrawException("Repetição tem que ser entre 6 e 12 ");
+			throw new InvalidParametersDrawException("Repetição tem que ser entre 6 e 12 ");
         }
 		
 		/* Verifica se o jogo a ser gerado possui ignora as paridades e repeticões */
-		ignoreRepeats = (repeatedCount == 0);
-		ignoreParity = (oddCount == 0);
-		// ignoreRepeats = (repeatedCount == 0) ?  true : false;
-		// ignoreParity = (oddCount == 0) ? true : false;
+		ignoreRepeats = (repeatedCount == 0); // ignoreRepeats = (repeatedCount == 0) ?  true : false;
+		ignoreParity = (oddCount == 0); // ignoreParity = (oddCount == 0) ? true : false;
+		
     	IO.println("Ignora repeticoes: " + ignoreRepeats);
     	IO.println("Ignora paridade: " + ignoreParity);
     	
 		/* Obtem as informações do concurso anterior que será usado como comparativo na geração */
     	LotofacilDraw lastDraw = findById(lastDrawId);
 		List<LotofacilDrawNumber> lastDrawNumberEntities = lastDraw.getDrawNumbers();
+		
 		/* Obtem apenas a lista de números, ignorando o isRepeated e o id do concurso */
 		lastDrawNumbersList = lastDrawNumberEntities.stream().map(n -> n.getNumber()).collect(Collectors.toList());
 		lastDrawOddCount = lastDraw.getOddCount();
@@ -132,10 +144,10 @@ public class LotofacilDrawService {
 			
 			IO.println("Impossível gerar jogo");
 			if (oddCount < minOddCount) {
-				throw new InvalidLParametersDrawException ("Não é possível gerar o jogo! Jogo mínino para o concurso é : " + minOddCount + "I/" + (15 - minOddCount) + "P");
+				throw new InvalidParametersDrawException ("Não é possível gerar o jogo! Jogo mínino para o concurso é : " + minOddCount + "I/" + (15 - minOddCount) + "P");
 			}
 			else {
-				throw new InvalidLParametersDrawException ("Não é possível gerar o jogo! Jogo mínino para o concurso é : " + (15 - minEvenCount) + "I/" + minEvenCount + "P");
+				throw new InvalidParametersDrawException ("Não é possível gerar o jogo! Jogo mínino para o concurso é : " + (15 - minEvenCount) + "I/" + minEvenCount + "P");
 			}
 		}
 		else {
@@ -152,9 +164,7 @@ public class LotofacilDrawService {
 				
 				/* Indica que já preencheu tudo*/
 				if (generatedNumbers.size() == 15) {
-					
-					// IO.println("Preencheu tudo na tentativa");
-					
+			
 					generatedOddCount = 0;
 					
 					/* Armezena quantos impares foram gerados no concurso */
@@ -168,7 +178,7 @@ public class LotofacilDrawService {
 					if (oddCount == generatedOddCount || ignoreParity == true) {
 						isValidGame = true;
 					}
-					else { // Se a relação de paridade não estiver de acordo, limpa a lista de concursos
+					else { /* Se a relação de paridade não estiver de acordo, limpa a lista de concursos */
 						generatedNumbers.clear();
 						isValidGame = false;
 						generatedOddCount = 0;
@@ -176,9 +186,7 @@ public class LotofacilDrawService {
 					
 					/* Se a relação de paridade bate com o solicitado, verifica a repetição */
 					if (isValidGame == true) {
-						
-						// IO.println("Paridade bateu, testando a repetições");
-						
+
 						generatedRepeatedCount = 0;
 						
 						/* Armazena quantos repetidos foram gerados em relação com o concurso anterior */
@@ -191,12 +199,12 @@ public class LotofacilDrawService {
 						/* Verifica se o número de repetições gerado está de acordo com o solicitado */
 						if (repeatedCount == generatedRepeatedCount || ignoreRepeats == true) {
 							isValidGame = true;
-							// IO.println("Os números repetidos do jogo anterior " + generatedRepeatedCount + ", batem com o selecionado pelo usuário " + repeatedCount);
+							IO.println("Os números repetidos do jogo anterior " + generatedRepeatedCount + ", batem com o selecionado pelo usuário " + repeatedCount);
 						}
-						else { // Se não não estiver de acordo, limpa a lista de concursos
+						else { /* Se não não estiver de acordo, limpa a lista de concursos */
 							isValidGame = false;
 							generatedNumbers.clear();
-							// IO.println("Os números repetidos do jogo anterior " + generatedRepeatedCount + ", não batem com o selecionado pelo usuário " + repeatedCount);
+							IO.println("Os números repetidos do jogo anterior " + generatedRepeatedCount + ", não batem com o selecionado pelo usuário " + repeatedCount);
 							generatedRepeatedCount = 0;
 						}
 						
@@ -258,7 +266,7 @@ public class LotofacilDrawService {
         IO.println("Id do último concurso na caixa: " + latestRemoteDrawId);
         IO.println("Data do próximo concurso na caixa: " + latestCaixaDraw.getDataProximoConcurso());
         
-        // Verifica se existem concursos 'não oficiais' cadastrado
+        /* Verifica se existem concursos 'não oficiais' cadastrado */
         List<LotofacilDraw> pendingOfficialDraws = repository.findByIsOfficialFalse();
         for (LotofacilDraw nonOfficial : pendingOfficialDraws) {
             try {
@@ -266,10 +274,10 @@ public class LotofacilDrawService {
                 if (apiDraw != null && apiDraw.getDataApuracao() != null) {
                     nonOfficial.setOfficial(true);
                     nonOfficial.setDrawDate(LocalDate.parse(apiDraw.getDataApuracao(), fmt1));
-                    // futuramente, atualizar os impares e pares do nonOficial
+                    /* Futuramente, atualizar os impares e pares do nonOficial */
                     repository.save(nonOfficial);
                     
-                    // Como virou oficial, reavalia as apostas caso elas precisem do valor de rateio do prêmio (isOfficial=true)
+                    /* Como virou oficial, reavalia as apostas caso elas precisem do valor de rateio do prêmio (isOfficial=true) */
                     lotofacilBetService.processBetsForDraw(nonOfficial, apiDraw);
                     IO.println("Concurso " + nonOfficial.getId() + " validado como oficial pela Caixa.");
                 }
@@ -313,10 +321,9 @@ public class LotofacilDrawService {
             
             processDrawStatisticsAndNumbers(newDraw, currentDrawNumbers, previousDrawNumbers);
             
-            // Salvar no banco
             repository.save(newDraw);
             
-            // NOVO: Chama a rotina UNIFICADA de aposta. Substitui os dois métodos antigos!
+            /* Chama a rotina UNIFICADA de aposta. Substitui os dois métodos antigos */
             lotofacilBetService.processBetsForDraw(newDraw, caixaDraw);
             
             updateDrawTotals(newDraw, currentDrawNumbers);
@@ -383,7 +390,7 @@ public class LotofacilDrawService {
         try {
              savedDraw = repository.save(newDraw);
              
-             // NOVO: Chama o motor central de apostas (Repara que mandamos caixaDraw nulo pois é manual)
+             /* Chama o motor central de apostas (Repara que mandamos caixaDraw nulo pois é manual) */
              lotofacilBetService.processBetsForDraw(savedDraw, null);
              
         } catch (DataIntegrityViolationException e) {

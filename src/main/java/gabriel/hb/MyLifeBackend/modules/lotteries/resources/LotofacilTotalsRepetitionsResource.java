@@ -21,7 +21,7 @@ import gabriel.hb.MyLifeBackend.modules.lotteries.services.LotofacilTotalsRepeti
 @RequestMapping(value = "/lotofacilTotalsRepetitions")
 public class LotofacilTotalsRepetitionsResource {
 	
-	@Autowired /* O Spring resolve essa injeção de dependencia e associar uma instancia de LotofacilTotalsRepetitionsService */
+	@Autowired
 	private LotofacilTotalsRepetitionsService service;
 	
 	/* Método para retorno de todos totais de repeticoes */
@@ -33,24 +33,24 @@ public class LotofacilTotalsRepetitionsResource {
 	
 	/* Método para retorno por ID */
 	@GetMapping(value = "/{id}")
-	public ResponseEntity<LotofacilTotalsRepetitions> findById(@PathVariable Long id){ // Pega o valor passado de parâmetro da URL
+	public ResponseEntity<LotofacilTotalsRepetitions> findById(@PathVariable Long id){
 		LotofacilTotalsRepetitions obj = service.findById(id);
 		return ResponseEntity.ok().body(obj);
 	}
 
 	/* Método para a inserção */
 	@PostMapping
-	public ResponseEntity<LotofacilTotalsRepetitions> insert(@RequestBody LotofacilTotalsRepetitions obj){ // Objeto chega como JSON e é deserializado para um obj LotofacilTotalsRepetitionsResource
+	public ResponseEntity<LotofacilTotalsRepetitions> insert(@RequestBody LotofacilTotalsRepetitions obj){
 		obj = service.insert(obj);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(obj.getId()).toUri();
-		return ResponseEntity.created(uri).body(obj); // Trecho para retornar o código 201 e não o 200, e mostrar o id do user criado
+		return ResponseEntity.created(uri).body(obj); /* Trecho para retornar o código 201 e não o 200, e mostrar o id do registro criado */
 	}
 	
 	/* Método para delete */
 	@DeleteMapping(value = "/{id}")
-	public ResponseEntity<Void> delete (@PathVariable Long id){ // Parâmetro passado na URL
+	public ResponseEntity<Void> delete (@PathVariable Long id){
 		service.delete(id);
-		return ResponseEntity.noContent().build(); // Retorna uma resposta vazia (código 204)
+		return ResponseEntity.noContent().build(); /* Retorna uma resposta vazia (código 204) */
 	}
 	
 }

@@ -12,10 +12,10 @@ import gabriel.hb.MyLifeBackend.modules.lotteries.repositories.LotofacilDrawNumb
 import gabriel.hb.MyLifeBackend.shared.DatabaseException;
 import gabriel.hb.MyLifeBackend.shared.ResourceNotFoundException;
 
-@Service // Registra a classe como um componente/service do spring e vai poder ser injetado no LotofacilDrawNumberResource
+@Service
 public class LotofacilDrawNumberService {
 	
-	@Autowired // O Spring resolve essa injeção de dependencia e associar uma instancia de LotofacilDrawNumberRepository
+	@Autowired
 	private LotofacilDrawNumberRepository repository;
 	
 	public List<LotofacilDrawNumber> findAll(){
@@ -23,8 +23,8 @@ public class LotofacilDrawNumberService {
 	}
 	
 	public LotofacilDrawNumber findById(Long id) {
-		Optional<LotofacilDrawNumber> obj = repository.findById(id); // o findById retona um Optional
-        return obj.orElseThrow(() -> new ResourceNotFoundException(id)); // Poderia ser um return obj.get(); para pegar o 'LotofacilDrawNumber' do obj;
+		Optional<LotofacilDrawNumber> obj = repository.findById(id); /* O findById retona um Optional */
+        return obj.orElseThrow(() -> new ResourceNotFoundException(id)); /* Poderia ser um return obj.get(); para pegar o 'LotofacilDrawNumber' do obj; */
 	}
 	
 	public LotofacilDrawNumber insert(LotofacilDrawNumber obj) {
@@ -36,7 +36,7 @@ public class LotofacilDrawNumberService {
 	        if (repository.existsById(id)) {
 	            repository.deleteById(id);			
 	        } else {				
-	            throw new ResourceNotFoundException(id); // Lança uma exceção através do 'ResourceExceptionHandler', que captura as excecões que ocorrem		
+	            throw new ResourceNotFoundException(id); /* Lança uma exceção através do 'ResourceExceptionHandler', que captura as excecões que ocorrem */
 	        }		
 	    } catch (DataIntegrityViolationException e) {			
 	        throw new DatabaseException(e.getMessage());		

@@ -13,10 +13,10 @@ import gabriel.hb.MyLifeBackend.modules.lotteries.repositories.LotofacilTotalsNu
 import gabriel.hb.MyLifeBackend.shared.DatabaseException;
 import gabriel.hb.MyLifeBackend.shared.ResourceNotFoundException;
 
-@Service // Registra a classe como um componente/service do spring e vai poder ser injetado no TotaisNumerosLotofacilResource
+@Service
 public class LotofacilTotalsNumbersService {
 	
-	@Autowired //O Spring resolve essa injeção de dependencia e associar uma instancia de TotaisNumerosLotofacilRepository
+	@Autowired
 	private LotofacilTotalsNumbersRepository repository;
 	
 	public List<LotofacilTotalsNumbers> findAll(){

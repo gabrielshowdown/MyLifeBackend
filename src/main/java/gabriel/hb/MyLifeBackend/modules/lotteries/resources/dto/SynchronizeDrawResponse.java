@@ -67,5 +67,4 @@ public class SynchronizeDrawResponse {
 		this.nextDrawId = nextDrawId;
 	}
 
-    
 }

@@ -13,20 +13,18 @@ import jakarta.persistence.*;
 public class ThemeHistory implements Serializable {
     private static final long serialVersionUID = 1L;
 
+	/* Atributos */
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
-    
     @Column(name = "nome_tema")
     private String themeName;
-    
     @Column(name = "data_criacao")
     private LocalDate creationDate;
-    
     @Column(name = "data_celebracao")
     private LocalDate celebrationDate;
 
-    // O @ElementCollection cria uma tabela separada só para guardar as strings dessa lista amarradas ao ID do tema
+    /* O @ElementCollection cria uma tabela separada só para guardar as strings dessa lista amarradas ao ID do tema */
     @ElementCollection
     @CollectionTable(name="tb_cm_tema_primeira_leitura", joinColumns=@JoinColumn(name="tema_id"))
     @Column(name="leitura")
@@ -52,8 +50,10 @@ public class ThemeHistory implements Serializable {
     @Column(name="leitura")
     private List<String> descartados = new ArrayList<>();
 
+	/* Construtor */
     public ThemeHistory() {}
 
+	/* Métodos Acessores */
 	public Long getId() {
 		return id;
 	}
@@ -126,6 +126,7 @@ public class ThemeHistory implements Serializable {
 		this.descartados = descartados;
 	}
 
+	/* Métodos Comparativos */
 	@Override
 	public int hashCode() {
 		return Objects.hash(id);

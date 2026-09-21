@@ -21,7 +21,7 @@ import gabriel.hb.MyLifeBackend.modules.lotteries.services.LotofacilTotalsPariti
 @RequestMapping(value = "/lotofacilTotalsParities")
 public class LotofacilTotalsParitiesResource {
 	
-	@Autowired /* O Spring resolve essa injeção de dependencia e associar uma instancia de LotofacilTotalsParitiesService */
+	@Autowired
 	private LotofacilTotalsParitiesService service;
 	
 	/* Método para retorno de todos totais de paridade */
@@ -33,24 +33,24 @@ public class LotofacilTotalsParitiesResource {
 	
 	/* Método para retorno por ID */
 	@GetMapping(value = "/{id}")
-	public ResponseEntity<LotofacilTotalsParities> findById(@PathVariable Long id){ // Pega o valor passado de parâmetro da URL
+	public ResponseEntity<LotofacilTotalsParities> findById(@PathVariable Long id){
 		LotofacilTotalsParities obj = service.findById(id);
 		return ResponseEntity.ok().body(obj);
 	}
 
 	/* Método para a inserção */
 	@PostMapping
-	public ResponseEntity<LotofacilTotalsParities> insert(@RequestBody LotofacilTotalsParities obj){ // Objeto chega como JSON e é deserializado para um obj LotofacilTotalsParitiesService
+	public ResponseEntity<LotofacilTotalsParities> insert(@RequestBody LotofacilTotalsParities obj){
 		obj = service.insert(obj);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(obj.getId()).toUri();
-		return ResponseEntity.created(uri).body(obj); // Trecho para retornar o código 201 e não o 200, e mostrar o id do user criado
+		return ResponseEntity.created(uri).body(obj); /* Trecho para retornar o código 201 e não o 200, e mostrar o id do registro criado */
 	}
 	
 	/* Método para delete */
 	@DeleteMapping(value = "/{id}")
-	public ResponseEntity<Void> delete (@PathVariable Long id){ // Parâmetro passado na URL
+	public ResponseEntity<Void> delete (@PathVariable Long id){
 		service.delete(id);
-		return ResponseEntity.noContent().build(); // Retorna uma resposta vazia (código 204)
+		return ResponseEntity.noContent().build(); /* Retorna uma resposta vazia (código 204) */
 	}
 	
 }
