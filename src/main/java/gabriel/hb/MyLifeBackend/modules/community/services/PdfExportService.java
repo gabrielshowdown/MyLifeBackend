@@ -61,10 +61,10 @@ public class PdfExportService {
             }
 
             /* Preenchendo as linhas (Precisamos saber qual é a lista mais longa) */
-            List<String> list1 = theme.getPrimeiraLeitura();
-            List<String> list2 = theme.getSegundaLeitura();
-            List<String> list3 = theme.getTerceiraLeitura();
-            List<String> list4 = theme.getEvangelhos();
+            List<String> list1 = theme.getFirstReading();
+            List<String> list2 = theme.getSecondReading();
+            List<String> list3 = theme.getThirdReading();
+            List<String> list4 = theme.getGospel();
 
             int maxSize = Math.max(Math.max(list1.size(), list2.size()), Math.max(list3.size(), list4.size()));
 

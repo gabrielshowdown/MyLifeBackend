@@ -10,11 +10,11 @@ public class CategorizedReadingsResponse implements Serializable {
 
     /* Atributos */
     private String themeName;
-    private List<String> primeiraLeitura = new ArrayList<>();
-    private List<String> segundaLeitura = new ArrayList<>();
-    private List<String> terceiraLeitura = new ArrayList<>();
-    private List<String> evangelhos = new ArrayList<>();
-    private List<String> descartados = new ArrayList<>();
+    private List<String> firstReading = new ArrayList<>();
+    private List<String> secondReading = new ArrayList<>();
+    private List<String> thirdReading = new ArrayList<>();
+    private List<String> gospel = new ArrayList<>();
+    private List<String> discarded = new ArrayList<>();
 
     /* Construtor */
     public CategorizedReadingsResponse(String themeName) {
@@ -23,9 +23,9 @@ public class CategorizedReadingsResponse implements Serializable {
 
     /* Métodos Acessores */
     public String getThemeName() { return themeName; }
-    public List<String> getPrimeiraLeitura() { return primeiraLeitura; }
-    public List<String> getSegundaLeitura() { return segundaLeitura; }
-    public List<String> getTerceiraLeitura() { return terceiraLeitura; }
-    public List<String> getEvangelhos() { return evangelhos; }
-    public List<String> getDescartados() { return descartados; }
+    public List<String> getFirstReading() { return firstReading; }
+    public List<String> getSecondReading() { return secondReading; }
+    public List<String> getThirdReading() { return thirdReading; }
+    public List<String> getGospel() { return gospel; }
+    public List<String> getDiscarded() { return discarded; }
 }

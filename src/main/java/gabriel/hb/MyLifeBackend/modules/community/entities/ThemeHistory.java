@@ -28,27 +28,27 @@ public class ThemeHistory implements Serializable {
     @ElementCollection
     @CollectionTable(name="tb_cm_tema_primeira_leitura", joinColumns=@JoinColumn(name="tema_id"))
     @Column(name="leitura")
-    private List<String> primeiraLeitura = new ArrayList<>();
+    private List<String> firstReading = new ArrayList<>();
 
     @ElementCollection
     @CollectionTable(name="tb_cm_tema_segunda_leitura", joinColumns=@JoinColumn(name="tema_id"))
     @Column(name="leitura")
-    private List<String> segundaLeitura = new ArrayList<>();
+    private List<String> secondReading = new ArrayList<>();
 
     @ElementCollection
     @CollectionTable(name="tb_cm_tema_terceira_leitura", joinColumns=@JoinColumn(name="tema_id"))
     @Column(name="leitura")
-    private List<String> terceiraLeitura = new ArrayList<>();
+    private List<String> thirdReading = new ArrayList<>();
 
     @ElementCollection
     @CollectionTable(name="tb_cm_tema_evangelho", joinColumns=@JoinColumn(name="tema_id"))
     @Column(name="leitura")
-    private List<String> evangelhos = new ArrayList<>();
+    private List<String> gospel = new ArrayList<>();
 
     @ElementCollection
     @CollectionTable(name="tb_cm_tema_descartado", joinColumns=@JoinColumn(name="tema_id"))
     @Column(name="leitura")
-    private List<String> descartados = new ArrayList<>();
+    private List<String> discarded = new ArrayList<>();
 
 	/* Construtor */
     public ThemeHistory() {}
@@ -86,44 +86,44 @@ public class ThemeHistory implements Serializable {
 		this.creationDate = creationDate;
 	}
 
-	public List<String> getPrimeiraLeitura() {
-		return primeiraLeitura;
+	public List<String> getFirstReading() {
+		return firstReading;
 	}
 
-	public void setPrimeiraLeitura(List<String> primeiraLeitura) {
-		this.primeiraLeitura = primeiraLeitura;
+	public void setFirstReading(List<String> firstReading) {
+		this.firstReading = firstReading;
 	}
 
-	public List<String> getSegundaLeitura() {
-		return segundaLeitura;
+	public List<String> getSecondReading() {
+		return secondReading;
 	}
 
-	public void setSegundaLeitura(List<String> segundaLeitura) {
-		this.segundaLeitura = segundaLeitura;
+	public void setSecondReading(List<String> secondReading) {
+		this.secondReading = secondReading;
 	}
 
-	public List<String> getTerceiraLeitura() {
-		return terceiraLeitura;
+	public List<String> getThirdReading() {
+		return thirdReading;
 	}
 
-	public void setTerceiraLeitura(List<String> terceiraLeitura) {
-		this.terceiraLeitura = terceiraLeitura;
+	public void setThirdReading(List<String> thirdReading) {
+		this.thirdReading = thirdReading;
 	}
 
-	public List<String> getEvangelhos() {
-		return evangelhos;
+	public List<String> getGospel() {
+		return gospel;
 	}
 
-	public void setEvangelhos(List<String> evangelhos) {
-		this.evangelhos = evangelhos;
+	public void setGospel(List<String> gospel) {
+		this.gospel = gospel;
 	}
 
-	public List<String> getDescartados() {
-		return descartados;
+	public List<String> getDiscarded() {
+		return discarded;
 	}
 
-	public void setDescartados(List<String> descartados) {
-		this.descartados = descartados;
+	public void setDiscarded(List<String> discarded) {
+		this.discarded = discarded;
 	}
 
 	/* Métodos Comparativos */

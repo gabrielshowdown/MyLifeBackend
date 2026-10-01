@@ -148,28 +148,28 @@ public class ThemeHistoryService {
             /* Direciona a leitura já traduzida para a lista correspondente da categoria do livro, evitando duplicar a mesma leitura na mesma lista */
             switch (category) {
 	            case PRIMEIRA_LEITURA: 
-	                if (!response.getPrimeiraLeitura().contains(translatedReading)) {
-	                    response.getPrimeiraLeitura().add(translatedReading); 
+	                if (!response.getFirstReading().contains(translatedReading)) {
+	                    response.getFirstReading().add(translatedReading); 
 	                }
 	                break;
 	            case SEGUNDA_LEITURA: 
-	                if (!response.getSegundaLeitura().contains(translatedReading)) {
-	                    response.getSegundaLeitura().add(translatedReading); 
+	                if (!response.getSecondReading().contains(translatedReading)) {
+	                    response.getSecondReading().add(translatedReading); 
 	                }
 	                break;
 	            case TERCEIRA_LEITURA: 
-	                if (!response.getTerceiraLeitura().contains(translatedReading)) {
-	                    response.getTerceiraLeitura().add(translatedReading); 
+	                if (!response.getThirdReading().contains(translatedReading)) {
+	                    response.getThirdReading().add(translatedReading); 
 	                }
 	                break;
 	            case EVANGELHO: 
-	                if (!response.getEvangelhos().contains(translatedReading)) {
-	                    response.getEvangelhos().add(translatedReading); 
+	                if (!response.getGospel().contains(translatedReading)) {
+	                    response.getGospel().add(translatedReading); 
 	                }
 	                break;
 	            default: 
-	                if (!response.getDescartados().contains(translatedReading)) {
-	                    response.getDescartados().add(translatedReading); 
+	                if (!response.getDiscarded().contains(translatedReading)) {
+	                    response.getDiscarded().add(translatedReading); 
 	                }
 	                break;
 	        }
@@ -214,11 +214,11 @@ public class ThemeHistoryService {
         };
 
         /*Aplica a ordenação nas listas antes de devolver pro Angular */
-        response.getPrimeiraLeitura().sort(readingComparator);
-        response.getSegundaLeitura().sort(readingComparator);
-        response.getTerceiraLeitura().sort(readingComparator);
-        response.getEvangelhos().sort(readingComparator);
-        response.getDescartados().sort(readingComparator);
+        response.getFirstReading().sort(readingComparator);
+        response.getSecondReading().sort(readingComparator);
+        response.getThirdReading().sort(readingComparator);
+        response.getGospel().sort(readingComparator);
+        response.getDiscarded().sort(readingComparator);
 
         return response;
     }
