@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import gabriel.hb.MyLifeBackend.modules.community.entities.BookBible;
@@ -34,7 +35,11 @@ public class ThemeHistoryService {
     }
 
     public List<ThemeHistory> findAll() {
-        return repository.findAll();
+        return repository.findAll(
+        		/* Retornar a ordenação do mais recente para o antigo para que seja mostrado na ordem decrescente no front */
+        		Sort.by(Sort.Direction.DESC, "celebrationDate")
+                .and(Sort.by(Sort.Direction.DESC, "id"))
+                );
     }
     
     public List<ThemeHistory> findByThemename(String themeName) {
