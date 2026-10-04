@@ -44,6 +44,14 @@ public class LotofacilDrawResource {
 		LotofacilDraw obj = service.findById(id);
 		return ResponseEntity.ok().body(obj);
 	}
+	
+	/* Último ID cadastrado */
+	@GetMapping(value = "/lastId")
+	public ResponseEntity<Long> findLastId() {
+	    return service.findLastId()
+	            .map(id -> ResponseEntity.ok().body(id))
+	            .orElseGet(() -> ResponseEntity.notFound().build());
+	}
 
 	/* Método para geração de concurso */
 	@PostMapping("/generate")

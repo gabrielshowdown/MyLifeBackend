@@ -45,6 +45,11 @@ public class LotofacilDrawService {
 		return repository.findAll();
 	}
 	
+	/* Listar o último id cadastrado */
+	public Optional<Long> findLastId() {
+	    return repository.findLastId();
+	}
+	
 	/* Consultar concurso por Id */
 	public LotofacilDraw findById(Long id) {
 		Optional<LotofacilDraw> obj = repository.findById(id); /* O findById retona um Optional */

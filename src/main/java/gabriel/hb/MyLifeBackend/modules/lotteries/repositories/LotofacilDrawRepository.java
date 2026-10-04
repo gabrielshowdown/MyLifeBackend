@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import gabriel.hb.MyLifeBackend.modules.lotteries.entitites.LotofacilDraw;
@@ -16,5 +17,8 @@ public interface LotofacilDrawRepository extends JpaRepository<LotofacilDraw, Lo
     
     /* Busca concursos inseridos manualmente que não foram confirmados com a API */
     List<LotofacilDraw> findByIsOfficialFalse();
+    
+    @Query("SELECT MAX(d.id) FROM LotofacilDraw d")
+    Optional<Long> findLastId();
 	
 }
