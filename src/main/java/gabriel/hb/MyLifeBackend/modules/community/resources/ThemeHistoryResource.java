@@ -3,11 +3,6 @@ package gabriel.hb.MyLifeBackend.modules.community.resources;
 import java.net.URI;
 import java.util.List;
 
-import gabriel.hb.MyLifeBackend.modules.community.services.PdfExportService;
-import gabriel.hb.MyLifeBackend.modules.community.entities.ThemeHistory;
-import gabriel.hb.MyLifeBackend.modules.community.resources.dto.CategorizedReadingsResponse;
-import gabriel.hb.MyLifeBackend.modules.community.resources.dto.ProcessReadingsRequest;
-import gabriel.hb.MyLifeBackend.modules.community.services.ThemeHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -19,6 +14,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import gabriel.hb.MyLifeBackend.modules.community.entities.ThemeHistory;
+import gabriel.hb.MyLifeBackend.modules.community.resources.dto.CategorizedReadingsResponse;
+import gabriel.hb.MyLifeBackend.modules.community.resources.dto.ProcessReadingsRequest;
+import gabriel.hb.MyLifeBackend.modules.community.resources.dto.ThemeSummaryResponse;
+import gabriel.hb.MyLifeBackend.modules.community.services.PdfExportService;
+import gabriel.hb.MyLifeBackend.modules.community.services.ThemeHistoryService;
 
 @RestController
 @RequestMapping(value = "/themes")
@@ -32,6 +34,11 @@ public class ThemeHistoryResource {
     @GetMapping
     public ResponseEntity<List<ThemeHistory>> findAll() {
         return ResponseEntity.ok().body(service.findAll());
+    }
+    
+    @GetMapping(value = "/summary")
+    public ResponseEntity<List<ThemeSummaryResponse>> findAllSummaries() {
+        return ResponseEntity.ok().body(service.findAllSummaries());
     }
     
     @GetMapping(value = "/{id}")

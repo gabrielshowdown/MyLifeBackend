@@ -19,6 +19,7 @@ import gabriel.hb.MyLifeBackend.modules.community.repositories.BookBibleReposito
 import gabriel.hb.MyLifeBackend.modules.community.repositories.ThemeHistoryRepository;
 import gabriel.hb.MyLifeBackend.modules.community.resources.dto.CategorizedReadingsResponse;
 import gabriel.hb.MyLifeBackend.modules.community.resources.dto.ProcessReadingsRequest;
+import gabriel.hb.MyLifeBackend.modules.community.resources.dto.ThemeSummaryResponse;
 import gabriel.hb.MyLifeBackend.shared.ResourceNotFoundException;
 
 @Service
@@ -40,6 +41,12 @@ public class ThemeHistoryService {
         		Sort.by(Sort.Direction.DESC, "celebrationDate")
                 .and(Sort.by(Sort.Direction.DESC, "id"))
                 );
+    }
+    
+    public List<ThemeSummaryResponse> findAllSummaries() {
+        return repository.findAllSummaries().stream()
+                .map(p -> new ThemeSummaryResponse(p.getId(), p.getThemeName(), p.getCelebrationDate()))
+                .toList();
     }
     
     public List<ThemeHistory> findByThemename(String themeName) {
